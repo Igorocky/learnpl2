@@ -8,7 +8,7 @@ class TwoTextEditsController {
 
     @FXML
     private def edit1OnAction(event: ActionEvent): Unit = {
-        twoTextEdits.onEnterPressedInFirstEditHnd.foreach(_(event))
+        twoTextEdits.onEnterPressedInFirstEditHnd.foreach(_.handle(event))
     }
 
     def bind(twoTextEdits: TwoTextEdits) = {

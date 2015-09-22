@@ -1,18 +1,15 @@
 package org.igye.learnpl2
 
-import java.net.URL
 import javafx.application.Application
-import javafx.event.{ActionEvent, EventHandler}
-import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
-import javafx.scene.control.{Button, Tab, TabPane, TextField}
-import javafx.scene.layout.{HBox, Pane, StackPane, VBox}
-import javafx.scene.paint.Color
-import javafx.scene.text.{Text, TextFlow}
 import javafx.stage.Stage
 
-import org.igye.jfxutils.{JfxActionEventHandler, JfxUtils}
-import org.igye.learnpl2.twotextedits.TwoTextEdits
+import org.igye.jfxutils.JfxActionEventHandler
+import org.igye.learnpl2.twotextedits.{LogFailureFuture, TwoTextEdits}
+import org.slf4j.LoggerFactory
+
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
 
 object Main {
     def main(args: Array[String]) {
@@ -21,14 +18,15 @@ object Main {
 }
 
 class App  extends Application {
+    implicit val log = LoggerFactory.getLogger(this.getClass)
 
     override def start(primaryStage: Stage): Unit = {
-//        val fxmlUrl = this.getClass().getClassLoader().getResource("fxml/TwoTextEdits.fxml")
-//        val loader = new FXMLLoader()
-//        loader.setLocation(fxmlUrl)
-//        val root = loader.load[HBox]()
         val twoTextEdits = new TwoTextEdits
-        twoTextEdits.onEnterPressedInFirstEditHnd = Some((e: ActionEvent) => println(s"e=$e"))
+        twoTextEdits.onEnterPressedInFirstEditHnd = Some(JfxActionEventHandler{e =>
+            LogFailureFuture {
+                println(s"e=$e")
+            }.onFailure({case ex: Exception => println(s"Exception: $ex")})
+        })
 
         val scene = new Scene(twoTextEdits.root)
         primaryStage.setScene(scene)

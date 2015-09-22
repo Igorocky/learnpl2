@@ -1,6 +1,6 @@
 package org.igye.learnpl2.twotextedits
 
-import javafx.event.ActionEvent
+import javafx.event.{EventHandler, ActionEvent}
 import javafx.fxml.FXMLLoader
 import javafx.scene.layout.HBox
 
@@ -9,7 +9,7 @@ class TwoTextEdits {
 
     def root = root_
 
-    var onEnterPressedInFirstEditHnd: Option[ActionEvent => Unit] = _
+    var onEnterPressedInFirstEditHnd: Option[EventHandler[ActionEvent]] = _
 
     private def loadRoot() = {
         val fxmlUrl = this.getClass().getClassLoader().getResource("fxml/TwoTextEdits.fxml")
