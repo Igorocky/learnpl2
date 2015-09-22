@@ -4,8 +4,9 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 
+import org.igye.commonutils.LogFailureFuture
 import org.igye.jfxutils.JfxActionEventHandler
-import org.igye.learnpl2.twotextedits.{LogFailureFuture, TwoTextEdits}
+import org.igye.learnpl2.twotextedits.TwoTextEdits
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
