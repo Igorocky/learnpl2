@@ -26,7 +26,7 @@ class App  extends Application {
         twoTextEdits.onEnterPressedInFirstEditHnd = Some(JfxActionEventHandler{e =>
             LogFailureFuture {
                 println(s"e=$e")
-            }.onFailure({case ex: Exception => println(s"Exception: $ex")})
+            }
         })
 
         val scene = new Scene(twoTextEdits.root)
