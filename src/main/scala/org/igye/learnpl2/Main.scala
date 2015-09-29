@@ -5,7 +5,6 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 
 import org.igye.jfxutils.{FxmlSupport, JfxFuture}
-import org.igye.learnpl2.twotextedits.TwoTextEdits
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -18,15 +17,14 @@ class App  extends Application {
     implicit val log = LoggerFactory.getLogger(this.getClass)
 
     override def start(primaryStage: Stage): Unit = {
-        val twoTextEdits = new TwoTextEdits
         JfxFuture.setJfxThread(Thread.currentThread())
         val mainWindow = FxmlSupport.load[MainWindowController]("fxml/MainWindow.fxml")
         mainWindow.primaryStage = primaryStage
 
-        val scene = new Scene(mainWindow.mainWindow)
+        val scene = new Scene(mainWindow.getMainWindow)
         primaryStage.setScene(scene)
         primaryStage.setTitle("Using TextFlow")
-//        primaryStage.setMaximized(true)
+        primaryStage.setMaximized(true)
         primaryStage.show()
     }
 }

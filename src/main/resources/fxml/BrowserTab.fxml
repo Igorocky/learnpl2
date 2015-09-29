@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<Tab fx:id="root" fx:controller="org.igye.learnpl2.BrowserTabController" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox>
+        <children>
+            <HBox style="-fx-padding: 5px; -fx-background-color: cadetblue">
+                <Button text="Open in browser" onAction="#openInBrowser" />
+            </HBox>
+            <WebView fx:id="webView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+        </children>
+    </VBox>
+</Tab>

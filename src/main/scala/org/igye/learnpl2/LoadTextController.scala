@@ -6,15 +6,22 @@ import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
-class LoadTextController {
+import org.igye.jfxutils.{Initable}
+
+class LoadTextController extends Initable {
     var stage: Stage = _
     @FXML
-    private var loadTextWindow: VBox = _
+    protected var loadTextWindow: VBox = _
     def getLoadTextWindow = loadTextWindow
 
     @FXML
-    private var textArea: TextArea = _
+    protected var textArea: TextArea = _
     def getTextArea = textArea
+
+    override def init(): Unit = {
+        require(loadTextWindow != null)
+        require(textArea != null)
+    }
 
     var onLoadButtonPressed: EventHandler[ActionEvent] = _
 
