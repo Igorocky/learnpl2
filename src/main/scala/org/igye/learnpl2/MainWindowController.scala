@@ -1,8 +1,9 @@
 package org.igye.learnpl2
 
-import javafx.event.{Event, ActionEvent}
+import java.util.Random
+import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
-import javafx.scene.control.{Tab, TabPane}
+import javafx.scene.control.{Tab, TabPane, TextField}
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
@@ -10,7 +11,7 @@ import javafx.scene.text.{Text, TextFlow}
 import javafx.scene.{Parent, Scene}
 import javafx.stage.{Modality, Stage}
 
-import org.igye.commonutils.FutureLoggable
+import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
 import org.slf4j.LoggerFactory
 
@@ -35,6 +36,21 @@ class MainWindowController extends Initable {
 
     private val loadTextStage: Stage = new Stage()
 
+    case class State(name: String)
+    private object State extends Enum[State] {
+        val NOT_LOADED = addElem(State("NOT_LOADED"))
+        val ONLY_TEXT = addElem(State("ONLY_TEXT"))
+        val TEXT_WITH_INPUTS = addElem(State("TEXT_WITH_INPUTS"))
+    }
+    import State._
+
+    var currState = NOT_LOADED
+    @volatile
+    private var text: List[List[String]] = _
+    private var currSentenceIdx: Int = _
+    private var inputs: List[TextField] = _
+    private val random = new Random()
+
     override def init(): Unit = {
         require(mainWindow != null)
         require(contentPane != null)
@@ -56,18 +72,33 @@ class MainWindowController extends Initable {
                     loadTextWnd.close()
                 }
                 showOnlyText()
+                currState = ONLY_TEXT
             }
         }
     }
 
-
-    @volatile
-    private var text: List[List[String]] = _
-    private var currSentenceIdx: Int = _
-
     @FXML
     private def loadTextButtonPressed(event: ActionEvent): Unit = {
         loadTextStage.show()
+    }
+
+    @FXML
+    private def nextButtonPressed(event: ActionEvent): Unit = {
+        if (text != null) {
+            if (currState == ONLY_TEXT) {
+                showTextWithInputs()
+                currState = TEXT_WITH_INPUTS
+            } else if (currState == TEXT_WITH_INPUTS && currSentenceIdx < text.size - 1) {
+                currSentenceIdx += 1
+                showOnlyText()
+                currState = ONLY_TEXT
+            }
+        }
+    }
+
+    @FXML
+    private def backButtonPressed(event: ActionEvent): Unit = {
+        println("back")
     }
 
     private def parseText(text: String): List[List[String]] = {
@@ -81,19 +112,49 @@ class MainWindowController extends Initable {
         tabPane.getSelectionModel.select(tab)
     }
 
+    val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
+        e.getSource.asInstanceOf[Text].setFill(Color.BLUE)
+    }
+
+    val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
+        e.getSource.asInstanceOf[Text].setFill(Color.BLACK)
+    }
+
     private def showOnlyText(): Unit = {
         RunInJfxThread {
             val sentence = text(currSentenceIdx)
             textFlow.getChildren.clear()
-            textFlow.prefWidthProperty().bind(contentPane.widthProperty())
             sentence.foreach(word =>  {
                 textFlow.getChildren.add(new Text(" "))
                 val wordText = new Text(word)
-                wordText.hnd(MouseEvent.MOUSE_ENTERED_TARGET)(e => wordText.setFill(Color.BLUE))
-                wordText.hnd(MouseEvent.MOUSE_EXITED_TARGET)(e => wordText.setFill(Color.BLACK))
-                wordText.hnd(wordClickHandler)
+                wordText.hnd(wordMouseEntered, wordMouseExited, wordClickHandler)
                 textFlow.getChildren.add(wordText)
             })
+            textFlow.getChildren.add(new Text("."))
+            contentPane.getChildren.clear()
+            contentPane.getChildren.add(textFlow)
+        }
+    }
+
+    private def showTextWithInputs(): Unit = {
+        RunInJfxThread {
+            val sentence = text(currSentenceIdx)
+            textFlow.getChildren.clear()
+            inputs = Nil
+            sentence.foreach(word =>  {
+                textFlow.getChildren.add(new Text(" "))
+                if (random.nextInt(100) < 10) {
+                    val textField = new TextField()
+                    inputs ::= textField
+                    textField.setPrefWidth(100)
+                    textFlow.getChildren.add(textField)
+                } else {
+                    val wordText = new Text(word)
+                    wordText.hnd(wordMouseEntered, wordMouseExited, wordClickHandler)
+                    textFlow.getChildren.add(wordText)
+                }
+            })
+            inputs = inputs.reverse
             textFlow.getChildren.add(new Text("."))
             contentPane.getChildren.clear()
             contentPane.getChildren.add(textFlow)
