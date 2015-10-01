@@ -103,7 +103,20 @@ class MainWindowController extends Initable {
 
     @FXML
     private def backButtonPressed(event: ActionEvent): Unit = {
-        println("back")
+        if (text != null) {
+            if (currState == TEXT_WITH_INPUTS) {
+                showOnlyText()
+                currState = ONLY_TEXT
+            } else if (currState == ONLY_TEXT) {
+                if (currSentenceIdx > 0) {
+                    currSentenceIdx -= 1
+                    showTextWithInputs()
+                    currState = TEXT_WITH_INPUTS
+                } else {
+                    loadTextButtonPressed(null)
+                }
+            }
+        }
     }
 
     private def parseText(text: String): List[List[String]] = {
@@ -166,7 +179,9 @@ class MainWindowController extends Initable {
                     nextButtonPressed(null)
                 } else {
                     RunInJfxThreadForcibly {
-                        inputs(firstWrongWord).requestFocus()
+                        val input = inputs(firstWrongWord)
+                        input.requestFocus()
+                        input.positionCaret(input.getText.length)
                     }
                 }
             }
