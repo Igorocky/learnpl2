@@ -4,7 +4,7 @@ import java.util.Random
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
 import javafx.scene.control.{Tab, TabPane, TextField}
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.{Text, TextFlow}
@@ -49,6 +49,7 @@ class MainWindowController extends Initable {
     private var text: List[List[String]] = _
     private var currSentenceIdx: Int = _
     private var inputs: List[TextField] = _
+    private var hiddenWords: List[String] = _
     private val random = new Random()
 
     override def init(): Unit = {
@@ -83,15 +84,19 @@ class MainWindowController extends Initable {
     }
 
     @FXML
-    private def nextButtonPressed(event: ActionEvent): Unit = {
+    protected def nextButtonPressed(event: ActionEvent): Unit = {
         if (text != null) {
             if (currState == ONLY_TEXT) {
                 showTextWithInputs()
                 currState = TEXT_WITH_INPUTS
-            } else if (currState == TEXT_WITH_INPUTS && currSentenceIdx < text.size - 1) {
-                currSentenceIdx += 1
-                showOnlyText()
-                currState = ONLY_TEXT
+            } else if (currState == TEXT_WITH_INPUTS) {
+                if (currSentenceIdx < text.size - 1) {
+                    currSentenceIdx += 1
+                    showOnlyText()
+                    currState = ONLY_TEXT
+                } else {
+                    loadTextButtonPressed(null)
+                }
             }
         }
     }
@@ -136,18 +141,53 @@ class MainWindowController extends Initable {
         }
     }
 
+    val textFieldEnterPressedHnd = JfxUtils.eventHandler(KeyEvent.KEY_PRESSED){e =>
+        if (e.getCode == KeyCode.ENTER) {
+            val currWordNumber = inputs.indexOf(e.getSource)
+            if (currWordNumber < inputs.size - 1) {
+                RunInJfxThreadForcibly {
+                    inputs(currWordNumber + 1).requestFocus()
+                }
+            } else {
+                var hasWrongWords = false
+                var firstWrongWord = -1
+                for (i <- 0 until inputs.size) {
+                    if (hiddenWords(i) != inputs(i).getText) {
+                        inputs(i).setBorder(JfxUtils.createBorder(Color.RED))
+                        if (!hasWrongWords) {
+                            hasWrongWords = true
+                            firstWrongWord = i
+                        }
+                    } else {
+                        inputs(i).setBorder(JfxUtils.createBorder(Color.GREEN))
+                    }
+                }
+                if (!hasWrongWords) {
+                    nextButtonPressed(null)
+                } else {
+                    RunInJfxThreadForcibly {
+                        inputs(firstWrongWord).requestFocus()
+                    }
+                }
+            }
+        }
+    }
+
     private def showTextWithInputs(): Unit = {
         RunInJfxThread {
             val sentence = text(currSentenceIdx)
             textFlow.getChildren.clear()
             inputs = Nil
+            hiddenWords = Nil
             sentence.foreach(word =>  {
                 textFlow.getChildren.add(new Text(" "))
                 if (random.nextInt(100) < 10) {
                     val textField = new TextField()
                     inputs ::= textField
-                    textField.setPrefWidth(100)
+                    hiddenWords ::= word
+                    textField.setPrefWidth(200)
                     textFlow.getChildren.add(textField)
+                    textField.hnd(textFieldEnterPressedHnd)
                 } else {
                     val wordText = new Text(word)
                     wordText.hnd(wordMouseEntered, wordMouseExited, wordClickHandler)
@@ -155,9 +195,17 @@ class MainWindowController extends Initable {
                 }
             })
             inputs = inputs.reverse
+            hiddenWords = hiddenWords.reverse
             textFlow.getChildren.add(new Text("."))
             contentPane.getChildren.clear()
             contentPane.getChildren.add(textFlow)
+            if (inputs.isEmpty) {
+                nextButtonPressed(null)
+            } else {
+                RunInJfxThreadForcibly {
+                    inputs(0).requestFocus()
+                }
+            }
         }
     }
 
