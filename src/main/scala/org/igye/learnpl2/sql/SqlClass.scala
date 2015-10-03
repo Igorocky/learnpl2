@@ -14,7 +14,7 @@ abstract class SqlClass extends SqlImplicits {
     private val tables = ListBuffer[TableAlias]()
     private var whereExpr: Option[BoolExpr] = None
 
-    def T[TT <: Table](table: TT, aliasStr: String): TT = {
+    def T2[TT <: Table](table: TT, aliasStr: String): TT = {
         tables += TableAlias(table, aliasStr)
         table
     }
