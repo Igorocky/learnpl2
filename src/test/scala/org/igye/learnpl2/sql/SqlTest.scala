@@ -16,21 +16,13 @@ class SqlTest {
             val f4 = field("f4")
         }
 
-        val sql = SqlObj ({
-            val t = SqlObj.T(t1, "t")
-            val tt = SqlObj.T(t2, "tt")
-            SqlObj.where {
-                SqlObj.fieldOfTableAlias("t", t.f1) == Sql.fieldOfTableAlias("tt", tt.f3)
+        val sql = SqlObj (new SqlClass {
+            val t = T(t1, "t")
+            val tt = T(t2, "tt")
+            where {
+                fieldOfTableAlias("t", t.f1) == fieldOfTableAlias("tt", tt.f3)
             }
         })
-
-//        val sql = {
-//            final class $anon extends _root_.org.igye.learnpl2.sql.Sql {
-//                val t: org.igye.learnpl2.sql.Table{val f1: org.igye.learnpl2.sql.Field; val f2: org.igye.learnpl2.sql.Field} = Sql.T[org.igye.learnpl2.sql.Table{val f1: org.igye.learnpl2.sql.Field; val f2: org.igye.learnpl2.sql.Field}](t1, "t");
-//                val tt: org.igye.learnpl2.sql.Table{val f3: org.igye.learnpl2.sql.Field; val f4: org.igye.learnpl2.sql.Field} = Sql.T[org.igye.learnpl2.sql.Table{val f3: org.igye.learnpl2.sql.Field; val f4: org.igye.learnpl2.sql.Field}](t2, "tt")
-//            };
-//            new $anon()
-//        }
 
         //        println(sql.text)
         Assert.assertEquals("select * from TABLE1 t, TABLE2 tt where t.f1 = tt.f3", sql.text)

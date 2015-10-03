@@ -9,13 +9,8 @@ class SqlMacro(val c: Context) {
 
     import c.universe._
 
-    def sqlApply(instructions: c.Tree) = {
-        //..${instructions.asInstanceOf[Block].stats}
-        val tree = q"""
-            new org.igye.learnpl2.sql.SqlClass {
-                ..${instructions.asInstanceOf[Block].stats}
-            }
-        """
+    def sqlApply(sql: c.Tree) = {
+        val tree = sql
         val str = tree.toString()
         println(s"%^%^%^str = $str")
         tree

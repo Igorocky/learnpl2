@@ -33,7 +33,7 @@ abstract class SqlClass extends SqlImplicits {
 }
 
 object SqlObj extends SqlImplicits {
-    def apply(instructions: => Unit): SqlClass = macro SqlMacro.sqlApply
+    def apply(sql: SqlClass): SqlClass = macro SqlMacro.sqlApply
 
     def T[TT <: Table](table: TT, aliasStr: String): TT = {
         table
