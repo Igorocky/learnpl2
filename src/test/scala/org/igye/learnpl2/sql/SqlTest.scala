@@ -16,13 +16,13 @@ class SqlTest {
             val f4 = field("f4")
         }
 
-        val sql = SqlObj(new SqlClass {
-            val t = T(t1)
+//        val sql = SqlObj(new SqlClass {
+//            val t = T(t1)
 //            val tt = T2(t2, "tt")
 //            where {
 //                fieldOfTableAlias("t", t.f1) == fieldOfTableAlias("tt", tt.f3)
 //            }
-        })
+//        })
 
         //        println(sql.text)
 //        Assert.assertEquals("select * from TABLE1 t, TABLE2 tt where t.f1 = tt.f3", sql.text)
