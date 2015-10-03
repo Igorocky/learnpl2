@@ -16,8 +16,8 @@ class SqlTest {
             val f4 = field("f4")
         }
 
-        val sql = SqlObj (new SqlClass {
-            val t = T(t1, "t")
+        val sql = SqlObj(new SqlClass {
+            val t = T(t1)
             val tt = T(t2, "tt")
             where {
                 fieldOfTableAlias("t", t.f1) == fieldOfTableAlias("tt", tt.f3)

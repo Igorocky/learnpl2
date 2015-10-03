@@ -19,6 +19,11 @@ abstract class SqlClass extends SqlImplicits {
         table
     }
 
+    def T[TT <: Table](table: TT): TT = {
+        throw new IllegalStateException("this method should not be used in runtime")
+        table
+    }
+
     def where(expr: BoolExpr): Unit = {
         whereExpr = Some(expr)
     }
@@ -34,11 +39,4 @@ abstract class SqlClass extends SqlImplicits {
 
 object SqlObj extends SqlImplicits {
     def apply(sql: SqlClass): SqlClass = macro SqlMacro.sqlApply
-
-    def T[TT <: Table](table: TT, aliasStr: String): TT = {
-        table
-    }
-
-    def where(expr: BoolExpr): Unit = {
-    }
 }
