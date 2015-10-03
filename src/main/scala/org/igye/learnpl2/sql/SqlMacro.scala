@@ -30,50 +30,108 @@ class SqlMacro(val c: Context) {
         val newTree = new Transformer {
             override def transform(tree: c.Tree): c.Tree = tree match {
                 case ValDef(
-                    modifiers,
-                    valName,
-                    tree1,
-                    Apply(
-                        TypeApply(
-                            select @ Select(qual @ qualifier, methodName),
-                            argsOfTypeApply
-                        ),
-                        argsOfApply
-                    )
+                modifiers,
+                valName,
+                tree1,
+                Apply(
+                TypeApply(
+                select@Select(qual@qualifier, methodName),
+                argsOfTypeApply
+                ),
+                argsOfApply
+                )
                 ) =>
                     if (select.symbol == methodTWithOneArg) {
                         log.info("FOUND!!!!")
-//                        tree.asInstanceOf[ValDef].rhs.asInstanceOf[Apply]
-//                            .fun.asInstanceOf[TypeApply].fun.asInstanceOf[Select].symbol.
-//                        val res = ValDef(
-//                            modifiers,
-//                            valName,
-//                            tree1,
-//                            Apply(
-//                                TypeApply(
-//                                    Select(qual, methodTWithOneArg),
-////                                    Ident(methodTWithTwoArgs),
-//                                    argsOfTypeApply
-//                                ),
-////                                (Literal(Constant(valName.toString.trim)) :: argsOfApply.reverse).reverse
-//                                argsOfApply
-//                            )
-//                        )
-//                        val res = q"val ${TermName(valName.toString.trim)} = $methodTWithTwoArgs(..$argsOfApply, ${valName.toString.trim})"
+                        //                        tree.asInstanceOf[ValDef].rhs.asInstanceOf[Apply]
+                        //                            .fun.asInstanceOf[TypeApply].fun.asInstanceOf[Select].symbol.
+                        //                        val res = ValDef(
+                        //                            modifiers,
+                        //                            valName,
+                        //                            tree1,
+                        //                            Apply(
+                        //                                TypeApply(
+                        //                                    Select(qual, methodTWithOneArg),
+                        ////                                    Ident(methodTWithTwoArgs),
+                        //                                    argsOfTypeApply
+                        //                                ),
+                        ////                                (Literal(Constant(valName.toString.trim)) :: argsOfApply.reverse).reverse
+                        //                                argsOfApply
+                        //                            )
+                        //                        )
+                        //                        val res = q"val ${TermName(valName.toString.trim)} = $methodTWithTwoArgs(..$argsOfApply, ${valName.toString.trim})"
                         val res = q"val ${TermName(valName.toString.trim)} = ${TermName("T3")}(..$argsOfApply, ${valName.toString.trim})"
                         println("++++++++++++++++++++++++++++")
                         println(s"%^%^%^res = ${res.toString()}")
                         println("++++++++++++++++++++++++++++")
-//                        val resChecked = c.typecheck(res)
-//                        resChecked
+                        //                        val resChecked = c.typecheck(res)
+                        //                        resChecked
                         res
-//                        tree
+                        //                        tree
                     } else {
                         tree
                     }
                 case _ => super.transform(tree)
             }
         }.transform(sql)
+
+        newTree
+    }
+
+    def substitute(block: c.Tree) = {
+        println("===================================================")
+        println(s"%^%^%^sql = ${block.toString()}")
+        println("===================================================")
+
+
+        val methodTWithOneArg = c.universe.typeOf[SqlClass].members.find(decl =>
+            decl.name.toString == "T"
+                && decl.isMethod
+                && decl.asMethod.paramLists.nonEmpty
+                && decl.asMethod.paramLists(0).size == 1
+        ).get
+        val methodTWithTwoArgs = c.universe.typeOf[SqlClass].decls.find(decl =>
+            decl.name.toString == "T2"
+                && decl.isMethod
+                && decl.asMethod.paramLists.nonEmpty
+                && decl.asMethod.paramLists(0).size == 2
+        ).get
+
+        val newTree = new Transformer {
+            override def transform(tree: c.Tree): c.Tree = tree match {
+                /*case ValDef(
+                    modifiers,
+                    valName,
+                    tree1,
+                    Apply(
+                        TypeApply(
+                            select@Select(qual@qualifier, methodName),
+                            argsOfTypeApply
+                        ),
+                    argsOfApply
+                    )
+                ) =>
+                    if (select.symbol == methodTWithOneArg) {
+                        log.info("FOUND!!!!")
+                        val res = q"val ${TermName(valName.toString.trim)} = $methodTWithTwoArgs(..$argsOfApply, ${valName.toString.trim})"
+                        println("++++++++++++++++++++++++++++")
+                        println(s"%^%^%^res = ${res.toString()}")
+                        println("++++++++++++++++++++++++++++")
+//                        res
+                        tree
+                    } else {
+                        tree
+                    }*/
+                case select@Select(qualifier, method) if select.symbol == methodTWithOneArg =>
+                    log.info(s"method=${method.toString}")
+                    val res = Select(qualifier, TermName("T2"))
+                    log.info(s"replace '${tree.toString()}' wiht '${res.toString()}'")
+                    res
+                case _ =>
+//                    log.info(s"tree = ${tree.toString()}")
+                    super.transform(tree)
+            }
+        }.transform(block)
 
         newTree
     }

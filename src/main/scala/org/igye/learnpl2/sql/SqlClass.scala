@@ -39,4 +39,6 @@ abstract class SqlClass extends SqlImplicits {
 
 object SqlObj extends SqlImplicits {
     def apply(sql: SqlClass): SqlClass = macro SqlMacro.sqlApply
+
+    def substitute[T](block: T): T = macro SqlMacro.substitute
 }
