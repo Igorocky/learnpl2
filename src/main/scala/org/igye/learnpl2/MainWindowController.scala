@@ -1,5 +1,7 @@
 package org.igye.learnpl2
 
+import java.awt.Desktop
+import java.net.URL
 import java.util.Random
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
@@ -124,10 +126,12 @@ class MainWindowController extends Initable {
     }
 
     val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
-        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
-        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
-        tabPane.getTabs.add(tab)
-        tabPane.getSelectionModel.select(tab)
+//        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
+//        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
+//        tabPane.getTabs.add(tab)
+//        tabPane.getSelectionModel.select(tab)
+
+        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/${e.getSource.asInstanceOf[Text].getText}").toURI());
     }
 
     val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
