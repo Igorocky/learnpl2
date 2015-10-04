@@ -72,8 +72,7 @@ class MainWindowController extends Initable {
         val loadTextWnd = FxmlSupport.load[LoadTextController]("fxml/LoadTextWindow.fxml")
         loadTextWnd.stage = loadTextStage
         loadTextStage.setScene(new Scene(loadTextWnd.getLoadTextWindow))
-        loadTextStage.initOwner(primaryStage)
-        loadTextStage.initModality(Modality.WINDOW_MODAL)
+        loadTextStage.initModality(Modality.APPLICATION_MODAL)
 
         loadTextWnd.onLoadButtonPressed = JfxActionEventHandler {e =>
             FutureLoggable {
