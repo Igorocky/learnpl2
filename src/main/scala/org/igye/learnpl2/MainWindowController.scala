@@ -15,12 +15,12 @@ import javafx.stage.{Modality, Stage}
 
 import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class MainWindowController extends Initable {
-    implicit val log = LoggerFactory.getLogger(this.getClass)
+    implicit val log: Logger = LoggerFactory.getLogger(this.getClass)
 
     var primaryStage: Stage = _
 
@@ -46,7 +46,15 @@ class MainWindowController extends Initable {
     }
     import State._
 
+    case class ValidationStage(name: String)
+    private object ValidationStage extends Enum[ValidationStage] {
+        val FILL_INPUTS = addElem(ValidationStage("FILL_INPUTS"))
+        val CORRECTIONS_STAGE = addElem(ValidationStage("CORRECTIONS_STAGE"))
+    }
+    import ValidationStage._
+
     var currState = NOT_LOADED
+    var currValidationStage = FILL_INPUTS
     @volatile
     private var text: List[List[String]] = _
     private var currSentenceIdx: Int = _
@@ -122,7 +130,7 @@ class MainWindowController extends Initable {
     }
 
     private def parseText(text: String): List[List[String]] = {
-        text.split("\\.\\s").map(_.split("\\s").toList).toList
+        TextFunctions.splitTextOnSentences(text).map(TextFunctions.splitSentenceOnParts(_))
     }
 
     val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
@@ -139,7 +147,8 @@ class MainWindowController extends Initable {
     }
 
     val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
-        e.getSource.asInstanceOf[Text].setFill(Color.BLACK)
+        val text = e.getSource.asInstanceOf[Text]
+        text.setFill(getWordColor(text.getText))
     }
 
     private def showOnlyText(): Unit = {
@@ -147,46 +156,123 @@ class MainWindowController extends Initable {
             val sentence = text(currSentenceIdx)
             textFlow.getChildren.clear()
             sentence.foreach(word =>  {
-                textFlow.getChildren.add(new Text(" "))
-                val wordText = new Text(word)
-                wordText.hnd(wordMouseEntered, wordMouseExited, wordClickHandler)
-                textFlow.getChildren.add(wordText)
+                textFlow.getChildren.add(createTextElem(word))
             })
-            textFlow.getChildren.add(new Text("."))
             contentPane.getChildren.clear()
             contentPane.getChildren.add(textFlow)
         }
     }
 
+    def createTextElem(word: String): Text = {
+        val wordText = new Text(word)
+        wordText.setFill(getWordColor(word))
+        wordText.hnd(getWordHandlers(word): _*)
+        wordText
+    }
+
+    def getWordColor(word: String): Color = {
+        if (TextFunctions.isHiddable(word)) {
+            Color.GREEN
+        } else {
+            Color.RED
+        }
+    }
+
+    def getWordHandlers(word: String): List[EventHandlerInfo[MouseEvent]] = {
+        if (TextFunctions.isHiddable(word)) {
+            List(wordMouseEntered, wordMouseExited, wordClickHandler)
+        } else {
+            Nil
+        }
+    }
+
+    def findFirstInvalidWordStartingFromIdx(idx: Int): Option[Int] = {
+        var nextIdx = idx
+        while (
+            nextIdx < inputs.size &&
+                TextFunctions.checkUserInput(hiddenWords(nextIdx), inputs(nextIdx).getText, Some(log))
+        ) {
+            nextIdx += 1
+        }
+        if (nextIdx < inputs.size) {
+            Some(nextIdx)
+        } else {
+            None
+        }
+    }
+
+    def getNextInputToBeEditedInCurrValidationStage(currInput: Option[Any]): Option[TextField] = {
+        val currInputNumber = if (currInput.isDefined) inputs.indexOf(currInput.get) else 0
+        if (currValidationStage == FILL_INPUTS) {
+            if (currInputNumber < inputs.size - 1) {
+                Some(inputs(currInputNumber + 1))
+            } else {
+                None
+            }
+        } else {
+            //validate current word. If it is invalid then stay on it.
+            if (!TextFunctions.checkUserInput(hiddenWords(currInputNumber), inputs(currInputNumber).getText, Some(log))) {
+                Some(inputs(currInputNumber))
+            } else {
+                //If it is valid then find next invalid word.
+                var nextInvalidWord = findFirstInvalidWordStartingFromIdx(currInputNumber + 1)
+                if (nextInvalidWord.isDefined) {
+                    Some(inputs(nextInvalidWord.get))
+                } else {
+                    nextInvalidWord = findFirstInvalidWordStartingFromIdx(0)
+                    if (nextInvalidWord.isDefined) {
+                        Some(inputs(nextInvalidWord.get))
+                    } else {
+                        None
+                    }
+                }
+            }
+        }
+    }
+
+    def highlightInput(idx: Int): Unit = {
+        if (TextFunctions.checkUserInput(hiddenWords(idx), inputs(idx).getText, Some(log))) {
+            inputs(idx).setBorder(JfxUtils.createBorder(Color.GREEN))
+        } else {
+            inputs(idx).setBorder(JfxUtils.createBorder(Color.RED))
+        }
+    }
+
+    def highlightInput(input: Any): Unit = {
+        highlightInput(inputs.indexOf(input))
+    }
+
+    def highLightAllInputs(): Unit = {
+        (0 until inputs.length).foreach(highlightInput)
+    }
+
     val textFieldEnterPressedHnd = JfxUtils.eventHandler(KeyEvent.KEY_PRESSED){e =>
         if (e.getCode == KeyCode.ENTER) {
-            val currWordNumber = inputs.indexOf(e.getSource)
-            if (currWordNumber < inputs.size - 1) {
+            val currInput = e.getSource
+            val nextInputOpt = getNextInputToBeEditedInCurrValidationStage(Some(currInput))
+            if (nextInputOpt.isDefined) {
+                if (currValidationStage == CORRECTIONS_STAGE && currInput != nextInputOpt.get) {
+                    highlightInput(currInput)
+                }
                 RunInJfxThreadForcibly {
-                    inputs(currWordNumber + 1).requestFocus()
+                    nextInputOpt.get.requestFocus()
                 }
             } else {
-                var hasWrongWords = false
-                var firstWrongWord = -1
-                for (i <- 0 until inputs.size) {
-                    if (hiddenWords(i) != inputs(i).getText) {
-                        inputs(i).setBorder(JfxUtils.createBorder(Color.RED))
-                        if (!hasWrongWords) {
-                            hasWrongWords = true
-                            firstWrongWord = i
+                if (currValidationStage == FILL_INPUTS) {
+                    highLightAllInputs()
+                    val firstInvalidWord = findFirstInvalidWordStartingFromIdx(0)
+                    if (firstInvalidWord.isDefined) {
+                        currValidationStage = CORRECTIONS_STAGE
+                        RunInJfxThreadForcibly {
+                            inputs(firstInvalidWord.get).requestFocus()
                         }
                     } else {
-                        inputs(i).setBorder(JfxUtils.createBorder(Color.GREEN))
+                        nextButtonPressed(null)
                     }
-                }
-                if (!hasWrongWords) {
-                    nextButtonPressed(null)
                 } else {
-                    RunInJfxThreadForcibly {
-                        val input = inputs(firstWrongWord)
-                        input.requestFocus()
-                        input.positionCaret(input.getText.length)
-                    }
+                    highLightAllInputs()
+                    currValidationStage = FILL_INPUTS
+                    nextButtonPressed(null)
                 }
             }
         }
@@ -199,8 +285,7 @@ class MainWindowController extends Initable {
             inputs = Nil
             hiddenWords = Nil
             sentence.foreach(word =>  {
-                textFlow.getChildren.add(new Text(" "))
-                if (random.nextInt(100) < 10) {
+                if (TextFunctions.isHiddable(word) && random.nextInt(100) < 10) {
                     val textField = new TextField()
                     inputs ::= textField
                     hiddenWords ::= word
@@ -208,14 +293,11 @@ class MainWindowController extends Initable {
                     textFlow.getChildren.add(textField)
                     textField.hnd(textFieldEnterPressedHnd)
                 } else {
-                    val wordText = new Text(word)
-                    wordText.hnd(wordMouseEntered, wordMouseExited, wordClickHandler)
-                    textFlow.getChildren.add(wordText)
+                    textFlow.getChildren.add(createTextElem(word))
                 }
             })
             inputs = inputs.reverse
             hiddenWords = hiddenWords.reverse
-            textFlow.getChildren.add(new Text("."))
             contentPane.getChildren.clear()
             contentPane.getChildren.add(textFlow)
             if (inputs.isEmpty) {
