@@ -1,4 +1,4 @@
-package org.igye.learnpl2
+package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
@@ -15,10 +15,13 @@ import javafx.stage.{Modality, Stage}
 
 import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
+import org.igye.jfxutils.annotations.FxmlFile
+import org.igye.learnpl2.TextFunctions
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+@FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Initable {
     implicit val log: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -69,7 +72,7 @@ class MainWindowController extends Initable {
         require(mainTab != null)
         require(textFlow != null)
 
-        val loadTextWnd = FxmlSupport.load[LoadTextController]("fxml/LoadTextWindow.fxml")
+        val loadTextWnd = FxmlSupport.load[LoadTextController]
         loadTextWnd.stage = loadTextStage
         loadTextStage.setScene(new Scene(loadTextWnd.getLoadTextWindow))
         loadTextStage.initModality(Modality.APPLICATION_MODAL)

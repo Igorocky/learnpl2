@@ -6,7 +6,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
-<Tab fx:id="root" fx:controller="org.igye.learnpl2.BrowserTabController" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<Tab fx:id="root" fx:controller="org.igye.learnpl2.controllers.BrowserTabController" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <VBox>
         <children>
             <HBox style="-fx-padding: 5px; -fx-background-color: cadetblue">

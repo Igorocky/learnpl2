@@ -1,4 +1,4 @@
-package org.igye.learnpl2
+package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
@@ -7,7 +7,9 @@ import javafx.scene.control.Tab
 import javafx.scene.web.WebView
 
 import org.igye.jfxutils.Initable
+import org.igye.jfxutils.annotations.FxmlFile
 
+@FxmlFile("fxml/BrowserTab.fxml")
 class BrowserTabController extends Initable {
     @FXML
     protected var root: Tab = _

@@ -1,4 +1,4 @@
-package org.igye.learnpl2
+package org.igye.learnpl2.controllers
 
 import javafx.event.{ActionEvent, EventHandler}
 import javafx.fxml.FXML
@@ -6,8 +6,10 @@ import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
-import org.igye.jfxutils.{Initable}
+import org.igye.jfxutils.Initable
+import org.igye.jfxutils.annotations.FxmlFile
 
+@FxmlFile("fxml/LoadTextWindow.fxml")
 class LoadTextController extends Initable {
     var stage: Stage = _
     @FXML
