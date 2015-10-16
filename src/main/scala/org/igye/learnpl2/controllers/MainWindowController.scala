@@ -9,7 +9,7 @@ import javafx.scene.control.{Tab, TabPane, TextField}
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import javafx.scene.text.{Text, TextFlow}
+import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
 import javafx.scene.{Parent, Scene}
 import javafx.stage.{Modality, Stage}
 
@@ -61,9 +61,11 @@ class MainWindowController extends Initable {
     @volatile
     private var text: List[List[String]] = _
     private var currSentenceIdx: Int = _
+    private var words: List[Text] = _
     private var inputs: List[TextField] = _
     private var hiddenWords: List[String] = _
     private val random = new Random()
+    private var selectedWordIdx = -1
 
     override def init(): Unit = {
         require(mainWindow != null)
@@ -141,7 +143,11 @@ class MainWindowController extends Initable {
 //        tabPane.getTabs.add(tab)
 //        tabPane.getSelectionModel.select(tab)
 
-        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/${e.getSource.asInstanceOf[Text].getText}").toURI());
+        translateWord(e.getSource.asInstanceOf[Text].getText)
+    }
+
+    private def translateWord(word: String): Unit = {
+        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/$word").toURI());
     }
 
     val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
@@ -155,14 +161,22 @@ class MainWindowController extends Initable {
 
     private def showOnlyText(): Unit = {
         RunInJfxThread {
+            words = Nil
+            selectedWordIdx = -1
             val sentence = text(currSentenceIdx)
             textFlow.getChildren.clear()
             sentence.foreach(word =>  {
-                textFlow.getChildren.add(createTextElem(word))
+                textFlow.getChildren.add(saveWordToList(createTextElem(word)))
             })
             contentPane.getChildren.clear()
             contentPane.getChildren.add(textFlow)
+            words = words.reverse
         }
+    }
+
+    def saveWordToList(word: Text) = {
+        words ::= word
+        word
     }
 
     def createTextElem(word: String): Text = {
@@ -314,5 +328,46 @@ class MainWindowController extends Initable {
 
     def onMainTabCloseRequest(event: Event) = {
         event.consume()
+    }
+
+    def selectNextWordBtnPressed(event: ActionEvent): Unit = {
+        selectNextWord(1)
+    }
+
+    def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
+        selectNextWord(-1)
+    }
+
+    def selectNextWord(step: Int): Unit = {
+        def incSelectedWordIdx() = {
+            selectedWordIdx += step
+            if (selectedWordIdx > text(currSentenceIdx).length - 1) {
+                selectedWordIdx = -1
+            } else if (selectedWordIdx < -1) {
+                selectedWordIdx = text(currSentenceIdx).length - 1
+            }
+        }
+        def isCurrSelectedWordIdxAppropriate() = {
+            selectedWordIdx == -1 || TextFunctions.isHiddable(text(currSentenceIdx)(selectedWordIdx))
+        }
+
+        selectWord(selectedWordIdx, FontWeight.NORMAL)
+        incSelectedWordIdx()
+        while(!isCurrSelectedWordIdxAppropriate()) {
+            incSelectedWordIdx()
+        }
+        selectWord(selectedWordIdx, FontWeight.BOLD)
+    }
+
+    private def selectWord(wordIdx: Int, weight: FontWeight): Unit = {
+        if (wordIdx >= 0) {
+            val word = words(wordIdx)
+            val font = word.getFont
+            word.setFont(Font.font(font.getFamily, weight, font.getSize))
+        }
+    }
+
+    def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
+        translateWord(words(selectedWordIdx).getText)
     }
 }
