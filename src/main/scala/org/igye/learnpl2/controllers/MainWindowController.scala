@@ -5,7 +5,7 @@ import java.net.URL
 import java.util.Random
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
-import javafx.scene.control.{Tab, TabPane, TextField}
+import javafx.scene.control.{Button, Tab, TabPane, TextField}
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
@@ -15,6 +15,7 @@ import javafx.stage.{Modality, Stage}
 
 import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
+import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.learnpl2.TextFunctions
 import org.slf4j.{Logger, LoggerFactory}
@@ -38,6 +39,8 @@ class MainWindowController extends Initable {
     protected var mainTab: Tab = _
     @FXML
     protected var textFlow: TextFlow = _
+    @FXML
+    protected var loadTextBtn: Button = _
 
     private val loadTextStage: Stage = new Stage()
 
@@ -67,12 +70,26 @@ class MainWindowController extends Initable {
     private val random = new Random()
     private var selectedWordIdx = -1
 
+    private val loadTextAction = new Action {
+        override val description: String = "Load text"
+        setShortcut(Shortcut(KeyCode.ALT, KeyCode.L))
+        override protected[this] def onAction(): Unit = {
+            loadTextStage.show()
+        }
+    }
+
+
+    private val actions = List(
+        loadTextAction
+    )
+
     override def init(): Unit = {
         require(mainWindow != null)
         require(contentPane != null)
         require(tabPane != null)
         require(mainTab != null)
         require(textFlow != null)
+        require(loadTextBtn != null)
 
         val loadTextWnd = FxmlSupport.load[LoadTextController]
         loadTextWnd.stage = loadTextStage
@@ -90,11 +107,14 @@ class MainWindowController extends Initable {
                 currState = ONLY_TEXT
             }
         }
+
+        Action.bind(loadTextAction, loadTextBtn)
+        JfxUtils.bindShortcutActionTrigger(mainTab, actions)
     }
 
     @FXML
     private def loadTextButtonPressed(event: ActionEvent): Unit = {
-        loadTextStage.show()
+        loadTextAction.trigger()
     }
 
     @FXML
