@@ -3,6 +3,7 @@ package org.igye.learnpl2.controllers
 import java.awt.Desktop
 import java.net.URL
 import java.util.Random
+import javafx.beans.property.ReadOnlyProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
 import javafx.scene.control.{Button, Tab, TabPane, TextField}
@@ -41,6 +42,16 @@ class MainWindowController extends Initable {
     protected var textFlow: TextFlow = _
     @FXML
     protected var loadTextBtn: Button = _
+    @FXML
+    protected var backBtn: Button = _
+    @FXML
+    protected var nextBtn: Button = _
+    @FXML
+    protected var selectPrevWordBtn: Button = _
+    @FXML
+    protected var selectNextWordBtn: Button = _
+    @FXML
+    protected var translateBtn: Button = _
 
     private val loadTextStage: Stage = new Stage()
 
@@ -78,9 +89,82 @@ class MainWindowController extends Initable {
         }
     }
 
+    private val selectNextWordAction = new Action {
+        override val description: String = "Select next word"
+        setShortcut(Shortcut(KeyCode.RIGHT))
+        override protected[this] def onAction(): Unit = {
+            selectNextWord(1)
+        }
+    }
+
+    private val selectPrevWordAction = new Action {
+        override val description: String = "Select prev word"
+        setShortcut(Shortcut(KeyCode.LEFT))
+        override protected[this] def onAction(): Unit = {
+            selectNextWord(-1)
+        }
+    }
+
+    private val translateAction = new Action {
+        override val description: String = "Translate"
+        setShortcut(Shortcut(KeyCode.F4))
+        override protected[this] def onAction(): Unit = {
+            if (selectedWordIdx >= 0) {
+                translateWord(words(selectedWordIdx).getText)
+            }
+        }
+    }
+
+    private val nextActionShortcut = Shortcut(KeyCode.ENTER)
+    private val nextAction = new Action {
+        override val description: String = "Next"
+        setShortcut(nextActionShortcut)
+        override protected[this] def onAction(): Unit = {
+            if (text != null) {
+                if (currState == ONLY_TEXT) {
+                    showTextWithInputs()
+                    currState = TEXT_WITH_INPUTS
+                } else if (currState == TEXT_WITH_INPUTS) {
+                    if (currSentenceIdx < text.size - 1) {
+                        currSentenceIdx += 1
+                        showOnlyText()
+                        currState = ONLY_TEXT
+                    } else {
+                        loadTextButtonPressed(null)
+                    }
+                }
+            }
+        }
+    }
+
+    private val backAction = new Action {
+        override val description: String = "Back"
+        setShortcut(Shortcut(KeyCode.CONTROL, KeyCode.ALT, KeyCode.LEFT))
+        override protected[this] def onAction(): Unit = {
+            if (text != null) {
+                if (currState == TEXT_WITH_INPUTS) {
+                    showOnlyText()
+                    currState = ONLY_TEXT
+                } else if (currState == ONLY_TEXT) {
+                    if (currSentenceIdx > 0) {
+                        currSentenceIdx -= 1
+                        showTextWithInputs()
+                        currState = TEXT_WITH_INPUTS
+                    } else {
+                        loadTextButtonPressed(null)
+                    }
+                }
+            }
+        }
+    }
 
     private val actions = List(
         loadTextAction
+        ,selectNextWordAction
+        ,selectPrevWordAction
+        ,translateAction
+        ,nextAction
+        ,backAction
     )
 
     override def init(): Unit = {
@@ -90,6 +174,11 @@ class MainWindowController extends Initable {
         require(mainTab != null)
         require(textFlow != null)
         require(loadTextBtn != null)
+        require(backBtn != null)
+        require(nextBtn != null)
+        require(selectPrevWordBtn != null)
+        require(selectNextWordBtn != null)
+        require(translateBtn != null)
 
         val loadTextWnd = FxmlSupport.load[LoadTextController]
         loadTextWnd.stage = loadTextStage
@@ -109,48 +198,27 @@ class MainWindowController extends Initable {
         }
 
         Action.bind(loadTextAction, loadTextBtn)
+        Action.bind(selectNextWordAction, selectNextWordBtn)
+        Action.bind(selectPrevWordAction, selectPrevWordBtn)
+        Action.bind(translateAction, translateBtn)
+        Action.bind(nextAction, nextBtn)
+        Action.bind(backAction, backBtn)
         JfxUtils.bindShortcutActionTrigger(mainTab, actions)
     }
 
     @FXML
-    private def loadTextButtonPressed(event: ActionEvent): Unit = {
+    protected def loadTextButtonPressed(event: ActionEvent): Unit = {
         loadTextAction.trigger()
     }
 
     @FXML
     protected def nextButtonPressed(event: ActionEvent): Unit = {
-        if (text != null) {
-            if (currState == ONLY_TEXT) {
-                showTextWithInputs()
-                currState = TEXT_WITH_INPUTS
-            } else if (currState == TEXT_WITH_INPUTS) {
-                if (currSentenceIdx < text.size - 1) {
-                    currSentenceIdx += 1
-                    showOnlyText()
-                    currState = ONLY_TEXT
-                } else {
-                    loadTextButtonPressed(null)
-                }
-            }
-        }
+        nextAction.trigger()
     }
 
     @FXML
-    private def backButtonPressed(event: ActionEvent): Unit = {
-        if (text != null) {
-            if (currState == TEXT_WITH_INPUTS) {
-                showOnlyText()
-                currState = ONLY_TEXT
-            } else if (currState == ONLY_TEXT) {
-                if (currSentenceIdx > 0) {
-                    currSentenceIdx -= 1
-                    showTextWithInputs()
-                    currState = TEXT_WITH_INPUTS
-                } else {
-                    loadTextButtonPressed(null)
-                }
-            }
-        }
+    protected def backButtonPressed(event: ActionEvent): Unit = {
+        backAction.trigger()
     }
 
     private def parseText(text: String): List[List[String]] = {
@@ -163,7 +231,8 @@ class MainWindowController extends Initable {
 //        tabPane.getTabs.add(tab)
 //        tabPane.getSelectionModel.select(tab)
 
-        translateWord(e.getSource.asInstanceOf[Text].getText)
+        selectedWordIdx = words.indexOf(e.getTarget)
+        translateAction.trigger()
     }
 
     private def translateWord(word: String): Unit = {
@@ -314,6 +383,20 @@ class MainWindowController extends Initable {
         }
     }
 
+    private def createTextField(): TextField = {
+        val textField = new TextField()
+        textField.setPrefWidth(200)
+        textField.hnd(textFieldEnterPressedHnd)
+        textField.focusedProperty().asInstanceOf[ReadOnlyProperty[Boolean]].addListener(CngListener[Boolean]{v =>
+            if (v.newValue) {
+                nextAction.removeShortcut()
+            } else {
+                nextAction.setShortcut(nextActionShortcut)
+            }
+        })
+        textField
+    }
+
     private def showTextWithInputs(): Unit = {
         RunInJfxThread {
             val sentence = text(currSentenceIdx)
@@ -322,12 +405,10 @@ class MainWindowController extends Initable {
             hiddenWords = Nil
             sentence.foreach(word =>  {
                 if (TextFunctions.isHiddable(word) && random.nextInt(100) < 10) {
-                    val textField = new TextField()
+                    val textField = createTextField()
                     inputs ::= textField
                     hiddenWords ::= word
-                    textField.setPrefWidth(200)
                     textFlow.getChildren.add(textField)
-                    textField.hnd(textFieldEnterPressedHnd)
                 } else {
                     textFlow.getChildren.add(createTextElem(word))
                 }
@@ -351,11 +432,11 @@ class MainWindowController extends Initable {
     }
 
     def selectNextWordBtnPressed(event: ActionEvent): Unit = {
-        selectNextWord(1)
+        selectNextWordAction.trigger()
     }
 
     def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
-        selectNextWord(-1)
+        selectPrevWordAction.trigger()
     }
 
     def selectNextWord(step: Int): Unit = {
@@ -370,7 +451,6 @@ class MainWindowController extends Initable {
         def isCurrSelectedWordIdxAppropriate() = {
             selectedWordIdx == -1 || TextFunctions.isHiddable(text(currSentenceIdx)(selectedWordIdx))
         }
-
         selectWord(selectedWordIdx, FontWeight.NORMAL)
         incSelectedWordIdx()
         while(!isCurrSelectedWordIdxAppropriate()) {
@@ -388,6 +468,6 @@ class MainWindowController extends Initable {
     }
 
     def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
-        translateWord(words(selectedWordIdx).getText)
+        translateAction.trigger()
     }
 }
