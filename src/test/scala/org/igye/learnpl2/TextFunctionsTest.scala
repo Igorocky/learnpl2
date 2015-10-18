@@ -10,6 +10,12 @@ class TextFunctionsTest {
         Assert.assertFalse(TextFunctions.isHiddable(", "))
         Assert.assertFalse(TextFunctions.isHiddable("– "))
         Assert.assertFalse(TextFunctions.isHiddable("\""))
+        Assert.assertFalse(TextFunctions.isHiddable(": ["))
+        Assert.assertFalse(TextFunctions.isHiddable("] ( "))
+        Assert.assertFalse(TextFunctions.isHiddable(")) "))
+        Assert.assertFalse(TextFunctions.isHiddable(" / "))
+        Assert.assertFalse(TextFunctions.isHiddable(" \\"))
+        Assert.assertFalse(TextFunctions.isHiddable("; "))
     }
 
     @Test
@@ -23,8 +29,9 @@ class TextFunctionsTest {
     }
 
     @Test
-    def splitSentenceOnPartsTest(): Unit = {
-        val sentence = "Word1 word2, \"word3\" - word4-suff (word5, word6!): word7; word8."
+    def splitSentenceOnPartsTest1(): Unit = {
+        val sentence = "Word1 word2, \"word3\" - word4-suff (word5, word6!): word7; word8." +
+            " WordWith'Apostrophe. WordWith–LongHyphen."
 
         val parts = TextFunctions.splitSentenceOnParts(sentence)
         Assert.assertTrue(parts.contains("Word1"))
@@ -35,6 +42,8 @@ class TextFunctionsTest {
         Assert.assertTrue(parts.contains("word6"))
         Assert.assertTrue(parts.contains("word7"))
         Assert.assertTrue(parts.contains("word8"))
+        Assert.assertTrue(parts.contains("WordWith'Apostrophe"))
+        Assert.assertTrue(parts.contains("WordWith–LongHyphen"))
     }
 
     @Test

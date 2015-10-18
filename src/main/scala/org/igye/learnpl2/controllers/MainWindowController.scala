@@ -26,6 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Initable {
     implicit val log: Logger = LoggerFactory.getLogger(this.getClass)
+    implicit val spellCheckerLog = Some(LoggerFactory.getLogger("spellChecker"))
 
     var primaryStage: Stage = _
 
@@ -124,6 +125,7 @@ class MainWindowController extends Initable {
                 if (currState == ONLY_TEXT) {
                     showTextWithInputs()
                     currState = TEXT_WITH_INPUTS
+                    currValidationStage = FILL_INPUTS
                 } else if (currState == TEXT_WITH_INPUTS) {
                     if (currSentenceIdx < text.size - 1) {
                         currSentenceIdx += 1
@@ -295,7 +297,7 @@ class MainWindowController extends Initable {
         var nextIdx = idx
         while (
             nextIdx < inputs.size &&
-                TextFunctions.checkUserInput(hiddenWords(nextIdx), inputs(nextIdx).getText, Some(log))
+                TextFunctions.checkUserInput(hiddenWords(nextIdx), inputs(nextIdx).getText, spellCheckerLog)
         ) {
             nextIdx += 1
         }
@@ -316,7 +318,7 @@ class MainWindowController extends Initable {
             }
         } else {
             //validate current word. If it is invalid then stay on it.
-            if (!TextFunctions.checkUserInput(hiddenWords(currInputNumber), inputs(currInputNumber).getText, Some(log))) {
+            if (!TextFunctions.checkUserInput(hiddenWords(currInputNumber), inputs(currInputNumber).getText, spellCheckerLog)) {
                 Some(inputs(currInputNumber))
             } else {
                 //If it is valid then find next invalid word.
@@ -336,7 +338,7 @@ class MainWindowController extends Initable {
     }
 
     def highlightInput(idx: Int): Unit = {
-        if (TextFunctions.checkUserInput(hiddenWords(idx), inputs(idx).getText, Some(log))) {
+        if (TextFunctions.checkUserInput(hiddenWords(idx), inputs(idx).getText, spellCheckerLog)) {
             inputs(idx).setBorder(JfxUtils.createBorder(Color.GREEN))
         } else {
             inputs(idx).setBorder(JfxUtils.createBorder(Color.RED))

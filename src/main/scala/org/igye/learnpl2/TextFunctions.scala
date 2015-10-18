@@ -8,12 +8,12 @@ object TextFunctions {
         sentenceDelimiter.split(text).toList.map(_.trim)
     }
 
-    val sentencePartsDelimiter = """(?<!-)\b(?!-\w)""".r
+    val sentencePartsDelimiter = """(?<!(-|'|–))\b(?!(-|'|–)\w)""".r
     def splitSentenceOnParts(sentence: String) = {
         sentencePartsDelimiter.split(sentence).toList
     }
 
-    val hidablePattern = """^[\(\)-.,\s–"]+$""".r
+    val hidablePattern = """^[\(\)-.,\s–":\[\]\\/;]+$""".r
     def isHiddable(word: String): Boolean = {
         !hidablePattern.findFirstIn(word).isDefined
     }
