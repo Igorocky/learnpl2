@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Appenders>
-        <RollingFile name="generalAppender" fileName="learnpl-app_%d{yyyy-MM-dd_HH-mm}.log"
+        <RollingFile name="generalAppender" fileName="learnpl-app.log"
                      filePattern="learnpl-app_%d{yyyy-MM-dd_HH-mm}_%i.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
