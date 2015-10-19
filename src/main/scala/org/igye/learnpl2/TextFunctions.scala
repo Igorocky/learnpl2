@@ -1,6 +1,6 @@
 package org.igye.learnpl2
 
-import org.slf4j.Logger
+import org.apache.logging.log4j.Logger
 
 object TextFunctions {
     val sentenceDelimiter = """(?<=\.)""".r

@@ -14,19 +14,19 @@ import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
 import javafx.scene.{Parent, Scene}
 import javafx.stage.{Modality, Stage}
 
+import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.learnpl2.TextFunctions
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Initable {
-    implicit val log: Logger = LoggerFactory.getLogger(this.getClass)
-    implicit val spellCheckerLog = Some(LoggerFactory.getLogger("spellChecker"))
+    implicit val log: Logger = LogManager.getLogger()
+    implicit val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
 
     var primaryStage: Stage = _
 

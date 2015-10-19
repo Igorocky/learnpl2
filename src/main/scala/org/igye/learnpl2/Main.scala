@@ -2,23 +2,20 @@ package org.igye.learnpl2
 
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.input.{KeyCode, KeyEvent}
-import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 
-import org.igye.jfxutils.action.{Shortcut, Action}
-import org.igye.jfxutils.{JfxUtils, nodeToHasEvens, FxmlSupport, JfxFuture}
+import org.apache.logging.log4j.{Logger, LogManager}
+import org.igye.jfxutils.{FxmlSupport, JfxFuture}
 import org.igye.learnpl2.controllers.MainWindowController
-import org.slf4j.LoggerFactory
 
 object Main {
     def main(args: Array[String]) {
-        Application.launch(classOf[App], args: _*);
+        Application.launch(classOf[App], args: _*)
     }
 }
 
 class App  extends Application {
-    implicit val log = LoggerFactory.getLogger(this.getClass)
+    implicit val log = LogManager.getLogger()
 
     override def start(primaryStage: Stage): Unit = {
         JfxFuture.setJfxThread(Thread.currentThread())
