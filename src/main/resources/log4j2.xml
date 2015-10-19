@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+    <Properties>
+        <Property name="logDir">log</Property>
+    </Properties>
     <Appenders>
-        <RollingFile name="generalAppender" fileName="learnpl-app.log"
-                     filePattern="learnpl-app_%d{yyyy-MM-dd_HH-mm}_%i.log">
+        <RollingFile name="generalAppender" fileName="${logDir}/learnpl-app.log"
+                     filePattern="${logDir}/learnpl-app_%d{yyyy-MM-dd_HH-mm}_%i.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
@@ -10,8 +13,8 @@
                 <OnStartupTriggeringPolicy/>
             </Policies>
         </RollingFile>
-        <RollingFile name="spellChecker" fileName="learnpl-spellChecker.log"
-                     filePattern="learnpl-spellChecker_%d{yyyy-MM-dd_HH-mm}_%i.log">
+        <RollingFile name="spellChecker" fileName="${logDir}/learnpl-spellChecker.log"
+                     filePattern="${logDir}/learnpl-spellChecker_%d{yyyy-MM-dd_HH-mm}_%i.log">
             <PatternLayout>
                 <Pattern>%d %m%n</Pattern>
             </PatternLayout>
