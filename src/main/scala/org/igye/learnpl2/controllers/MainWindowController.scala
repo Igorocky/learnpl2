@@ -21,6 +21,7 @@ import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.models.LoadTextModel
+import org.igye.learnpl2.models.impl.LoadTextModelImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -184,7 +185,7 @@ class MainWindowController extends Initable {
         require(translateBtn != null)
 
         val loadTextController = FxmlSupport.load[LoadTextController]
-        loadTextController.bindModel(new LoadTextModel())
+        loadTextController.bindModel(new LoadTextModelImpl())
         loadTextController.stage = loadTextStage
         loadTextStage.setScene(new Scene(loadTextController.getLoadTextWindow))
         loadTextStage.initModality(Modality.APPLICATION_MODAL)
