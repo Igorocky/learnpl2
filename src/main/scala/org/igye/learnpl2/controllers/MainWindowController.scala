@@ -20,6 +20,7 @@ import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.learnpl2.TextFunctions
+import org.igye.learnpl2.models.LoadTextModel
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -182,17 +183,18 @@ class MainWindowController extends Initable {
         require(selectNextWordBtn != null)
         require(translateBtn != null)
 
-        val loadTextWnd = FxmlSupport.load[LoadTextController]
-        loadTextWnd.stage = loadTextStage
-        loadTextStage.setScene(new Scene(loadTextWnd.getLoadTextWindow))
+        val loadTextController = FxmlSupport.load[LoadTextController]
+        loadTextController.bindModel(new LoadTextModel())
+        loadTextController.stage = loadTextStage
+        loadTextStage.setScene(new Scene(loadTextController.getLoadTextWindow))
         loadTextStage.initModality(Modality.APPLICATION_MODAL)
 
-        loadTextWnd.onLoadButtonPressed = JfxActionEventHandler {e =>
+        loadTextController.onLoadButtonPressed = JfxActionEventHandler {e =>
             FutureLoggable {
-                text = parseText(loadTextWnd.getTextArea.getText)
+                text = parseText(loadTextController.getModel.getText)
                 currSentenceIdx = 0
                 RunInJfxThread {
-                    loadTextWnd.close()
+                    loadTextController.close()
                 }
                 showOnlyText()
                 currState = ONLY_TEXT
