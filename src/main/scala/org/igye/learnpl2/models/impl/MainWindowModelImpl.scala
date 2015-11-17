@@ -110,4 +110,34 @@ class MainWindowModelImpl extends MainWindowModel {
             }
         }
     }
+
+    override def selectNextWord(step: Int): Unit = {
+        val selectedWordOpt = currSentence.find(_.selected.get())
+        var idx = if (selectedWordOpt.isDefined) {
+            selectedWordOpt.get.selected.set(false)
+            currSentence.indexOf(selectedWordOpt.get)
+        } else {
+            -1
+        }
+
+        def incSelectedWordIdx() = {
+            idx += step
+            if (idx > currSentence.length - 1) {
+                idx = -1
+            } else if (idx < -1) {
+                idx = currSentence.length - 1
+            }
+        }
+        def isIdxAppropriate() = {
+            idx == -1 || currSentence.get(idx).hiddable
+        }
+
+        incSelectedWordIdx()
+        while(!isIdxAppropriate()) {
+            incSelectedWordIdx()
+        }
+        if (idx != -1) {
+            currSentence.get(idx).selected.set(true)
+        }
+    }
 }

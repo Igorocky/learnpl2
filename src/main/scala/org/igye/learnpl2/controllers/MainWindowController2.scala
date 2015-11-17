@@ -105,10 +105,26 @@ class MainWindowController2 extends Initable {
         }
     }
 
+    private val selectNextWordAction = new Action {
+        override val description: String = "Select next word"
+        setShortcut(Shortcut(KeyCode.RIGHT))
+        override protected[this] def onAction(): Unit = {
+            model.selectNextWord(1)
+        }
+    }
+
+    private val selectPrevWordAction = new Action {
+        override val description: String = "Select prev word"
+        setShortcut(Shortcut(KeyCode.LEFT))
+        override protected[this] def onAction(): Unit = {
+            model.selectNextWord(-1)
+        }
+    }
+
     private val actions = List(
         loadTextAction
-//        ,selectNextWordAction
-//        ,selectPrevWordAction
+        ,selectNextWordAction
+        ,selectPrevWordAction
         ,translateAction
         ,nextAction
         ,backAction
@@ -132,8 +148,8 @@ class MainWindowController2 extends Initable {
         initLoadTextController()
 
         Action.bind(loadTextAction, loadTextBtn)
-//        Action.bind(selectNextWordAction, selectNextWordBtn)
-//        Action.bind(selectPrevWordAction, selectPrevWordBtn)
+        Action.bind(selectNextWordAction, selectNextWordBtn)
+        Action.bind(selectPrevWordAction, selectPrevWordBtn)
         Action.bind(translateAction, translateBtn)
         Action.bind(nextAction, nextBtn)
         Action.bind(backAction, backBtn)
@@ -227,11 +243,11 @@ class MainWindowController2 extends Initable {
     }
 
     def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
-//        selectPrevWordAction.trigger()
+        selectPrevWordAction.trigger()
     }
 
     def selectNextWordBtnPressed(event: ActionEvent): Unit = {
-//        selectNextWordAction.trigger()
+        selectNextWordAction.trigger()
     }
 
     def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
