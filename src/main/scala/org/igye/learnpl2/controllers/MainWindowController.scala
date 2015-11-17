@@ -2,31 +2,31 @@ package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
-import java.util.Random
-import javafx.beans.property.ReadOnlyProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
-import javafx.scene.Parent
 import javafx.scene.control.{Button, Tab, TabPane, TextField}
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
-import javafx.stage.{Modality, Stage}
+import javafx.scene.{Node, Parent}
 
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.commonutils.{Enum, FutureLoggable}
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
+import org.igye.jfxutils.properties.{Expr, UpFrontTrigger}
 import org.igye.learnpl2.TextFunctions
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.igye.learnpl2.controllers.State._
+import org.igye.learnpl2.models.impl.MainWindowModelImpl
+import org.igye.learnpl2.models.{MainWindowModel, Word}
 
 @FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Initable {
     implicit val log: Logger = LogManager.getLogger()
     implicit val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
+
+    private val model: MainWindowModel = new MainWindowModelImpl()
 
     @FXML
     protected var mainWindow: Parent = _
@@ -52,55 +52,31 @@ class MainWindowController extends Initable {
     @FXML
     protected var translateBtn: Button = _
 
-    private val loadTextStage: Stage = new Stage()
+    private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
 
-    case class State(name: String)
-    private object State extends Enum[State] {
-        val NOT_LOADED = addElem(State("NOT_LOADED"))
-        val ONLY_TEXT = addElem(State("ONLY_TEXT"))
-        val TEXT_WITH_INPUTS = addElem(State("TEXT_WITH_INPUTS"))
+    val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
+        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
     }
-    import State._
 
-    case class ValidationStage(name: String)
-    private object ValidationStage extends Enum[ValidationStage] {
-        val FILL_INPUTS = addElem(ValidationStage("FILL_INPUTS"))
-        val CORRECTIONS_STAGE = addElem(ValidationStage("CORRECTIONS_STAGE"))
+    val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
+        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(false)
     }
-    import ValidationStage._
 
-    var currState = NOT_LOADED
-    var currValidationStage = FILL_INPUTS
-    @volatile
-    private var text: List[List[String]] = _
-    private var currSentenceIdx: Int = _
-    private var words: List[Text] = _
-    private var inputs: List[TextField] = _
-    private var hiddenWords: List[String] = _
-    private val random = new Random()
-    private var selectedWordIdx = -1
+    val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
+        //        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
+        //        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
+        //        tabPane.getTabs.add(tab)
+        //        tabPane.getSelectionModel.select(tab)
+
+        model.selectWord(e.getTarget.asInstanceOf[ParentHasWord].getWord)
+        translateAction.trigger()
+    }
 
     private val loadTextAction = new Action {
         override val description: String = "Load text"
         setShortcut(Shortcut(KeyCode.ALT, KeyCode.L))
         override protected[this] def onAction(): Unit = {
-            loadTextStage.show()
-        }
-    }
-
-    private val selectNextWordAction = new Action {
-        override val description: String = "Select next word"
-        setShortcut(Shortcut(KeyCode.RIGHT))
-        override protected[this] def onAction(): Unit = {
-            selectNextWord(1)
-        }
-    }
-
-    private val selectPrevWordAction = new Action {
-        override val description: String = "Select prev word"
-        setShortcut(Shortcut(KeyCode.LEFT))
-        override protected[this] def onAction(): Unit = {
-            selectNextWord(-1)
+            loadTextController.open()
         }
     }
 
@@ -108,9 +84,7 @@ class MainWindowController extends Initable {
         override val description: String = "Translate"
         setShortcut(Shortcut(KeyCode.F4))
         override protected[this] def onAction(): Unit = {
-            if (selectedWordIdx >= 0) {
-                translateWord(words(selectedWordIdx).getText)
-            }
+            model.getSelectedWord.foreach(w => translateWord(w.text))
         }
     }
 
@@ -119,21 +93,7 @@ class MainWindowController extends Initable {
         override val description: String = "Next"
         setShortcut(nextActionShortcut)
         override protected[this] def onAction(): Unit = {
-            if (text != null) {
-                if (currState == ONLY_TEXT) {
-                    showTextWithInputs()
-                    currState = TEXT_WITH_INPUTS
-                    currValidationStage = FILL_INPUTS
-                } else if (currState == TEXT_WITH_INPUTS) {
-                    if (currSentenceIdx < text.size - 1) {
-                        currSentenceIdx += 1
-                        showOnlyText()
-                        currState = ONLY_TEXT
-                    } else {
-                        loadTextButtonPressed(null)
-                    }
-                }
-            }
+            model.next()
         }
     }
 
@@ -141,20 +101,23 @@ class MainWindowController extends Initable {
         override val description: String = "Back"
         setShortcut(Shortcut(KeyCode.CONTROL, KeyCode.ALT, KeyCode.LEFT))
         override protected[this] def onAction(): Unit = {
-            if (text != null) {
-                if (currState == TEXT_WITH_INPUTS) {
-                    showOnlyText()
-                    currState = ONLY_TEXT
-                } else if (currState == ONLY_TEXT) {
-                    if (currSentenceIdx > 0) {
-                        currSentenceIdx -= 1
-                        showTextWithInputs()
-                        currState = TEXT_WITH_INPUTS
-                    } else {
-                        loadTextButtonPressed(null)
-                    }
-                }
-            }
+            model.back()
+        }
+    }
+
+    private val selectNextWordAction = new Action {
+        override val description: String = "Select next word"
+        setShortcut(Shortcut(KeyCode.RIGHT))
+        override protected[this] def onAction(): Unit = {
+            model.selectNextWord(1)
+        }
+    }
+
+    private val selectPrevWordAction = new Action {
+        override val description: String = "Select prev word"
+        setShortcut(Shortcut(KeyCode.LEFT))
+        override protected[this] def onAction(): Unit = {
+            model.selectNextWord(-1)
         }
     }
 
@@ -180,22 +143,9 @@ class MainWindowController extends Initable {
         require(selectNextWordBtn != null)
         require(translateBtn != null)
 
-        val loadTextController = FxmlSupport.load[LoadTextController]
-        loadTextController.stage = loadTextStage
-//        loadTextStage.setScene(new Scene(loadTextController.getLoadTextWindow))
-        loadTextStage.initModality(Modality.APPLICATION_MODAL)
+        bindModel()
 
-        loadTextController.onLoadButtonPressed = JfxActionEventHandler {e =>
-            FutureLoggable {
-                text = parseText(loadTextController.getModel.text.get)
-                currSentenceIdx = 0
-                RunInJfxThread {
-                    loadTextController.close()
-                }
-                showOnlyText()
-                currState = ONLY_TEXT
-            }
-        }
+        initLoadTextController()
 
         Action.bind(loadTextAction, loadTextBtn)
         Action.bind(selectNextWordAction, selectNextWordBtn)
@@ -206,268 +156,121 @@ class MainWindowController extends Initable {
         JfxUtils.bindShortcutActionTrigger(mainTab, actions)
     }
 
-    @FXML
-    protected def loadTextButtonPressed(event: ActionEvent): Unit = {
-        loadTextAction.trigger()
-    }
-
-    @FXML
-    protected def nextButtonPressed(event: ActionEvent): Unit = {
-        nextAction.trigger()
-    }
-
-    @FXML
-    protected def backButtonPressed(event: ActionEvent): Unit = {
-        backAction.trigger()
+    private def initLoadTextController(): Unit = {
+        loadTextController.onLoadButtonPressed = JfxActionEventHandler {e =>
+            model.setText(loadTextController.getModel.text.get)
+            loadTextController.close()
+        }
     }
 
     private def parseText(text: String): List[List[String]] = {
         TextFunctions.splitTextOnSentences(text).map(TextFunctions.splitSentenceOnParts(_))
     }
 
-    val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
-//        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
-//        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
-//        tabPane.getTabs.add(tab)
-//        tabPane.getSelectionModel.select(tab)
-
-        selectedWordIdx = words.indexOf(e.getTarget)
-        translateAction.trigger()
-    }
-
-    private def translateWord(word: String): Unit = {
-        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/$word").toURI());
-    }
-
-    val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
-        e.getSource.asInstanceOf[Text].setFill(Color.BLUE)
-    }
-
-    val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
-        val text = e.getSource.asInstanceOf[Text]
-        text.setFill(getWordColor(text.getText))
-    }
-
-    private def showOnlyText(): Unit = {
-        RunInJfxThread {
-            words = Nil
-            selectedWordIdx = -1
-            val sentence = text(currSentenceIdx)
-            textFlow.getChildren.clear()
-            sentence.foreach(word =>  {
-                textFlow.getChildren.add(saveWordToList(createTextElem(word)))
-            })
-            contentPane.getChildren.clear()
-            contentPane.getChildren.add(textFlow)
-            words = words.reverse
-        }
-    }
-
-    def saveWordToList(word: Text) = {
-        words ::= word
-        word
-    }
-
-    def createTextElem(word: String): Text = {
-        val wordText = new Text(word)
-        wordText.setFill(getWordColor(word))
-        wordText.hnd(getWordHandlers(word): _*)
-        wordText
-    }
-
-    def getWordColor(word: String): Color = {
-        if (TextFunctions.isHiddable(word)) {
-            Color.GREEN
-        } else {
-            Color.RED
-        }
-    }
-
-    def getWordHandlers(word: String): List[EventHandlerInfo[MouseEvent]] = {
-        if (TextFunctions.isHiddable(word)) {
-            List(wordMouseEntered, wordMouseExited, wordClickHandler)
-        } else {
-            Nil
-        }
-    }
-
-    def findFirstInvalidWordStartingFromIdx(idx: Int): Option[Int] = {
-        var nextIdx = idx
-        while (
-            nextIdx < inputs.size &&
-                TextFunctions.checkUserInput(hiddenWords(nextIdx), inputs(nextIdx).getText, spellCheckerLog)
-        ) {
-            nextIdx += 1
-        }
-        if (nextIdx < inputs.size) {
-            Some(nextIdx)
-        } else {
-            None
-        }
-    }
-
-    def getNextInputToBeEditedInCurrValidationStage(currInput: Option[Any]): Option[TextField] = {
-        val currInputNumber = if (currInput.isDefined) inputs.indexOf(currInput.get) else 0
-        if (currValidationStage == FILL_INPUTS) {
-            if (currInputNumber < inputs.size - 1) {
-                Some(inputs(currInputNumber + 1))
-            } else {
-                None
-            }
-        } else {
-            //validate current word. If it is invalid then stay on it.
-            if (!TextFunctions.checkUserInput(hiddenWords(currInputNumber), inputs(currInputNumber).getText, spellCheckerLog)) {
-                Some(inputs(currInputNumber))
-            } else {
-                //If it is valid then find next invalid word.
-                var nextInvalidWord = findFirstInvalidWordStartingFromIdx(currInputNumber + 1)
-                if (nextInvalidWord.isDefined) {
-                    Some(inputs(nextInvalidWord.get))
-                } else {
-                    nextInvalidWord = findFirstInvalidWordStartingFromIdx(0)
-                    if (nextInvalidWord.isDefined) {
-                        Some(inputs(nextInvalidWord.get))
-                    } else {
-                        None
-                    }
-                }
+    private def bindModel(): Unit = {
+        textFlow.getChildren <== (model.currSentence, createNodeFromWord)
+        model.currState ==> ChgListener{chg=>
+            if (chg.newValue == NOT_LOADED) {
+                loadTextAction.trigger()
             }
         }
     }
 
-    def highlightInput(idx: Int): Unit = {
-        if (TextFunctions.checkUserInput(hiddenWords(idx), inputs(idx).getText, spellCheckerLog)) {
-            inputs(idx).setBorder(JfxUtils.createBorder(Color.GREEN))
-        } else {
-            inputs(idx).setBorder(JfxUtils.createBorder(Color.RED))
+    private def createNodeFromWord(word: Word): Node = {
+        val wordRepr = new WordRepr(word, createTextElem(word), if (word.hiddable) Some(createEditElem(word)) else None)
+        wordRepr.showTextField <== word.hidden
+        wordRepr.setRequestFocusTrigger(new UpFrontTrigger(Expr(word.awaitingUserInput){word.awaitingUserInput.get()}))
+        wordRepr
+    }
+
+    private def createTextElem(word: Word): Text with ParentHasWord = {
+        val textElem = new Text(word.text) with ParentHasWord
+        textElem.fillProperty <== Expr(word.mouseEntered) {
+            if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
-    }
-
-    def highlightInput(input: Any): Unit = {
-        highlightInput(inputs.indexOf(input))
-    }
-
-    def highLightAllInputs(): Unit = {
-        (0 until inputs.length).foreach(highlightInput)
-    }
-
-    val textFieldEnterPressedHnd = JfxUtils.eventHandler(KeyEvent.KEY_PRESSED){e =>
-        if (e.getCode == KeyCode.ENTER) {
-            val currInput = e.getSource
-            val nextInputOpt = getNextInputToBeEditedInCurrValidationStage(Some(currInput))
-            if (nextInputOpt.isDefined) {
-                if (currValidationStage == CORRECTIONS_STAGE && currInput != nextInputOpt.get) {
-                    highlightInput(currInput)
-                }
-                RunInJfxThreadForcibly {
-                    nextInputOpt.get.requestFocus()
-                }
-            } else {
-                if (currValidationStage == FILL_INPUTS) {
-                    highLightAllInputs()
-                    val firstInvalidWord = findFirstInvalidWordStartingFromIdx(0)
-                    if (firstInvalidWord.isDefined) {
-                        currValidationStage = CORRECTIONS_STAGE
-                        RunInJfxThreadForcibly {
-                            inputs(firstInvalidWord.get).requestFocus()
-                        }
-                    } else {
-                        nextButtonPressed(null)
-                    }
-                } else {
-                    highLightAllInputs()
-                    currValidationStage = FILL_INPUTS
-                    nextButtonPressed(null)
-                }
-            }
+        val fontFamily = textElem.getFont.getFamily
+        textElem.fontProperty() <== Expr(word.selected) {
+            val weight = if (word.selected.get) FontWeight.BOLD else FontWeight.NORMAL
+            Font.font(fontFamily, weight, 20.0)
         }
+        textElem.hnd(getWordHandlers(word): _*)
+        textElem
     }
 
-    private def createTextField(): TextField = {
-        val textField = new TextField()
+    private def createEditElem(word: Word): TextField with ParentHasWord = {
+        val textField = new TextField() with ParentHasWord
         textField.setPrefWidth(200)
-        textField.hnd(textFieldEnterPressedHnd)
-        textField.focusedProperty().asInstanceOf[ReadOnlyProperty[Boolean]].addListener(ChgListener[Boolean]{v =>
-            if (v.newValue) {
+        textField.hnd(KeyEvent.KEY_PRESSED){e =>
+            if (e.getCode == KeyCode.ENTER) {
+                textField.getWord.setUserInput(textField.getText)
+                model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
+            }
+        }
+        textField.focusedProperty() ==> ChgListener {chg=>
+            if (chg.newValue) {
                 nextAction.removeShortcut()
             } else {
                 nextAction.setShortcut(nextActionShortcut)
             }
-        })
-        textField
-    }
-
-    private def showTextWithInputs(): Unit = {
-        RunInJfxThread {
-            val sentence = text(currSentenceIdx)
-            textFlow.getChildren.clear()
-            inputs = Nil
-            hiddenWords = Nil
-            sentence.foreach(word =>  {
-                if (TextFunctions.isHiddable(word) && random.nextInt(100) < 10) {
-                    val textField = createTextField()
-                    inputs ::= textField
-                    hiddenWords ::= word
-                    textFlow.getChildren.add(textField)
-                } else {
-                    textFlow.getChildren.add(createTextElem(word))
-                }
-            })
-            inputs = inputs.reverse
-            hiddenWords = hiddenWords.reverse
-            contentPane.getChildren.clear()
-            contentPane.getChildren.add(textFlow)
-            if (inputs.isEmpty) {
-                nextButtonPressed(null)
+        }
+        val initialBorder = textField.getBorder
+        textField.borderProperty() <== Expr(word.userInputIsCorrect) {
+            if (word.userInputIsCorrect.get().isEmpty) {
+                initialBorder
+            } else if (word.userInputIsCorrect.get().get) {
+                JfxUtils.createBorder(Color.GREEN)
             } else {
-                RunInJfxThreadForcibly {
-                    inputs(0).requestFocus()
-                }
+                JfxUtils.createBorder(Color.RED)
             }
         }
+        textField
     }
 
     def onMainTabCloseRequest(event: Event) = {
         event.consume()
     }
 
-    def selectNextWordBtnPressed(event: ActionEvent): Unit = {
-        selectNextWordAction.trigger()
+    protected def loadTextButtonPressed(event: ActionEvent): Unit = {
+        loadTextAction.trigger()
+    }
+
+    protected def nextButtonPressed(event: ActionEvent): Unit = {
+        nextAction.trigger()
+    }
+
+    protected def backButtonPressed(event: ActionEvent): Unit = {
+        backAction.trigger()
     }
 
     def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
         selectPrevWordAction.trigger()
     }
 
-    def selectNextWord(step: Int): Unit = {
-        def incSelectedWordIdx() = {
-            selectedWordIdx += step
-            if (selectedWordIdx > text(currSentenceIdx).length - 1) {
-                selectedWordIdx = -1
-            } else if (selectedWordIdx < -1) {
-                selectedWordIdx = text(currSentenceIdx).length - 1
-            }
-        }
-        def isCurrSelectedWordIdxAppropriate() = {
-            selectedWordIdx == -1 || TextFunctions.isHiddable(text(currSentenceIdx)(selectedWordIdx))
-        }
-        selectWord(selectedWordIdx, FontWeight.NORMAL)
-        incSelectedWordIdx()
-        while(!isCurrSelectedWordIdxAppropriate()) {
-            incSelectedWordIdx()
-        }
-        selectWord(selectedWordIdx, FontWeight.BOLD)
-    }
-
-    private def selectWord(wordIdx: Int, weight: FontWeight): Unit = {
-        if (wordIdx >= 0) {
-            val word = words(wordIdx)
-            val font = word.getFont
-            word.setFont(Font.font(font.getFamily, weight, font.getSize))
-        }
+    def selectNextWordBtnPressed(event: ActionEvent): Unit = {
+        selectNextWordAction.trigger()
     }
 
     def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
         translateAction.trigger()
+    }
+
+    def getWordColor(word: Word): Color = {
+        if (word.hiddable) {
+            Color.GREEN
+        } else {
+            Color.RED
+        }
+    }
+
+    private def translateWord(word: String): Unit = {
+        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/$word").toURI());
+    }
+
+    def getWordHandlers(word: Word): List[EventHandlerInfo[MouseEvent]] = {
+        if (word.hiddable) {
+            List(wordMouseEntered, wordMouseExited, wordClickHandler)
+        } else {
+            Nil
+        }
     }
 }

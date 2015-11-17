@@ -6,7 +6,7 @@ import javafx.stage.Stage
 
 import org.apache.logging.log4j.LogManager
 import org.igye.jfxutils.{FxmlSupport, JfxFuture}
-import org.igye.learnpl2.controllers.MainWindowController2
+import org.igye.learnpl2.controllers.MainWindowController
 
 object Main {
     def main(args: Array[String]) {
@@ -19,47 +19,12 @@ class App  extends Application {
 
     override def start(primaryStage: Stage): Unit = {
         JfxFuture.setJfxThread(Thread.currentThread())
-        val mainWindow = FxmlSupport.load[MainWindowController2]
+        val mainWindow = FxmlSupport.load[MainWindowController]
 
         val scene = new Scene(mainWindow.getMainWindow)
         primaryStage.setScene(scene)
-        primaryStage.setTitle("Using TextFlow")
+        primaryStage.setTitle("learnpl2")
         primaryStage.setMaximized(true)
         primaryStage.show()
     }
-
-    /*override def start(primaryStage: Stage): Unit = {
-        JfxFuture.setJfxThread(Thread.currentThread())
-        val anchorPaneController = FxmlSupport.load[AnchorPaneTestController]("fxml/AnchorPaneTest.fxml")
-        val printToConsoleAction = new Action {
-            setShortcut(new Shortcut(List(KeyCode.CONTROL, KeyCode.P)))
-            override protected[this] def onAction(): Unit = {
-                println("printToConsoleAction was triggered.")
-            }
-            override val description: String = "Print to console"
-        }
-        var printingIsEnabled = true
-        val enableDisablePrintingAction = new Action {
-            setShortcut(new Shortcut(List(KeyCode.CONTROL, KeyCode.E)))
-            override protected[this] def onAction(): Unit = {
-                printingIsEnabled = !printingIsEnabled
-                printToConsoleAction.setEnabled(printingIsEnabled)
-            }
-            override val description: String = "Enable/disable printing"
-        }
-        Action.bind(enableDisablePrintingAction, anchorPaneController.getButton1)
-        Action.bind(printToConsoleAction, anchorPaneController.getButton2)
-        JfxUtils.bindShortcutActionTrigger(
-            anchorPaneController.getAnchorPane,
-            List(
-                enableDisablePrintingAction,
-                printToConsoleAction
-            )
-        )
-        val scene = new Scene(anchorPaneController.getAnchorPane)
-        primaryStage.setScene(scene)
-        primaryStage.setTitle("Learn PL")
-        primaryStage.setMaximized(true)
-        primaryStage.show()
-    }*/
 }
