@@ -57,6 +57,7 @@ class MainWindowModelImpl extends MainWindowModel {
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
             currSentence.foreach(w => if (w.hiddable && random.nextInt(100) < 10) w.hidden.set(true))
+            currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
             currValidationState.set(FILL_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {

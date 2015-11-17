@@ -5,14 +5,12 @@ import java.net.URL
 import javafx.beans.property.BooleanProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
-import javafx.scene.control.{Button, Tab, TabPane}
-import javafx.scene.input.{KeyEvent, KeyCode, MouseEvent}
+import javafx.scene.control.{Button, Tab, TabPane, TextField}
+import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import javafx.scene.text.{Font, FontWeight, TextFlow}
+import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
 import javafx.scene.{Node, Parent}
-
-import scala.collection.JavaConversions._
 
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils._
@@ -20,9 +18,9 @@ import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.properties.Expr
 import org.igye.learnpl2.TextFunctions
+import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.impl.MainWindowModelImpl
 import org.igye.learnpl2.models.{MainWindowModel, Word}
-import org.igye.learnpl2.controllers.State._
 
 @FxmlFile("fxml/MainWindow2.fxml")
 class MainWindowController2 extends Initable {
@@ -58,11 +56,11 @@ class MainWindowController2 extends Initable {
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
 
     val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
-        e.getTarget.asInstanceOf[TextElem].word.mouseEntered.setValue(true)
+        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
     }
 
     val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
-        e.getTarget.asInstanceOf[TextElem].word.mouseEntered.setValue(false)
+        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(false)
     }
 
     val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
@@ -71,7 +69,7 @@ class MainWindowController2 extends Initable {
         //        tabPane.getTabs.add(tab)
         //        tabPane.getSelectionModel.select(tab)
 
-        model.selectWord(e.getTarget.asInstanceOf[TextElem].word)
+        model.selectWord(e.getTarget.asInstanceOf[ParentHasWord].getWord)
         translateAction.trigger()
     }
 
@@ -157,21 +155,10 @@ class MainWindowController2 extends Initable {
     private def bindModel(): Unit = {
         textFlow.getChildren <== (model.currSentence, createNodeFromWord, destroyNodeFromWord)
         model.currState ==> ChgListener{chg=>
-            if (chg.newValue == TEXT_WITH_INPUTS) {
-                RunInJfxThreadForcibly {
-                    textFlow.getChildren.find(_.isInstanceOf[EditElem]).foreach(_.requestFocus())
-                }
-            } else if (chg.newValue == NOT_LOADED) {
+            if (chg.newValue == NOT_LOADED) {
                 loadTextAction.trigger()
             }
         }
-    }
-
-    val hideWordListener = ChgListener[java.lang.Boolean]{chg=>
-        val word = chg.observable.asInstanceOf[BooleanProperty].getBean.asInstanceOf[Word]
-        val idx = model.currSentence.indexOf(word)
-        textFlow.getChildren.remove(idx)
-        textFlow.getChildren.add(idx, createNodeFromWord(word))
     }
 
     val waitUserInputListener = ChgListener[java.lang.Boolean]{chg=>
@@ -179,26 +166,25 @@ class MainWindowController2 extends Initable {
             val word = chg.observable.asInstanceOf[BooleanProperty].getBean.asInstanceOf[Word]
             val idx = model.currSentence.indexOf(word)
             RunInJfxThreadForcibly {
-                textFlow.getChildren.get(idx).requestFocus()
+                textFlow.getChildren.get(idx).asInstanceOf[WordRepr].editElem.get.requestFocus()
             }
         }
     }
 
     private def createNodeFromWord(word: Word): Node = {
-        val res = if (!word.hidden.get) createTextElem(word) else createEditElem(word)
-        word.hidden ==> hideWordListener
+        val res = new WordRepr(word, createTextElem(word), if (word.hiddable) Some(createEditElem(word)) else None)
+        res.showTextEdit <== word.hidden
         word.awaitingUserInput ==> waitUserInputListener
         res
     }
 
     private def destroyNodeFromWord(node: Node): Unit = {
         val word = node.asInstanceOf[WordRepr].word
-        word.hidden.removeListener(hideWordListener)
         word.awaitingUserInput.removeListener(waitUserInputListener)
     }
 
-    private def createTextElem(word: Word): TextElem = {
-        val textElem = new TextElem(word)
+    private def createTextElem(word: Word): Text with ParentHasWord = {
+        val textElem = new Text(word.text) with ParentHasWord
         textElem.fillProperty <== Expr(word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
@@ -211,25 +197,24 @@ class MainWindowController2 extends Initable {
         textElem
     }
 
-    private def createEditElem(word: Word): EditElem = {
-        val editElem = new EditElem(word)
-        editElem.setPrefWidth(200)
-        editElem.hnd(KeyEvent.KEY_PRESSED){e =>
+    private def createEditElem(word: Word): TextField with ParentHasWord = {
+        val textField = new TextField() with ParentHasWord
+        textField.setPrefWidth(200)
+        textField.hnd(KeyEvent.KEY_PRESSED){e =>
             if (e.getCode == KeyCode.ENTER) {
-                val editElem = e.getSource.asInstanceOf[EditElem]
-                editElem.word.setUserInput(editElem.getText)
+                textField.getWord.setUserInput(textField.getText)
                 model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
             }
         }
-        editElem.focusedProperty() ==> ChgListener {chg=>
+        textField.focusedProperty() ==> ChgListener {chg=>
             if (chg.newValue) {
                 nextAction.removeShortcut()
             } else {
                 nextAction.setShortcut(nextActionShortcut)
             }
         }
-        val initialBorder = editElem.getBorder
-        editElem.borderProperty() <== Expr(word.userInputIsCorrect) {
+        val initialBorder = textField.getBorder
+        textField.borderProperty() <== Expr(word.userInputIsCorrect) {
             if (word.userInputIsCorrect.get().isEmpty) {
                 initialBorder
             } else if (word.userInputIsCorrect.get().get) {
@@ -238,7 +223,7 @@ class MainWindowController2 extends Initable {
                 JfxUtils.createBorder(Color.RED)
             }
         }
-        editElem
+        textField
     }
 
     def onMainTabCloseRequest(event: Event) = {
