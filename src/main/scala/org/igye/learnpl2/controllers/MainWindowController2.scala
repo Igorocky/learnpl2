@@ -6,7 +6,7 @@ import javafx.beans.property.BooleanProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
 import javafx.scene.control.{Button, Tab, TabPane}
-import javafx.scene.input.{KeyCode, MouseEvent}
+import javafx.scene.input.{KeyEvent, KeyCode, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.{Font, FontWeight, TextFlow}
@@ -100,13 +100,21 @@ class MainWindowController2 extends Initable {
         }
     }
 
+    private val backAction = new Action {
+        override val description: String = "Back"
+        setShortcut(Shortcut(KeyCode.CONTROL, KeyCode.ALT, KeyCode.LEFT))
+        override protected[this] def onAction(): Unit = {
+            model.back()
+        }
+    }
+
     private val actions = List(
         loadTextAction
 //        ,selectNextWordAction
 //        ,selectPrevWordAction
         ,translateAction
         ,nextAction
-//        ,backAction
+        ,backAction
     )
 
     override def init(): Unit = {
@@ -131,7 +139,7 @@ class MainWindowController2 extends Initable {
 //        Action.bind(selectPrevWordAction, selectPrevWordBtn)
         Action.bind(translateAction, translateBtn)
         Action.bind(nextAction, nextBtn)
-//        Action.bind(backAction, backBtn)
+        Action.bind(backAction, backBtn)
         JfxUtils.bindShortcutActionTrigger(mainTab, actions)
     }
 
@@ -160,50 +168,77 @@ class MainWindowController2 extends Initable {
     }
 
     val hideWordListener = ChgListener[java.lang.Boolean]{chg=>
+        val word = chg.observable.asInstanceOf[BooleanProperty].getBean.asInstanceOf[Word]
+        val idx = model.currSentence.indexOf(word)
+        textFlow.getChildren.remove(idx)
+        textFlow.getChildren.add(idx, createNodeFromWord(word))
+    }
+
+    val waitUserInputListener = ChgListener[java.lang.Boolean]{chg=>
         if (chg.newValue) {
             val word = chg.observable.asInstanceOf[BooleanProperty].getBean.asInstanceOf[Word]
             val idx = model.currSentence.indexOf(word)
-            textFlow.getChildren.remove(idx)
-            textFlow.getChildren.add(idx, createNodeFromWord(word))
+            RunInJfxThreadForcibly {
+                textFlow.getChildren.get(idx).requestFocus()
+            }
         }
     }
 
     private def createNodeFromWord(word: Word): Node = {
         val res = if (!word.hidden.get) createTextElem(word) else createEditElem(word)
         word.hidden ==> hideWordListener
+        word.awaitingUserInput ==> waitUserInputListener
         res
     }
 
     private def destroyNodeFromWord(node: Node): Unit = {
-        node.asInstanceOf[WordRepr].word.hidden.removeListener(hideWordListener)
+        val word = node.asInstanceOf[WordRepr].word
+        word.hidden.removeListener(hideWordListener)
+        word.awaitingUserInput.removeListener(waitUserInputListener)
     }
 
     private def createTextElem(word: Word): TextElem = {
-        val res = new TextElem(word)
-        res.fillProperty <== Expr(word.mouseEntered) {
+        val textElem = new TextElem(word)
+        textElem.fillProperty <== Expr(word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
-        val fontFamily = res.getFont.getFamily
-        res.fontProperty() <== Expr(word.selected) {
+        val fontFamily = textElem.getFont.getFamily
+        textElem.fontProperty() <== Expr(word.selected) {
             val weight = if (word.selected.get) FontWeight.BOLD else FontWeight.NORMAL
             Font.font(fontFamily, weight, 20.0)
         }
-        res.hnd(getWordHandlers(word): _*)
-        res
+        textElem.hnd(getWordHandlers(word): _*)
+        textElem
     }
 
     private def createEditElem(word: Word): EditElem = {
-        val res = new EditElem(word)
-        res.setPrefWidth(200)
-//        res.hnd(textFieldEnterPressedHnd)
-        res.focusedProperty() ==> ChgListener {chg=>
-            if (chg.newValue) {
-//                nextAction.removeShortcut()
-            } else {
-//                nextAction.setShortcut(nextActionShortcut)
+        val editElem = new EditElem(word)
+        editElem.setPrefWidth(200)
+        editElem.hnd(KeyEvent.KEY_PRESSED){e =>
+            if (e.getCode == KeyCode.ENTER) {
+                val editElem = e.getSource.asInstanceOf[EditElem]
+                editElem.word.setUserInput(editElem.getText)
+                model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
             }
         }
-        res
+        editElem.focusedProperty() ==> ChgListener {chg=>
+            if (chg.newValue) {
+                nextAction.removeShortcut()
+            } else {
+                nextAction.setShortcut(nextActionShortcut)
+            }
+        }
+        val initialBorder = editElem.getBorder
+        editElem.borderProperty() <== Expr(word.userInputIsCorrect) {
+            if (word.userInputIsCorrect.get().isEmpty) {
+                initialBorder
+            } else if (word.userInputIsCorrect.get().get) {
+                JfxUtils.createBorder(Color.GREEN)
+            } else {
+                JfxUtils.createBorder(Color.RED)
+            }
+        }
+        editElem
     }
 
     def onMainTabCloseRequest(event: Event) = {
@@ -219,7 +254,7 @@ class MainWindowController2 extends Initable {
     }
 
     protected def backButtonPressed(event: ActionEvent): Unit = {
-//        backAction.trigger()
+        backAction.trigger()
     }
 
     def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
@@ -231,7 +266,7 @@ class MainWindowController2 extends Initable {
     }
 
     def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
-//        translateAction.trigger()
+        translateAction.trigger()
     }
 
     def getWordColor(word: Word): Color = {

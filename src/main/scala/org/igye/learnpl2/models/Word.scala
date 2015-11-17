@@ -1,6 +1,6 @@
 package org.igye.learnpl2.models
 
-import javafx.beans.property.{BooleanProperty, StringProperty}
+import javafx.beans.property.{BooleanProperty, ObjectProperty}
 
 trait Word {
     val text: String
@@ -8,4 +8,8 @@ trait Word {
     val selected: BooleanProperty
     val mouseEntered: BooleanProperty
     val hidden: BooleanProperty
+    def setUserInput(userInput: String)
+    def getUserInput: Option[String]
+    val awaitingUserInput: BooleanProperty
+    val userInputIsCorrect: ObjectProperty[Option[Boolean]]
 }

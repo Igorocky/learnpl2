@@ -14,7 +14,8 @@ import org.igye.learnpl2.models.{MainWindowModel, Word}
 import scala.collection.JavaConversions._
 
 class MainWindowModelImpl extends MainWindowModel {
-    implicit val log: Logger = LogManager.getLogger()
+    private val log: Logger = LogManager.getLogger()
+    private val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
 
     override val currState: ObjectProperty[State] = new SimpleObjectProperty(NOT_LOADED)
     override val currValidationState: ObjectProperty[ValidationStage] = new SimpleObjectProperty(FILL_INPUTS)
@@ -70,6 +71,44 @@ class MainWindowModelImpl extends MainWindowModel {
                 currSentence.clear()
                 text = None
                 currState.set(NOT_LOADED)
+            }
+        }
+    }
+
+    override def back(): Unit = {
+        if (currState.get() == TEXT_WITH_INPUTS) {
+            currSentence.foreach(_.hidden.set(false))
+            currState.set(ONLY_TEXT)
+        } else if (currState.get() == ONLY_TEXT) {
+            if (currSentenceIdx > 0) {
+                currSentenceIdx -= 1
+                updateCurrSentence()
+                next()
+            } else {
+                currSentence.clear()
+                text = None
+                currState.set(NOT_LOADED)
+            }
+        }
+    }
+
+    override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {
+        if (currState.get() != NOT_LOADED) {
+            currSentence.foreach(_.awaitingUserInput.set(false))
+            val hiddenWords = currSentence.filter(_.hidden.get())
+            val firstWordWithoutUserInput = hiddenWords.find(_.getUserInput.isEmpty)
+            if (firstWordWithoutUserInput.isDefined) {
+                firstWordWithoutUserInput.get.awaitingUserInput.set(true)
+            } else {
+                hiddenWords.filter(_.userInputIsCorrect.get().isEmpty).foreach(w=>
+                    w.userInputIsCorrect.set(Some(TextFunctions.checkUserInput(w.text, w.getUserInput.get, spellCheckerLog)))
+                )
+                val firstIncorrectWord = hiddenWords.find(!_.userInputIsCorrect.get().get)
+                if (firstIncorrectWord.isDefined) {
+                    firstIncorrectWord.get.awaitingUserInput.set(true)
+                } else {
+                    next()
+                }
             }
         }
     }
