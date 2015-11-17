@@ -2,7 +2,6 @@ package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
-import javafx.beans.property.BooleanProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
 import javafx.scene.control.{Button, Tab, TabPane, TextField}
@@ -16,7 +15,7 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
-import org.igye.jfxutils.properties.Expr
+import org.igye.jfxutils.properties.{Expr, UpFrontTrigger}
 import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.impl.MainWindowModelImpl
@@ -153,7 +152,7 @@ class MainWindowController2 extends Initable {
     }
 
     private def bindModel(): Unit = {
-        textFlow.getChildren <== (model.currSentence, createNodeFromWord, destroyNodeFromWord)
+        textFlow.getChildren <== (model.currSentence, createNodeFromWord)
         model.currState ==> ChgListener{chg=>
             if (chg.newValue == NOT_LOADED) {
                 loadTextAction.trigger()
@@ -161,26 +160,11 @@ class MainWindowController2 extends Initable {
         }
     }
 
-    val waitUserInputListener = ChgListener[java.lang.Boolean]{chg=>
-        if (chg.newValue) {
-            val word = chg.observable.asInstanceOf[BooleanProperty].getBean.asInstanceOf[Word]
-            val idx = model.currSentence.indexOf(word)
-            RunInJfxThreadForcibly {
-                textFlow.getChildren.get(idx).asInstanceOf[WordRepr].editElem.get.requestFocus()
-            }
-        }
-    }
-
     private def createNodeFromWord(word: Word): Node = {
-        val res = new WordRepr(word, createTextElem(word), if (word.hiddable) Some(createEditElem(word)) else None)
-        res.showTextEdit <== word.hidden
-        word.awaitingUserInput ==> waitUserInputListener
-        res
-    }
-
-    private def destroyNodeFromWord(node: Node): Unit = {
-        val word = node.asInstanceOf[WordRepr].word
-        word.awaitingUserInput.removeListener(waitUserInputListener)
+        val wordRepr = new WordRepr(word, createTextElem(word), if (word.hiddable) Some(createEditElem(word)) else None)
+        wordRepr.showTextField <== word.hidden
+        wordRepr.setRequestFocusTrigger(new UpFrontTrigger(Expr(word.awaitingUserInput){word.awaitingUserInput.get()}))
+        wordRepr
     }
 
     private def createTextElem(word: Word): Text with ParentHasWord = {

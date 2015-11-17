@@ -1,14 +1,13 @@
 package org.igye.learnpl2.models.impl
 
 import java.util.Random
-import javafx.beans.property.{SimpleObjectProperty, ObjectProperty}
+import javafx.beans.property.{ObjectProperty, SimpleObjectProperty}
 import javafx.collections.{FXCollections, ObservableList}
 
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.learnpl2.TextFunctions
-import org.igye.learnpl2.controllers.{ValidationStage, State}
+import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
-import org.igye.learnpl2.controllers.ValidationStage._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
 
 import scala.collection.JavaConversions._
@@ -18,7 +17,6 @@ class MainWindowModelImpl extends MainWindowModel {
     private val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
 
     override val currState: ObjectProperty[State] = new SimpleObjectProperty(NOT_LOADED)
-    override val currValidationState: ObjectProperty[ValidationStage] = new SimpleObjectProperty(FILL_INPUTS)
 
     private var text: Option[List[List[String]]] = None
     private var currSentenceIdx = -1
@@ -59,7 +57,6 @@ class MainWindowModelImpl extends MainWindowModel {
             currSentence.foreach(w => if (w.hiddable && random.nextInt(100) < 10) w.hidden.set(true))
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
-            currValidationState.set(FILL_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {
                 next()
             }
