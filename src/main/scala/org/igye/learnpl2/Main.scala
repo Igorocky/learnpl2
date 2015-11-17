@@ -4,9 +4,9 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 
-import org.apache.logging.log4j.{Logger, LogManager}
+import org.apache.logging.log4j.LogManager
 import org.igye.jfxutils.{FxmlSupport, JfxFuture}
-import org.igye.learnpl2.controllers.MainWindowController
+import org.igye.learnpl2.controllers.MainWindowController2
 
 object Main {
     def main(args: Array[String]) {
@@ -19,8 +19,7 @@ class App  extends Application {
 
     override def start(primaryStage: Stage): Unit = {
         JfxFuture.setJfxThread(Thread.currentThread())
-        val mainWindow = FxmlSupport.load[MainWindowController]
-        mainWindow.primaryStage = primaryStage
+        val mainWindow = FxmlSupport.load[MainWindowController2]
 
         val scene = new Scene(mainWindow.getMainWindow)
         primaryStage.setScene(scene)

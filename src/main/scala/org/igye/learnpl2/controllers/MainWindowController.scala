@@ -6,12 +6,12 @@ import java.util.Random
 import javafx.beans.property.ReadOnlyProperty
 import javafx.event.{ActionEvent, Event}
 import javafx.fxml.FXML
+import javafx.scene.Parent
 import javafx.scene.control.{Button, Tab, TabPane, TextField}
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
-import javafx.scene.{Parent, Scene}
 import javafx.stage.{Modality, Stage}
 
 import org.apache.logging.log4j.{LogManager, Logger}
@@ -20,8 +20,6 @@ import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.learnpl2.TextFunctions
-import org.igye.learnpl2.models.LoadTextModel
-import org.igye.learnpl2.models.impl.LoadTextModelImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -29,8 +27,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class MainWindowController extends Initable {
     implicit val log: Logger = LogManager.getLogger()
     implicit val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
-
-    var primaryStage: Stage = _
 
     @FXML
     protected var mainWindow: Parent = _
@@ -185,14 +181,13 @@ class MainWindowController extends Initable {
         require(translateBtn != null)
 
         val loadTextController = FxmlSupport.load[LoadTextController]
-        loadTextController.bindModel(new LoadTextModelImpl())
         loadTextController.stage = loadTextStage
-        loadTextStage.setScene(new Scene(loadTextController.getLoadTextWindow))
+//        loadTextStage.setScene(new Scene(loadTextController.getLoadTextWindow))
         loadTextStage.initModality(Modality.APPLICATION_MODAL)
 
         loadTextController.onLoadButtonPressed = JfxActionEventHandler {e =>
             FutureLoggable {
-                text = parseText(loadTextController.getModel.getText)
+                text = parseText(loadTextController.getModel.text.get)
                 currSentenceIdx = 0
                 RunInJfxThread {
                     loadTextController.close()
@@ -392,7 +387,7 @@ class MainWindowController extends Initable {
         val textField = new TextField()
         textField.setPrefWidth(200)
         textField.hnd(textFieldEnterPressedHnd)
-        textField.focusedProperty().asInstanceOf[ReadOnlyProperty[Boolean]].addListener(CngListener[Boolean]{v =>
+        textField.focusedProperty().asInstanceOf[ReadOnlyProperty[Boolean]].addListener(ChgListener[Boolean]{v =>
             if (v.newValue) {
                 nextAction.removeShortcut()
             } else {
