@@ -5,7 +5,7 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 
 import org.apache.logging.log4j.LogManager
-import org.igye.jfxutils.{FxmlSupport, JfxFuture}
+import org.igye.jfxutils.fxml.FxmlSupport
 import org.igye.learnpl2.controllers.MainWindowController
 
 object Main {
@@ -18,7 +18,6 @@ class App  extends Application {
     implicit val log = LogManager.getLogger()
 
     override def start(primaryStage: Stage): Unit = {
-        JfxFuture.setJfxThread(Thread.currentThread())
         val mainWindow = FxmlSupport.load[MainWindowController]
 
         val scene = new Scene(mainWindow.getMainWindow)

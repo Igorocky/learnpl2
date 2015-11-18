@@ -1,13 +1,14 @@
 package org.igye.learnpl2.controllers
 
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.scene.{Node, Group}
 import javafx.scene.control.TextField
 import javafx.scene.text.Text
+import javafx.scene.{Group, Node}
 
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.jfxutils.properties.Trigger
-import org.igye.jfxutils.{RunInJfxThreadForcibly, observableValueToObservableValueOperators, ChgListener}
+import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
+import org.igye.jfxutils.observableValueToObservableValueOperators
+import org.igye.jfxutils.properties.{ChgListener, Trigger}
 import org.igye.learnpl2.models.Word
 
 trait ParentHasWord {

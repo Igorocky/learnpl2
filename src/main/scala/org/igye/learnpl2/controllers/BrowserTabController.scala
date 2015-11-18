@@ -6,8 +6,8 @@ import javafx.fxml.FXML
 import javafx.scene.control.Tab
 import javafx.scene.web.WebView
 
-import org.igye.jfxutils.Initable
 import org.igye.jfxutils.annotations.FxmlFile
+import org.igye.jfxutils.fxml.Initable
 
 @FxmlFile("fxml/BrowserTab.fxml")
 class BrowserTabController extends Initable {

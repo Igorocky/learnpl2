@@ -11,7 +11,8 @@ import javafx.stage.{Modality, Stage}
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
-import org.igye.jfxutils.{propertyToPropertyOperators, Initable, JfxUtils}
+import org.igye.jfxutils.fxml.Initable
+import org.igye.jfxutils.{JfxUtils, propertyToPropertyOperators}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
 

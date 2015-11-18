@@ -21,7 +21,7 @@ class MainWindowModelImpl extends MainWindowModel {
     private var text: Option[List[List[String]]] = None
     private var currSentenceIdx = -1
 
-    override val currSentence: ObservableList[Word] = FXCollections.observableArrayList[Word]()
+    override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val random = new Random()
 

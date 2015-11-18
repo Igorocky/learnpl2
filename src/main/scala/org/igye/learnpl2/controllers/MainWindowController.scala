@@ -15,7 +15,9 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
-import org.igye.jfxutils.properties.{Expr, UpFrontTrigger}
+import org.igye.jfxutils.events.{EventHandlerInfo, Hnd}
+import org.igye.jfxutils.fxml.{FxmlSupport, Initable}
+import org.igye.jfxutils.properties.{ChgListener, Expr, UpFrontTrigger}
 import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.impl.MainWindowModelImpl
@@ -54,15 +56,15 @@ class MainWindowController extends Initable {
 
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
 
-    val wordMouseEntered = JfxUtils.eventHandler(MouseEvent.MOUSE_ENTERED_TARGET){e =>
+    val wordMouseEntered = Hnd(MouseEvent.MOUSE_ENTERED_TARGET){e =>
         e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
     }
 
-    val wordMouseExited = JfxUtils.eventHandler(MouseEvent.MOUSE_EXITED_TARGET){e =>
+    val wordMouseExited = Hnd(MouseEvent.MOUSE_EXITED_TARGET){e =>
         e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(false)
     }
 
-    val wordClickHandler = JfxUtils.eventHandler(MouseEvent.MOUSE_CLICKED){e =>
+    val wordClickHandler = Hnd(MouseEvent.MOUSE_CLICKED){e =>
         //        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
         //        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
         //        tabPane.getTabs.add(tab)
@@ -157,7 +159,7 @@ class MainWindowController extends Initable {
     }
 
     private def initLoadTextController(): Unit = {
-        loadTextController.onLoadButtonPressed = JfxActionEventHandler {e =>
+        loadTextController.onLoadButtonPressed = Hnd {e =>
             model.setText(loadTextController.getModel.text.get)
             loadTextController.close()
         }
