@@ -1,7 +1,6 @@
 package org.igye.learnpl2
 
 import javafx.application.Application
-import javafx.scene.Scene
 import javafx.stage.Stage
 
 import org.apache.logging.log4j.LogManager
@@ -18,12 +17,9 @@ class App  extends Application {
     implicit val log = LogManager.getLogger()
 
     override def start(primaryStage: Stage): Unit = {
-        val mainWindow = FxmlSupport.load[MainWindowController]
-
-        val scene = new Scene(mainWindow.getMainWindow)
-        primaryStage.setScene(scene)
-        primaryStage.setTitle("learnpl2")
-        primaryStage.setMaximized(true)
-        primaryStage.show()
+        val mainWindow = FxmlSupport.load[MainWindowController](primaryStage)
+        mainWindow.stage.setTitle("learnpl2")
+        mainWindow.stage.setMaximized(true)
+        mainWindow.open()
     }
 }

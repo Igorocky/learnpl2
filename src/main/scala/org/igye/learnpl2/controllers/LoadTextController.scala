@@ -2,36 +2,39 @@ package org.igye.learnpl2.controllers
 
 import javafx.event.{ActionEvent, EventHandler}
 import javafx.fxml.FXML
-import javafx.scene.Scene
 import javafx.scene.control.{Button, TextArea}
 import javafx.scene.input.KeyCode._
 import javafx.scene.layout.VBox
-import javafx.stage.{Modality, Stage}
+import javafx.stage.Modality
 
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
-import org.igye.jfxutils.fxml.Initable
-import org.igye.jfxutils.{JfxUtils, propertyToPropertyOperators}
+import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
+import org.igye.jfxutils.fxml.{FxmlSupport, Initable}
+import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
 
 @FxmlFile("fxml/LoadTextWindow.fxml")
-class LoadTextController extends Initable {
+class LoadTextController extends Window with Initable {
     implicit val log: Logger = LogManager.getLogger()
 
-    private var model: LoadTextModel = new LoadTextModelImpl()
-    var stage: Stage = new Stage()
+    val model: LoadTextModel = new LoadTextModelImpl()
     @FXML
     protected var loadTextWindow: VBox = _
     @FXML
     protected var textArea: TextArea = _
+    @FXML
+    protected var fromFileBtn: Button = _
     @FXML
     protected var cancelBtn: Button = _
     @FXML
     protected var loadBtn: Button = _
 
     var onLoadButtonPressed: EventHandler[ActionEvent] = _
+
+    private val choseFileWithTextController: ChoseFileWithTextController = FxmlSupport.load[ChoseFileWithTextController]
 
     private val cancelAction = new Action {
         override val description = "Cancel"
@@ -49,22 +52,33 @@ class LoadTextController extends Initable {
         }
     }
 
+    private val fromFileAction = new Action {
+        override val description = "Load text from file"
+        setShortcut(Shortcut(CONTROL, O))
+        override protected def onAction(): Unit = {
+            choseFileWithTextController.open()
+        }
+    }
+
     private val actions = List(
         cancelAction
         ,loadAction
+        ,fromFileAction
     )
 
     override def init(): Unit = {
         require(loadTextWindow != null)
         require(textArea != null)
+        require(fromFileBtn != null)
         require(cancelBtn != null)
         require(loadBtn != null)
 
-        stage.setScene(new Scene(loadTextWindow))
+        initWindow(loadTextWindow)
         stage.initModality(Modality.APPLICATION_MODAL)
 
         Action.bind(cancelAction, cancelBtn)
         Action.bind(loadAction, loadBtn)
+        Action.bind(fromFileAction, fromFileBtn)
         JfxUtils.bindShortcutActionTrigger(loadTextWindow, actions)
 
         bindModel()
@@ -80,17 +94,14 @@ class LoadTextController extends Initable {
         cancelAction.trigger()
     }
 
-    def open(): Unit = {
-        stage.show()
-    }
-
-    def close(): Unit = {
-        stage.close()
-    }
-
     def bindModel(): Unit = {
         textArea.textProperty() <==> model.text
     }
 
-    def getModel = model
+    override def open(): Unit = {
+        super.open()
+        RunInJfxThreadForcibly {
+            textArea.requestFocus()
+        }
+    }
 }

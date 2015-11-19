@@ -24,7 +24,7 @@ import org.igye.learnpl2.models.impl.MainWindowModelImpl
 import org.igye.learnpl2.models.{MainWindowModel, Word}
 
 @FxmlFile("fxml/MainWindow.fxml")
-class MainWindowController extends Initable {
+class MainWindowController extends Window with Initable {
     implicit val log: Logger = LogManager.getLogger()
     implicit val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
 
@@ -145,6 +145,8 @@ class MainWindowController extends Initable {
         require(selectNextWordBtn != null)
         require(translateBtn != null)
 
+        initWindow(mainWindow)
+
         bindModel()
 
         initLoadTextController()
@@ -160,7 +162,7 @@ class MainWindowController extends Initable {
 
     private def initLoadTextController(): Unit = {
         loadTextController.onLoadButtonPressed = Hnd {e =>
-            model.setText(loadTextController.getModel.text.get)
+            model.setText(loadTextController.model.text.get())
             loadTextController.close()
         }
     }
