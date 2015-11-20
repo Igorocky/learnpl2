@@ -25,4 +25,11 @@ object TextFunctions {
         }
         res
     }
+
+    case class PathAndFilter(path: String, filter: String)
+    val pathAndFilterPat = """(.*[\\/])?([^\\/]+)?""".r
+    def extractPathAndFilter(input: String) = {
+        val pathAndFilterPat(path, filter) = input
+        PathAndFilter(if (path != null) path else "", if (filter != null) filter else "")
+    }
 }

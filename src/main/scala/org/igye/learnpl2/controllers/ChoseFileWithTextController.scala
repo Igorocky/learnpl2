@@ -1,5 +1,6 @@
 package org.igye.learnpl2.controllers
 
+import java.io.File
 import javafx.fxml.FXML
 import javafx.scene.control.{Button, TextField}
 import javafx.scene.input.KeyCode._
@@ -13,6 +14,8 @@ import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.autocomplete._
 import org.igye.jfxutils.fxml.Initable
 import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
+import org.igye.learnpl2.TextFunctions
+import org.igye.learnpl2.TextFunctions.PathAndFilter
 import org.igye.learnpl2.models.ChoseFileWithTextModel
 import org.igye.learnpl2.models.impl.ChoseFileWithTextModelImpl
 
@@ -54,16 +57,53 @@ class ChoseFileWithTextController extends Window with Initable {
         Action.bind(cancelAction, cancelBtn)
         JfxUtils.bindShortcutActionTrigger(rootNode, actions)
 
+        val font = filePathTextField.getFont
+        val pathPat = """(.+)""".r
         AutocompleteList.addAutocomplete(
             textField = filePathTextField,
-            height = 300,
+            width = 300,
+            minHeight = 30,
+            prefHeight = 300,
             stackPane = rootNode,
-            query = new BasicAutocompleteQuery(q => List(new AutocompleteTextItem(q + 1), new AutocompleteTextItem(q + 2), new AutocompleteTextItem(q + 3))),
-            calcInitParams = (initStr: String, pos: Int) => {
-                TextFieldAutocompleteInitParams(pos, 300, 600, initStr)
+            calcInitParams = (initStr, pos) => {
+                val pathAndFilter = TextFunctions.extractPathAndFilter(initStr.substring(0, pos))
+                TextFieldAutocompleteInitParams(
+                    caretPositionToOpenListAt = pathAndFilter.path.length,
+                    query = new BasicAutocompleteQuery(() =>
+                        if (pathAndFilter.path.isEmpty) {
+                            File.listRoots()
+                                .sortWith((f1,f2) => f1.getName.compareTo(f2.getName) < 0)
+                                .map(f => new AutocompleteTextItem(f.getAbsolutePath.replaceAllLiterally("\\", "/"), font)).toList
+                        } else {
+                            val path = new File(pathAndFilter.path)
+                            if (path.exists()) {
+                                path.listFiles()
+                                    .sortWith((f1,f2) =>
+                                        f1.isDirectory && !f2.isDirectory
+                                            || (
+                                                (f1.isDirectory && f2.isDirectory || !f1.isDirectory && !f2.isDirectory)
+                                                    && f1.getName.compareTo(f2.getName) < 0
+                                            )
+                                    )
+                                    .map(f => new AutocompleteTextItem(f.getName + (if (f.isDirectory) "/" else ""), font)).toList
+                            } else {
+                                List(new AutocompleteTextItem("Error: directory doesn't exist.", font, Some(false)))
+                            }
+                        }
+                    ),
+                    userData = pathAndFilter
+                )
             },
-            modifyTextFieldWithResultParams = (initStr: String, pos: Int, item: AutocompleteItem) => {
-                ModifyTextFieldWithResultParams(initStr + item.asInstanceOf[AutocompleteTextItem].text, pos + 1)
+            modifyTextFieldWithResultParams = (userData, item) => {
+                val path = if (userData.asInstanceOf[PathAndFilter].path != null) userData.asInstanceOf[PathAndFilter].path else ""
+                val filter = if (userData.asInstanceOf[PathAndFilter].filter != null) userData.asInstanceOf[PathAndFilter].filter else ""
+                if (item.asInstanceOf[AutocompleteTextItem].userData.exists(!_.asInstanceOf[Boolean])) {
+                    val newFullPath = path + filter
+                        ModifyTextFieldWithResultParams(newFullPath, newFullPath.length)
+                } else {
+                    val newFullPath = path + item.asInstanceOf[AutocompleteTextItem].text
+                    ModifyTextFieldWithResultParams(newFullPath, newFullPath.length)
+                }
             }
         )
 

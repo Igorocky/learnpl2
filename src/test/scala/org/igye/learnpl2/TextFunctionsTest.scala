@@ -51,4 +51,23 @@ class TextFunctionsTest {
         Assert.assertTrue(TextFunctions.checkUserInput("abc", "abc", None))
         Assert.assertFalse(TextFunctions.checkUserInput("abc", "mnk", None))
     }
+
+    @Test
+    def extractPathAndFilterTest(): Unit = {
+        var res = TextFunctions.extractPathAndFilter("C:/dir1/fil")
+        Assert.assertEquals("C:/dir1/", res.path)
+        Assert.assertEquals("fil", res.filter)
+
+        res = TextFunctions.extractPathAndFilter("C:/dir1/")
+        Assert.assertEquals("C:/dir1/", res.path)
+        Assert.assertEquals("", res.filter)
+
+        res = TextFunctions.extractPathAndFilter("C:")
+        Assert.assertEquals("", res.path)
+        Assert.assertEquals("C:", res.filter)
+
+        res = TextFunctions.extractPathAndFilter("")
+        Assert.assertEquals("", res.path)
+        Assert.assertEquals("", res.filter)
+    }
 }
