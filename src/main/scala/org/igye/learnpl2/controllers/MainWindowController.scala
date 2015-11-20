@@ -189,7 +189,7 @@ class MainWindowController extends Window with Initable {
 
     private def createTextElem(word: Word): Text with ParentHasWord = {
         val textElem = new Text(word.text) with ParentHasWord
-        textElem.fillProperty <== Expr[Paint](word.mouseEntered) {
+        textElem.fillProperty <== Expr(word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
         val fontFamily = textElem.getFont.getFamily
