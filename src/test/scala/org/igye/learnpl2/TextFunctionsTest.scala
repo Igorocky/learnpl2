@@ -1,6 +1,5 @@
 package org.igye.learnpl2
 
-import org.igye.learnpl2.TextFunctions.GeneralCaseInsensitiveStringFilter
 import org.junit.{Assert, Test}
 
 class TextFunctionsTest {
@@ -51,33 +50,5 @@ class TextFunctionsTest {
     def checkUserInputTest(): Unit = {
         Assert.assertTrue(TextFunctions.checkUserInput("abc", "abc", None))
         Assert.assertFalse(TextFunctions.checkUserInput("abc", "mnk", None))
-    }
-
-    @Test
-    def extractPathAndFilterTest(): Unit = {
-        var res = TextFunctions.extractPathAndFilter("C:/dir1/fil")
-        Assert.assertEquals("C:/dir1/", res.path)
-        Assert.assertEquals("fil", res.filter)
-
-        res = TextFunctions.extractPathAndFilter("C:/dir1/")
-        Assert.assertEquals("C:/dir1/", res.path)
-        Assert.assertEquals("", res.filter)
-
-        res = TextFunctions.extractPathAndFilter("C:")
-        Assert.assertEquals("", res.path)
-        Assert.assertEquals("C:", res.filter)
-
-        res = TextFunctions.extractPathAndFilter("")
-        Assert.assertEquals("", res.path)
-        Assert.assertEquals("", res.filter)
-    }
-
-    @Test
-    def generalCaseInsensitiveStringFilterTest(): Unit = {
-        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("bd").matches("abcde"))
-        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("bd").matches("ABCDE"))
-        Assert.assertFalse(GeneralCaseInsensitiveStringFilter("db").matches("abcde"))
-        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("").matches("abcde"))
-        Assert.assertFalse(GeneralCaseInsensitiveStringFilter("abc").matches("abbde"))
     }
 }
