@@ -1,5 +1,6 @@
 package org.igye.learnpl2
 
+import org.igye.learnpl2.TextFunctions.GeneralCaseInsensitiveStringFilter
 import org.junit.{Assert, Test}
 
 class TextFunctionsTest {
@@ -69,5 +70,14 @@ class TextFunctionsTest {
         res = TextFunctions.extractPathAndFilter("")
         Assert.assertEquals("", res.path)
         Assert.assertEquals("", res.filter)
+    }
+
+    @Test
+    def generalCaseInsensitiveStringFilterTest(): Unit = {
+        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("bd").matches("abcde"))
+        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("bd").matches("ABCDE"))
+        Assert.assertFalse(GeneralCaseInsensitiveStringFilter("db").matches("abcde"))
+        Assert.assertTrue(GeneralCaseInsensitiveStringFilter("").matches("abcde"))
+        Assert.assertFalse(GeneralCaseInsensitiveStringFilter("abc").matches("abbde"))
     }
 }

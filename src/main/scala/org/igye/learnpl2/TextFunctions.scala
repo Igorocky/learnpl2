@@ -2,6 +2,8 @@ package org.igye.learnpl2
 
 import org.apache.logging.log4j.Logger
 
+import scala.util.matching.Regex
+
 object TextFunctions {
     val sentenceDelimiter = """(?<=\.)""".r
     def splitTextOnSentences(text: String): List[String] = {
@@ -31,5 +33,12 @@ object TextFunctions {
     def extractPathAndFilter(input: String) = {
         val pathAndFilterPat(path, filter) = input
         PathAndFilter(if (path != null) path else "", if (filter != null) filter else "")
+    }
+
+    case class GeneralCaseInsensitiveStringFilter(filterStr: String) {
+        val pattern = new Regex(filterStr.toUpperCase().mkString("^.*",".*",".*$"))
+        def matches(str: String) = {
+            pattern.findFirstIn(str.toUpperCase()).isDefined
+        }
     }
 }

@@ -7,7 +7,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.{Button, Tab, TabPane, TextField}
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import javafx.scene.layout.Pane
-import javafx.scene.paint.Color
+import javafx.scene.paint.{Paint, Color}
 import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
 import javafx.scene.{Node, Parent}
 
@@ -189,7 +189,7 @@ class MainWindowController extends Window with Initable {
 
     private def createTextElem(word: Word): Text with ParentHasWord = {
         val textElem = new Text(word.text) with ParentHasWord
-        textElem.fillProperty <== Expr(word.mouseEntered) {
+        textElem.fillProperty <== Expr[Paint](word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
         val fontFamily = textElem.getFont.getFamily
