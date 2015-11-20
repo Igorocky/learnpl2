@@ -10,7 +10,7 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.action.ActionType.HANDLER
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
-import org.igye.jfxutils.autocomplete.{AutocompleteList, AutocompleteTextItem, BasicAutocompleteQuery}
+import org.igye.jfxutils.autocomplete._
 import org.igye.jfxutils.fxml.Initable
 import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
 import org.igye.learnpl2.models.ChoseFileWithTextModel
@@ -59,7 +59,12 @@ class ChoseFileWithTextController extends Window with Initable {
             height = 300,
             stackPane = rootNode,
             query = new BasicAutocompleteQuery(q => List(new AutocompleteTextItem(q + 1), new AutocompleteTextItem(q + 2), new AutocompleteTextItem(q + 3))),
-            _.asInstanceOf[AutocompleteTextItem].text
+            calcInitParams = (initStr: String, pos: Int) => {
+                TextFieldAutocompleteInitParams(pos, 300, 600, initStr)
+            },
+            modifyTextFieldWithResultParams = (initStr: String, pos: Int, item: AutocompleteItem) => {
+                ModifyTextFieldWithResultParams(initStr + item.asInstanceOf[AutocompleteTextItem].text, pos + 1)
+            }
         )
 
         bindModel()
