@@ -55,11 +55,11 @@ class MainWindowController extends Window with Initable {
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
 
     val wordMouseEntered = Hnd(MouseEvent.MOUSE_ENTERED_TARGET){e =>
-        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
+        e.getSource.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
     }
 
     val wordMouseExited = Hnd(MouseEvent.MOUSE_EXITED_TARGET){e =>
-        e.getTarget.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(false)
+        e.getSource.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(false)
     }
 
     val wordClickHandler = Hnd(MouseEvent.MOUSE_CLICKED){e =>
@@ -68,7 +68,7 @@ class MainWindowController extends Window with Initable {
         //        tabPane.getTabs.add(tab)
         //        tabPane.getSelectionModel.select(tab)
 
-        model.selectWord(e.getTarget.asInstanceOf[ParentHasWord].getWord)
+        model.selectWord(e.getSource.asInstanceOf[ParentHasWord].getWord)
         translateAction.trigger()
     }
 
