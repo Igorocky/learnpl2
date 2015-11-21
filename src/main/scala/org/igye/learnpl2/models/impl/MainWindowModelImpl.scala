@@ -129,7 +129,7 @@ class MainWindowModelImpl extends MainWindowModel {
             }
         }
         def isIdxAppropriate() = {
-            idx == -1 || currSentence.get(idx).hiddable
+            idx == -1 || currSentence.get(idx).hiddable && !currSentence.get(idx).awaitingUserInput.get()
         }
 
         incSelectedWordIdx()
