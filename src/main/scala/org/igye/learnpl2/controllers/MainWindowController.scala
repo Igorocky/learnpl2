@@ -2,13 +2,13 @@ package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
-import javafx.event.{ActionEvent, Event}
+import javafx.event.Event
 import javafx.fxml.FXML
-import javafx.scene.control.{Button, Tab, TabPane, TextField}
+import javafx.scene.control._
 import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
-import javafx.scene.layout.Pane
-import javafx.scene.paint.{Paint, Color}
-import javafx.scene.text.{Font, FontWeight, Text, TextFlow}
+import javafx.scene.layout.FlowPane
+import javafx.scene.paint.Color
+import javafx.scene.text.{Font, FontWeight}
 import javafx.scene.{Node, Parent}
 
 import org.apache.logging.log4j.{LogManager, Logger}
@@ -34,13 +34,11 @@ class MainWindowController extends Window with Initable {
     protected var mainWindow: Parent = _
     def getMainWindow = mainWindow
     @FXML
-    protected var contentPane: Pane = _
-    @FXML
     protected var tabPane: TabPane = _
     @FXML
     protected var mainTab: Tab = _
     @FXML
-    protected var textFlow: TextFlow = _
+    protected var textFlow: FlowPane = _
     @FXML
     protected var loadTextBtn: Button = _
     @FXML
@@ -134,7 +132,6 @@ class MainWindowController extends Window with Initable {
 
     override def init(): Unit = {
         require(mainWindow != null)
-        require(contentPane != null)
         require(tabPane != null)
         require(mainTab != null)
         require(textFlow != null)
@@ -187,9 +184,9 @@ class MainWindowController extends Window with Initable {
         wordRepr
     }
 
-    private def createTextElem(word: Word): Text with ParentHasWord = {
-        val textElem = new Text(word.text) with ParentHasWord
-        textElem.fillProperty <== Expr(word.mouseEntered) {
+    private def createTextElem(word: Word): Label with ParentHasWord = {
+        val textElem = new Label(word.text) with ParentHasWord
+        textElem.textFillProperty() <== Expr(word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
         val fontFamily = textElem.getFont.getFamily
@@ -222,9 +219,9 @@ class MainWindowController extends Window with Initable {
             if (word.userInputIsCorrect.get().isEmpty) {
                 initialBorder
             } else if (word.userInputIsCorrect.get().get) {
-                JfxUtils.createBorder(Color.GREEN)
+                JfxUtils.createBorder(Color.GREEN, 3)
             } else {
-                JfxUtils.createBorder(Color.RED)
+                JfxUtils.createBorder(Color.RED, 3)
             }
         }
         textField

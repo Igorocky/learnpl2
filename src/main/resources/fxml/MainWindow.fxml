@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <StackPane fx:id="mainWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.igye.learnpl2.controllers.MainWindowController">
     <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS">
-        <Tab fx:id="mainTab" text="Main" onCloseRequest="#onMainTabCloseRequest">
-            <VBox>
-                <HBox fillHeight="false" spacing="5.0">
-                    <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                    </padding>
-                    <Button fx:id="loadTextBtn" mnemonicParsing="false" text="Load text"/>
-                    <Button fx:id="backBtn" mnemonicParsing="false" text="Back"/>
-                    <Button fx:id="nextBtn" mnemonicParsing="false" text="Next"/>
-                    <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord"/>
-                    <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord"/>
-                    <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord"/>
-                </HBox>
-                <Pane fx:id="contentPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-                    <TextFlow fx:id="textFlow" style="-fx-font-size: 20px" prefWidth="${contentPane.width}"/>
-                </Pane>
-            </VBox>
-        </Tab>
+        <tabs>
+            <Tab fx:id="mainTab" onCloseRequest="#onMainTabCloseRequest" text="Main">
+                <VBox>
+                    <HBox fillHeight="false" spacing="5.0">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                        <Button fx:id="loadTextBtn" mnemonicParsing="false" text="Load text"/>
+                        <Button fx:id="backBtn" mnemonicParsing="false" text="Back"/>
+                        <Button fx:id="nextBtn" mnemonicParsing="false" text="Next"/>
+                        <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord"/>
+                        <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord"/>
+                        <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord"/>
+                    </HBox>
+                    <FlowPane fx:id="textFlow" prefHeight="200.0" style="-fx-font-size: 20px"
+                              prefWidth="${mainTab.width}"/>
+                </VBox>
+            </Tab>
+        </tabs>
     </TabPane>
 </StackPane>

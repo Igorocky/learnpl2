@@ -53,7 +53,7 @@ class LoadTextController extends Window with Initable {
 
     private val loadFromFileAction = new Action {
         override val description = "Load text from file"
-        setShortcut(Shortcut(CONTROL, O))
+        setShortcut(Shortcut(ALT, O))
         override protected def onAction(): Unit = {
             chooseFileWithTextController.open()
         }
