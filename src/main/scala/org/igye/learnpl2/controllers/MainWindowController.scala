@@ -161,7 +161,7 @@ class MainWindowController extends Window with Initable {
     }
 
     private def initLoadTextController(): Unit = {
-        loadTextController.onLoadButtonPressed = Hnd {e =>
+        loadTextController.onLoadButtonPressed = ()=>{
             model.setText(loadTextController.model.text.get())
             loadTextController.close()
         }
@@ -232,30 +232,6 @@ class MainWindowController extends Window with Initable {
 
     def onMainTabCloseRequest(event: Event) = {
         event.consume()
-    }
-
-    protected def loadTextButtonPressed(event: ActionEvent): Unit = {
-        loadTextAction.trigger()
-    }
-
-    protected def nextButtonPressed(event: ActionEvent): Unit = {
-        nextAction.trigger()
-    }
-
-    protected def backButtonPressed(event: ActionEvent): Unit = {
-        backAction.trigger()
-    }
-
-    def selectPrevWordBtnPressed(event: ActionEvent): Unit = {
-        selectPrevWordAction.trigger()
-    }
-
-    def selectNextWordBtnPressed(event: ActionEvent): Unit = {
-        selectNextWordAction.trigger()
-    }
-
-    def translateSelectedWordBtnPressed(event: ActionEvent): Unit = {
-        translateAction.trigger()
     }
 
     def getWordColor(word: Word): Color = {

@@ -16,12 +16,12 @@
                     <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </padding>
-                    <Button fx:id="loadTextBtn" mnemonicParsing="false" onAction="#loadTextButtonPressed" text="Load text"/>
-                    <Button fx:id="backBtn" mnemonicParsing="false" onAction="#backButtonPressed" text="Back"/>
-                    <Button fx:id="nextBtn" mnemonicParsing="false" onAction="#nextButtonPressed" text="Next"/>
-                    <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" onAction="#selectPrevWordBtnPressed" text="SelectPrevWord"/>
-                    <Button fx:id="selectNextWordBtn" mnemonicParsing="false" onAction="#selectNextWordBtnPressed" text="SelectNextWord"/>
-                    <Button fx:id="translateBtn" mnemonicParsing="false" onAction="#translateSelectedWordBtnPressed" text="TranslateSelectedWord"/>
+                    <Button fx:id="loadTextBtn" mnemonicParsing="false" text="Load text"/>
+                    <Button fx:id="backBtn" mnemonicParsing="false" text="Back"/>
+                    <Button fx:id="nextBtn" mnemonicParsing="false" text="Next"/>
+                    <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord"/>
+                    <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord"/>
+                    <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord"/>
                 </HBox>
                 <Pane fx:id="contentPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                     <TextFlow fx:id="textFlow" style="-fx-font-size: 20px" prefWidth="${contentPane.width}"/>

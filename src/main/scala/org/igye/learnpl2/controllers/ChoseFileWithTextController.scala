@@ -34,8 +34,12 @@ class ChoseFileWithTextController extends Window with Initable {
     protected var cancelBtn: Button = _
     @FXML
     protected var openDialogBtn: Button = _
+    @FXML
+    protected var okBtn: Button = _
 
     private val fileChooser = new FileChooser()
+
+    var onOkPressed: () => Unit = _
 
     private val cancelAction = new Action {
         override val description = "Cancel"
@@ -46,19 +50,32 @@ class ChoseFileWithTextController extends Window with Initable {
         }
     }
 
+    private val okAction = new Action {
+        override val description = "Choose selected file"
+        setShortcut(Shortcut(ENTER))
+        actionType = HANDLER
+        override protected def onAction(): Unit = {
+            onOkPressed()
+        }
+    }
+
     private val actions = List(
-        cancelAction
+        cancelAction,
+        okAction
     )
 
     override def init(): Unit = {
         require(rootNode != null)
         require(filePathTextField != null)
         require(openDialogBtn != null)
+        require(cancelBtn != null)
+        require(okBtn != null)
 
         initWindow(rootNode)
         stage.initModality(Modality.APPLICATION_MODAL)
 
         Action.bind(cancelAction, cancelBtn)
+        Action.bind(okAction, okBtn)
         JfxUtils.bindShortcutActionTrigger(rootNode, actions)
 
         JfxUtils.bindFileChooser(filePathTextField, 300, 300)
