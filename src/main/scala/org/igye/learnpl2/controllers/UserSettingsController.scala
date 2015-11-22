@@ -1,12 +1,13 @@
 package org.igye.learnpl2.controllers
 
 import java.io.File
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.input.KeyCode._
 import javafx.scene.layout.StackPane
-import javafx.stage.Modality
+import javafx.stage.{DirectoryChooser, Modality}
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
@@ -34,6 +35,8 @@ class UserSettingsController extends Window with Initable {
     @FXML
     protected var dirWithTextsTextField: TextField = _
     @FXML
+    protected var chooseDirBtn: Button = _
+    @FXML
     protected var urlTextField: TextField = _
     @FXML
     protected var closeBtn: Button = _
@@ -41,6 +44,8 @@ class UserSettingsController extends Window with Initable {
     protected var saveAsBtn: Button = _
     @FXML
     protected var saveBtn: Button = _
+
+    private val dirChooser = new DirectoryChooser
 
     private val closeAction = new Action {
         override val description = "Cancel"
@@ -134,6 +139,7 @@ class UserSettingsController extends Window with Initable {
         require(settsLoadedFromPathLabel != null)
         require(loadFromFileBtn != null)
         require(dirWithTextsTextField != null)
+        require(chooseDirBtn != null)
         require(urlTextField != null)
         require(closeBtn != null)
         require(saveAsBtn != null)
@@ -149,6 +155,7 @@ class UserSettingsController extends Window with Initable {
         JfxUtils.bindShortcutActionTrigger(rootNode, actions)
 
         JfxUtils.bindFileChooser(dirWithTextsTextField, 300, 300, FileChooserType.DIRS_ONLY)
+        JfxUtils.bindVarNameAutocomplete(urlTextField, 100, 100, List("word"))
     }
 
     private def updateUI(): Unit = {
@@ -167,5 +174,22 @@ class UserSettingsController extends Window with Initable {
     override def open(): Unit = {
         updateUI()
         super.open()
+    }
+
+    def openChooseDirDialog(event: ActionEvent): Unit = {
+        dirChooser.setInitialDirectory(getInitialDirectory)
+        val file = dirChooser.showDialog(stage)
+        if (file != null) {
+            dirWithTextsTextField.setText(file.getAbsolutePath)
+        }
+    }
+
+    private def getInitialDirectory: File = {
+        val file = new File(StringUtils.defaultIfEmpty(dirWithTextsTextField.getText, ""))
+        if (file.exists()) {
+            file
+        } else {
+            null
+        }
     }
 }
