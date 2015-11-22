@@ -23,6 +23,7 @@ import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.impl.MainWindowModelImpl
 import org.igye.learnpl2.models.{MainWindowModel, Word}
+import org.igye.learnpl2.settings.Settings
 
 @FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Window with Initable {
@@ -255,7 +256,7 @@ class MainWindowController extends Window with Initable {
     }
 
     private def translateWord(word: String): Unit = {
-        Desktop.getDesktop().browse(new URL(s"https://translate.google.ru/#pl/ru/$word").toURI());
+        Desktop.getDesktop().browse(new URL(Settings.urlForTranslation.replaceAllLiterally("${word}", word)).toURI())
     }
 
     def getWordHandlers(word: Word): List[EventHandlerInfo[MouseEvent]] = {
