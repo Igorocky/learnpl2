@@ -10,10 +10,11 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
-import org.igye.jfxutils.fxml.{FxmlSupport, Initable}
+import org.igye.jfxutils.fxml.Initable
 import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
+import org.igye.learnpl2.settings.Settings
 
 @FxmlFile("fxml/LoadTextWindow.fxml")
 class LoadTextController extends Window with Initable {
@@ -33,8 +34,6 @@ class LoadTextController extends Window with Initable {
 
     var onLoadButtonPressed: () => Unit = _
 
-    private val chooseFileWithTextController: ChoseFileWithTextController = FxmlSupport.load[ChoseFileWithTextController]
-
     private val cancelAction = new Action {
         override val description = "Cancel"
         setShortcut(Shortcut(ESCAPE))
@@ -53,9 +52,14 @@ class LoadTextController extends Window with Initable {
 
     private val loadFromFileAction = new Action {
         override val description = "Load text from file"
-        setShortcut(Shortcut(ALT, O))
+        setShortcut(Shortcut(CONTROL, O))
         override protected def onAction(): Unit = {
-            chooseFileWithTextController.open()
+            Dialogs.chooseFileDialog.open(
+                Settings.directoryWithTexts,
+                path => {
+                    model.loadFromFile(path)
+                }
+            )
         }
     }
 
@@ -75,7 +79,6 @@ class LoadTextController extends Window with Initable {
         initWindow(loadTextWindow)
         stage.initModality(Modality.APPLICATION_MODAL)
 
-        initChooseFileController()
         bindModel()
 
         Action.bind(cancelAction, cancelBtn)
@@ -92,13 +95,6 @@ class LoadTextController extends Window with Initable {
         super.open()
         RunInJfxThreadForcibly {
             textArea.requestFocus()
-        }
-    }
-
-    private def initChooseFileController(): Unit = {
-        chooseFileWithTextController.onOkPressed = ()=>{
-            model.loadFromFile(chooseFileWithTextController.model.filePath.get())
-            chooseFileWithTextController.close()
         }
     }
 }

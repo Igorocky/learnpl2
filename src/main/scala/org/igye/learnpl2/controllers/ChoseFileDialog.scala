@@ -13,18 +13,17 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.action.ActionType.HANDLER
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
+import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
 import org.igye.jfxutils.fxml.Initable
-import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
-import org.igye.learnpl2.models.ChoseFileWithTextModel
-import org.igye.learnpl2.models.impl.ChoseFileWithTextModelImpl
+import org.igye.jfxutils.{JfxUtils, Window}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-@FxmlFile("fxml/ChoseFileWithText.fxml")
-class ChoseFileWithTextController extends Window with Initable {
+@FxmlFile("fxml/ChoseFileDialog.fxml")
+class ChoseFileDialog extends Window with Initable {
     implicit val log: Logger = LogManager.getLogger()
 
-    val model: ChoseFileWithTextModel = new ChoseFileWithTextModelImpl()
+    private var resultHandler: String => Unit = _
 
     @FXML
     protected var rootNode: StackPane = _
@@ -38,8 +37,6 @@ class ChoseFileWithTextController extends Window with Initable {
     protected var okBtn: Button = _
 
     private val fileChooser = new FileChooser()
-
-    var onOkPressed: () => Unit = _
 
     private val cancelAction = new Action {
         override val description = "Cancel"
@@ -55,7 +52,8 @@ class ChoseFileWithTextController extends Window with Initable {
         setShortcut(Shortcut(ENTER))
         actionType = HANDLER
         override protected def onAction(): Unit = {
-            onOkPressed()
+            close()
+            resultHandler(filePathTextField.getText)
         }
     }
 
@@ -79,12 +77,6 @@ class ChoseFileWithTextController extends Window with Initable {
         JfxUtils.bindShortcutActionTrigger(rootNode, actions)
 
         JfxUtils.bindFileChooser(filePathTextField, 300, 300)
-
-        bindModel()
-    }
-
-    private def bindModel(): Unit = {
-        filePathTextField.textProperty() <==> model.filePath
     }
 
     def openChooseFileDialog(event: ActionEvent): Unit = {
@@ -105,6 +97,15 @@ class ChoseFileWithTextController extends Window with Initable {
             }
         } else {
             null
+        }
+    }
+
+    def open(initPath: String, resultHandler: String => Unit): Unit = {
+        filePathTextField.setText(initPath)
+        this.resultHandler = resultHandler
+        open()
+        RunInJfxThreadForcibly {
+            filePathTextField.positionCaret(filePathTextField.getText.length)
         }
     }
 }

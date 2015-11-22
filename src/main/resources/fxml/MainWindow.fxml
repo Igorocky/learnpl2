@@ -23,6 +23,7 @@
                         <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord"/>
                         <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord"/>
                         <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord"/>
+                        <Button fx:id="settingsBtn" mnemonicParsing="false" text="Settings"/>
                     </HBox>
                     <FlowPane fx:id="textFlow" prefHeight="200.0" style="-fx-font-size: 20px"
                               prefWidth="${mainTab.width}"/>

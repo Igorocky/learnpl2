@@ -5,7 +5,8 @@ import java.net.URL
 import javafx.event.Event
 import javafx.fxml.FXML
 import javafx.scene.control._
-import javafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
+import javafx.scene.input.KeyCode._
+import javafx.scene.input.{KeyEvent, MouseEvent}
 import javafx.scene.layout.FlowPane
 import javafx.scene.paint.Color
 import javafx.scene.text.{Font, FontWeight}
@@ -51,8 +52,11 @@ class MainWindowController extends Window with Initable {
     protected var selectNextWordBtn: Button = _
     @FXML
     protected var translateBtn: Button = _
+    @FXML
+    protected var settingsBtn: Button = _
 
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
+    private val userSettingsController: UserSettingsController = FxmlSupport.load[UserSettingsController]
 
     val wordMouseEntered = Hnd(MouseEvent.MOUSE_ENTERED_TARGET){e =>
         e.getSource.asInstanceOf[ParentHasWord].getWord.mouseEntered.setValue(true)
@@ -74,50 +78,58 @@ class MainWindowController extends Window with Initable {
 
     private val loadTextAction = new Action {
         override val description: String = "Load text"
-        setShortcut(Shortcut(KeyCode.ALT, KeyCode.L))
-        override protected[this] def onAction(): Unit = {
+        setShortcut(Shortcut(CONTROL, L))
+        override protected def onAction(): Unit = {
             loadTextController.open()
         }
     }
 
     private val translateAction = new Action {
         override val description: String = "Translate"
-        setShortcut(Shortcut(KeyCode.F4))
-        override protected[this] def onAction(): Unit = {
+        setShortcut(Shortcut(F4))
+        override protected def onAction(): Unit = {
             model.getSelectedWord.foreach(w => translateWord(w.text))
         }
     }
 
-    private val nextActionShortcut = Shortcut(KeyCode.ENTER)
+    private val nextActionShortcut = Shortcut(ENTER)
     private val nextAction = new Action {
         override val description: String = "Next"
         setShortcut(nextActionShortcut)
-        override protected[this] def onAction(): Unit = {
+        override protected def onAction(): Unit = {
             model.next()
         }
     }
 
     private val backAction = new Action {
         override val description: String = "Back"
-        setShortcut(Shortcut(KeyCode.CONTROL, KeyCode.ALT, KeyCode.LEFT))
-        override protected[this] def onAction(): Unit = {
+        setShortcut(Shortcut(CONTROL, ALT, LEFT))
+        override protected def onAction(): Unit = {
             model.back()
         }
     }
 
     private val selectNextWordAction = new Action {
         override val description: String = "Select next word"
-        setShortcut(Shortcut(KeyCode.RIGHT))
-        override protected[this] def onAction(): Unit = {
+        setShortcut(Shortcut(RIGHT))
+        override protected def onAction(): Unit = {
             model.selectNextWord(1)
         }
     }
 
     private val selectPrevWordAction = new Action {
         override val description: String = "Select prev word"
-        setShortcut(Shortcut(KeyCode.LEFT))
-        override protected[this] def onAction(): Unit = {
+        setShortcut(Shortcut(LEFT))
+        override protected def onAction(): Unit = {
             model.selectNextWord(-1)
+        }
+    }
+
+    private val settingsAction = new Action {
+        override val description: String = "Open settings dialog"
+        setShortcut(Shortcut(ALT, S))
+        override protected def onAction(): Unit = {
+            userSettingsController.open()
         }
     }
 
@@ -128,6 +140,7 @@ class MainWindowController extends Window with Initable {
         ,translateAction
         ,nextAction
         ,backAction
+        ,settingsAction
     )
 
     override def init(): Unit = {
@@ -141,6 +154,7 @@ class MainWindowController extends Window with Initable {
         require(selectPrevWordBtn != null)
         require(selectNextWordBtn != null)
         require(translateBtn != null)
+        require(settingsBtn != null)
 
         initWindow(mainWindow)
 
@@ -154,6 +168,7 @@ class MainWindowController extends Window with Initable {
         Action.bind(translateAction, translateBtn)
         Action.bind(nextAction, nextBtn)
         Action.bind(backAction, backBtn)
+        Action.bind(settingsAction, settingsBtn)
         JfxUtils.bindShortcutActionTrigger(mainTab, actions)
     }
 
@@ -202,7 +217,7 @@ class MainWindowController extends Window with Initable {
         val textField = new TextField() with ParentHasWord
         textField.setPrefWidth(200)
         textField.hnd(KeyEvent.KEY_PRESSED){e =>
-            if (e.getCode == KeyCode.ENTER) {
+            if (e.getCode == ENTER) {
                 textField.getWord.setUserInput(textField.getText)
                 model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
             }
