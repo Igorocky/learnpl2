@@ -5,23 +5,26 @@ import javafx.fxml.FXML
 import javafx.scene.control.Alert.AlertType
 import javafx.scene.control._
 import javafx.scene.input.KeyCode._
-import javafx.scene.layout.VBox
+import javafx.scene.layout.StackPane
 import javafx.stage.Modality
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.jfxutils.action.{Action, Shortcut}
+import org.igye.jfxutils.action.{Action, ActionType, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
+import org.igye.jfxutils.dialog.FileChooserType
 import org.igye.jfxutils.fxml.Initable
 import org.igye.jfxutils.{JfxUtils, Window}
 import org.igye.learnpl2.settings.Settings
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @FxmlFile("fxml/UserSettings.fxml")
 class UserSettingsController extends Window with Initable {
     implicit val log: Logger = LogManager.getLogger()
 
     @FXML
-    protected var rootNode: VBox = _
+    protected var rootNode: StackPane = _
     @FXML
     protected var settsLoadedFromLabel: Label = _
     @FXML
@@ -41,6 +44,7 @@ class UserSettingsController extends Window with Initable {
 
     private val closeAction = new Action {
         override val description = "Cancel"
+        actionType = ActionType.HANDLER
         setShortcut(Shortcut(ESCAPE))
         override protected def onAction(): Unit = {
             close()
@@ -143,6 +147,8 @@ class UserSettingsController extends Window with Initable {
         Action.bind(saveAction, saveBtn)
         Action.bind(saveAsAction, saveAsBtn)
         JfxUtils.bindShortcutActionTrigger(rootNode, actions)
+
+        JfxUtils.bindFileChooser(dirWithTextsTextField, 300, 300, FileChooserType.DIRS_ONLY)
     }
 
     private def updateUI(): Unit = {
