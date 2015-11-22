@@ -24,6 +24,11 @@ object Settings {
         userSettings.urlForTranslation = newVal
     }
 
+    def probabilityPercent = userSettings.probabilityPercent
+    def probabilityPercent_=(newVal: Int) = {
+        userSettings.probabilityPercent = newVal
+    }
+
     def loadAppSettings(): Unit = {
         if (appSettingsFile.exists()) {
             appSettings = JaxbSupport.unmarshal[AppSettings](appSettingsFile)
@@ -39,6 +44,7 @@ object Settings {
         } else {
             userSettings = new UserSettings
         }
+        userSettings.validateAndCorrect()
     }
 
     def saveAppSettings(): Unit = {
@@ -49,6 +55,7 @@ object Settings {
     }
 
     def saveUserSettings(): Unit = {
+        userSettings.validateAndCorrect()
         val userSettsFile = new File(userSettingsFilePath)
         if (!userSettsFile.getParentFile.exists()) {
             userSettsFile.getParentFile.mkdirs()

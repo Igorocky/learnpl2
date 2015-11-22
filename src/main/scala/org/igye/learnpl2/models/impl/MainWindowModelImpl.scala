@@ -2,13 +2,14 @@ package org.igye.learnpl2.models.impl
 
 import java.util.Random
 import javafx.beans.property.{ObjectProperty, SimpleObjectProperty}
-import javafx.collections.{FXCollections, ObservableList}
+import javafx.collections.FXCollections
 
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
+import org.igye.learnpl2.settings.Settings
 
 import scala.collection.JavaConversions._
 
@@ -54,7 +55,7 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
-            currSentence.foreach(w => if (w.hiddable && random.nextInt(100) < 10) w.hidden.set(true))
+            currSentence.foreach(w => if (w.hiddable && random.nextInt(100) < Settings.probabilityPercent) w.hidden.set(true))
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {

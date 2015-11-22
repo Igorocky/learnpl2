@@ -15,7 +15,8 @@ import org.igye.jfxutils.action.{Action, ActionType, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.dialog.FileChooserType
 import org.igye.jfxutils.fxml.Initable
-import org.igye.jfxutils.{JfxUtils, Window}
+import org.igye.jfxutils.properties.ChgListener
+import org.igye.jfxutils.{observableValueToObservableValueOperators, JfxUtils, Window}
 import org.igye.learnpl2.settings.Settings
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,6 +39,8 @@ class UserSettingsController extends Window with Initable {
     protected var chooseDirBtn: Button = _
     @FXML
     protected var urlTextField: TextField = _
+    @FXML
+    protected var probabilityTextField: TextField = _
     @FXML
     protected var closeBtn: Button = _
     @FXML
@@ -89,8 +92,7 @@ class UserSettingsController extends Window with Initable {
             if (StringUtils.isBlank(Settings.userSettingsFilePath)) {
                 new Alert(AlertType.INFORMATION, s"Use 'Save as' button.", ButtonType.OK).showAndWait()
             } else {
-                Settings.directoryWithTexts = dirWithTextsTextField.getText
-                Settings.urlForTranslation = urlTextField.getText
+                readValuesFromUI()
                 Settings.saveUserSettings()
                 updateUI()
                 new Alert(AlertType.INFORMATION, s"Saved.", ButtonType.OK).showAndWait()
@@ -115,8 +117,7 @@ class UserSettingsController extends Window with Initable {
                     if (parentOfNewFile.exists()) {
                         Settings.userSettingsFilePath = path
                         Settings.saveAppSettings()
-                        Settings.directoryWithTexts = dirWithTextsTextField.getText
-                        Settings.urlForTranslation = urlTextField.getText
+                        readValuesFromUI()
                         Settings.saveUserSettings()
                         updateUI()
                         new Alert(AlertType.INFORMATION, s"Saved.", ButtonType.OK).showAndWait()
@@ -141,6 +142,7 @@ class UserSettingsController extends Window with Initable {
         require(dirWithTextsTextField != null)
         require(chooseDirBtn != null)
         require(urlTextField != null)
+        require(probabilityTextField != null)
         require(closeBtn != null)
         require(saveAsBtn != null)
         require(saveBtn != null)
@@ -156,6 +158,14 @@ class UserSettingsController extends Window with Initable {
 
         JfxUtils.bindFileChooser(dirWithTextsTextField, 300, 300, FileChooserType.DIRS_ONLY)
         JfxUtils.bindVarNameAutocomplete(urlTextField, 100, 100, List("word"))
+
+        val integerPat = """^\d+$""".r
+        probabilityTextField.textProperty() ==> ChgListener{chg=>
+            if (integerPat.findFirstIn(chg.newValue).isEmpty || chg.newValue.toInt < 0 || chg.newValue.toInt > 100) {
+                new Alert(AlertType.ERROR, s"Probability should be integer number from 0 to 100", ButtonType.OK).showAndWait()
+                probabilityTextField.setText(chg.oldValue)
+            }
+        }
     }
 
     private def updateUI(): Unit = {
@@ -169,6 +179,13 @@ class UserSettingsController extends Window with Initable {
         }
         dirWithTextsTextField.setText(Settings.directoryWithTexts)
         urlTextField.setText(Settings.urlForTranslation)
+        probabilityTextField.setText(Settings.probabilityPercent.toString)
+    }
+
+    private def readValuesFromUI(): Unit = {
+        Settings.directoryWithTexts = dirWithTextsTextField.getText
+        Settings.urlForTranslation = urlTextField.getText
+        Settings.probabilityPercent = probabilityTextField.getText.toInt
     }
 
     override def open(): Unit = {
