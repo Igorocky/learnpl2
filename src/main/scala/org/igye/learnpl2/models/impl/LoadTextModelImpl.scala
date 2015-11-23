@@ -1,7 +1,7 @@
 package org.igye.learnpl2.models.impl
 
 import java.io.File
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.{SimpleIntegerProperty, IntegerProperty, SimpleStringProperty}
 
 import org.apache.commons.io.FileUtils
 import org.igye.learnpl2.models.LoadTextModel
@@ -12,4 +12,6 @@ class LoadTextModelImpl extends LoadTextModel {
     override def loadFromFile(filePath: String): Unit = {
         text.set(FileUtils.readFileToString(new File(filePath), "UTF-8"))
     }
+
+    override val caretPosition: IntegerProperty = new SimpleIntegerProperty()
 }

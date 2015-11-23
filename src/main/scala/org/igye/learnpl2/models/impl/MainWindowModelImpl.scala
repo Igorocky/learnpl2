@@ -4,6 +4,7 @@ import java.util.Random
 import javafx.beans.property.{ObjectProperty, SimpleObjectProperty}
 import javafx.collections.FXCollections
 
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.learnpl2.TextFunctions
 import org.igye.learnpl2.controllers.State
@@ -19,29 +20,94 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override val currState: ObjectProperty[State] = new SimpleObjectProperty(NOT_LOADED)
 
-    private var text: Option[List[List[String]]] = None
+    private var text: Option[List[List[WordImpl]]] = None
     private var currSentenceIdx = -1
 
     override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val random = new Random()
 
-    override def setText(text: String): Unit = {
+    override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
-        currSentenceIdx = 0
+        if (caretPosition > 0) {
+            selectWordByCaretPosition(caretPosition)
+        }
+        currSentenceIdx = getSentenceWithCaretIdxOrZero(caretPosition)
         updateCurrSentence()
         currState.set(ONLY_TEXT)
     }
 
-    private def parseText(text: String): List[List[String]] = {
-        TextFunctions.splitTextOnSentences(text).map(TextFunctions.splitSentenceOnParts)
+    private def getSentenceWithCaretIdxOrZero(caretPosition: Int): Int = {
+        var res = 0
+        traverseAllWords{(s,l,r,w) =>
+            if (l <= caretPosition && caretPosition <= r) {
+                res = s
+            }
+        }
+        res
+    }
+
+    private def traverseAllWords(consumer: (Int/*sentence index*/, Int/*leftPosition*/, Int/*rightPosition*/, Word) => Unit): Unit = {
+        if (text.isDefined) {
+            var leftPosition = 0
+            var rightPosition = 0
+            for (s <- 0 until text.get.length) {
+                for (w <- 0 until text.get(s).length) {
+                    val word = text.get(s)(w)
+                    rightPosition += word.text.replaceAllLiterally("\r\n", "\n").length
+                    consumer(s, leftPosition, rightPosition, word)
+                    leftPosition = rightPosition
+                }
+            }
+        }
+    }
+
+    private def selectWordByCaretPosition(caretPosition: Int): Unit = {
+        traverseAllWords{(s, l, r, w)=>
+            if (w.hiddable && l <= caretPosition && caretPosition <= r) {
+                traverseAllWords((s, l, r, w) => w.selected.set(false))
+                w.selected.set(true)
+            }
+        }
+    }
+
+    override def caretPosition: Int = {
+        var res = 0
+        val selectedWord = getSelectedWord
+        if (selectedWord.isDefined) {
+            traverseAllWords((s,l,r,w) => if (w == selectedWord.get) {res = (l + r)/2})
+        } else if (currSentence.nonEmpty) {
+            res = getStartPositionOfWordInCurrSentence
+        }
+        res
+    }
+
+    private def getStartPositionOfWordInCurrSentence = {
+        var res = 0
+        if (currSentence.nonEmpty) {
+            var firstNonemptyWordWasFound = false
+            traverseAllWords{(s, l, r, w)=>
+                if (currSentence.contains(w) && !firstNonemptyWordWasFound) {
+                    res = l
+                    if (StringUtils.replaceChars(w.text.trim, "\r\n", "").nonEmpty) {
+                        println(s"firstNonemptyWord = '${w.text}'")
+                        firstNonemptyWordWasFound = true
+                    }
+                }
+            }
+        }
+        res
+    }
+
+    private def parseText(text: String): List[List[WordImpl]] = {
+        TextFunctions.splitTextOnSentences(text).map(TextFunctions.splitSentenceOnParts(_).map{wordText =>
+            new WordImpl(wordText, TextFunctions.isHiddable(wordText))
+        })
     }
 
     private def updateCurrSentence(): Unit = {
         currSentence.clear()
-        text.get.get(currSentenceIdx).foreach{wordText =>
-            currSentence.add(new WordImpl(wordText, TextFunctions.isHiddable(wordText)))
-        }
+        currSentence.addAll(text.get(currSentenceIdx))
     }
 
     override def selectWord(word: Word): Unit = {

@@ -5,10 +5,10 @@ import org.apache.logging.log4j.Logger
 object TextFunctions {
     val sentenceDelimiter = """(?<=\.)""".r
     def splitTextOnSentences(text: String): List[String] = {
-        sentenceDelimiter.split(text).toList.map(_.trim)
+        sentenceDelimiter.split(text).toList
     }
 
-    val sentencePartsDelimiter = """(?<!(-|'|–))\b(?!(-|'|–)\w)""".r
+    val sentencePartsDelimiter = """((?<=[\s\r\n,:;\."\(\)\[\]\\/!])(?![\s\r\n,:;\."\(\)\[\]\\/!]))|((?<![\s\r\n,:;\."\(\)\[\]\\/!])(?=[\s\r\n,:;\."\(\)\[\]\\/!]))""".r
     def splitSentenceOnParts(sentence: String) = {
         sentencePartsDelimiter.split(sentence).toList
     }

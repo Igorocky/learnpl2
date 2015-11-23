@@ -85,7 +85,7 @@ class MainWindowTextsController extends Initable {
         override val description: String = "Load text"
         setShortcut(Shortcut(CONTROL, L))
         override protected def onAction(): Unit = {
-            loadTextController.open()
+            loadTextController.open(model.caretPosition)
         }
     }
 
@@ -192,7 +192,7 @@ class MainWindowTextsController extends Initable {
 
     private def initLoadTextController(): Unit = {
         loadTextController.onLoadButtonPressed = ()=>{
-            model.setText(loadTextController.model.text.get())
+            model.setText(loadTextController.model.text.get(), loadTextController.model.caretPosition.get())
             loadTextController.close()
         }
     }

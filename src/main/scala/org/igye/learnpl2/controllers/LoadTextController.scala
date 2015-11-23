@@ -7,11 +7,12 @@ import javafx.scene.layout.VBox
 import javafx.stage.Modality
 
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.jfxutils.Implicits.propertyToPropertyOperators
+import org.igye.jfxutils.Implicits.{observableValueToObservableValueOperators, propertyToPropertyOperators}
 import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
 import org.igye.jfxutils.fxml.Initable
+import org.igye.jfxutils.properties.ChgListener
 import org.igye.jfxutils.{JfxUtils, Window}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
@@ -89,13 +90,18 @@ class LoadTextController extends Window with Initable {
     }
 
     def bindModel(): Unit = {
-        textArea.textProperty() <==> model.text
+        model.text <==> textArea.textProperty()
+        model.caretPosition <== textArea.caretPositionProperty()
+        model.caretPosition ==> ChgListener{chg =>
+            textArea.positionCaret(chg.newValue.asInstanceOf[Int])
+        }
     }
 
-    override def open(): Unit = {
+    def open(caretPosition: Int): Unit = {
         super.open()
         RunInJfxThreadForcibly {
             textArea.requestFocus()
+            textArea.positionCaret(caretPosition)
         }
     }
 }
