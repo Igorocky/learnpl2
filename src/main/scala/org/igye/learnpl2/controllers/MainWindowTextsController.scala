@@ -2,7 +2,6 @@ package org.igye.learnpl2.controllers
 
 import java.awt.Desktop
 import java.net.URL
-import java.util.function.Consumer
 import javafx.event.Event
 import javafx.fxml.FXML
 import javafx.scene.Node
@@ -15,6 +14,8 @@ import javafx.scene.paint.Color
 import javafx.scene.text.{Font, FontWeight}
 
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.commonutils.Implicits.consumer
+import org.igye.jfxutils.Implicits.{listToListOperators, nodeToNodeOps, observableValueToObservableValueOperators, propertyToPropertyOperators}
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
@@ -142,11 +143,9 @@ class MainWindowTextsController extends Initable {
         setShortcut(Shortcut(HOME))
         override protected def onAction(): Unit = {
             new Alert(AlertType.CONFIRMATION, s"Are you sure you want to exit?", ButtonType.NO, ButtonType.YES)
-                .showAndWait().ifPresent(new Consumer[ButtonType] {
-                override def accept(t: ButtonType): Unit = {
-                    if (t == ButtonType.YES) {
-                        onCloseHandler()
-                    }
+                .showAndWait().ifPresent(consumer{ t=>
+                if (t == ButtonType.YES) {
+                    onCloseHandler()
                 }
             })
         }

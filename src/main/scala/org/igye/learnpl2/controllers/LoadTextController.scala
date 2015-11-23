@@ -7,11 +7,12 @@ import javafx.scene.layout.VBox
 import javafx.stage.Modality
 
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.jfxutils.Implicits.propertyToPropertyOperators
 import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
 import org.igye.jfxutils.fxml.Initable
-import org.igye.jfxutils.{JfxUtils, Window, propertyToPropertyOperators}
+import org.igye.jfxutils.{JfxUtils, Window}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
 import org.igye.learnpl2.settings.Settings

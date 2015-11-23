@@ -11,12 +11,13 @@ import javafx.stage.{DirectoryChooser, Modality}
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.jfxutils.Implicits.observableValueToObservableValueOperators
 import org.igye.jfxutils.action.{Action, ActionType, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.dialog.FileChooserType
 import org.igye.jfxutils.fxml.Initable
 import org.igye.jfxutils.properties.ChgListener
-import org.igye.jfxutils.{observableValueToObservableValueOperators, JfxUtils, Window}
+import org.igye.jfxutils.{JfxUtils, Window}
 import org.igye.learnpl2.settings.Settings
 
 import scala.concurrent.ExecutionContext.Implicits.global

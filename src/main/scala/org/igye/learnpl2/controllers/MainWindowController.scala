@@ -6,10 +6,11 @@ import javafx.scene.input.KeyCode._
 import javafx.scene.layout.StackPane
 
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.jfxutils.Implicits.nodeToNodeOps
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.fxml.{FxmlSupport, Initable}
-import org.igye.jfxutils.{JfxUtils, Window, nodeToNodeOps}
+import org.igye.jfxutils.{JfxUtils, Window}
 
 @FxmlFile("fxml/MainWindow.fxml")
 class MainWindowController extends Window with Initable {

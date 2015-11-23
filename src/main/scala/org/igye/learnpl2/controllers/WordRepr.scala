@@ -6,9 +6,9 @@ import javafx.scene.control.{Label, TextField}
 import javafx.scene.layout.Pane
 
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.jfxutils.Implicits.{observableValueToObservableValueOperators, parentToParentOps, propertyToPropertyOperators}
 import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
 import org.igye.jfxutils.properties.{ChgListener, Trigger}
-import org.igye.jfxutils.{observableValueToObservableValueOperators, parentToParentOps, propertyToPropertyOperators}
 import org.igye.learnpl2.models.Word
 
 trait ParentHasWord {
