@@ -90,7 +90,6 @@ class MainWindowModelImpl extends MainWindowModel {
                 if (currSentence.contains(w) && !firstNonemptyWordWasFound) {
                     res = l
                     if (StringUtils.replaceChars(w.text.trim, "\r\n", "").nonEmpty) {
-                        println(s"firstNonemptyWord = '${w.text}'")
                         firstNonemptyWordWasFound = true
                     }
                 }
