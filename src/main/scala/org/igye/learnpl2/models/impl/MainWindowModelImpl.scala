@@ -82,7 +82,6 @@ class MainWindowModelImpl extends MainWindowModel {
             if (currSentenceIdx > 0) {
                 currSentenceIdx -= 1
                 updateCurrSentence()
-                next()
             } else {
                 currSentence.clear()
                 text = None

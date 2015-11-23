@@ -10,6 +10,6 @@ class LoadTextModelImpl extends LoadTextModel {
     val text = new SimpleStringProperty()
 
     override def loadFromFile(filePath: String): Unit = {
-        text.set(FileUtils.readFileToString(new File(filePath)))
+        text.set(FileUtils.readFileToString(new File(filePath), "UTF-8"))
     }
 }
