@@ -20,20 +20,20 @@ class WordRepr(val word: Word, val textElem: Label with ParentHasWord, val editE
     implicit val log: Logger = LogManager.getLogger()
 
     val showTextField = new SimpleBooleanProperty(false)
-    getChildren.add(textElem)
-    prefWidthProperty() <== textElem.widthProperty()
+    showTextField ==> ChgListener(chg => setContent())
+
     this.requestLayoutOnChangeOf(prefWidthProperty())
     minWidthProperty() <== prefWidthProperty()
     maxWidthProperty() <== prefWidthProperty()
-    prefHeightProperty() <== textElem.heightProperty()
     this.requestLayoutOnChangeOf(prefHeightProperty())
     minHeightProperty() <== prefHeightProperty()
     maxHeightProperty() <== prefHeightProperty()
 
+    setContent()
 
-    showTextField ==> ChgListener{ chg=>
+    private def setContent(): Unit = {
         getChildren.clear()
-        if (chg.newValue) {
+        if (showTextField.get()) {
             getChildren.add(editElem.get)
             prefWidthProperty() <== editElem.get.widthProperty()
             prefHeightProperty() <== editElem.get.heightProperty()

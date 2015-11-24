@@ -59,6 +59,8 @@ class MainWindowTextsController extends Initable {
     protected var settingsBtn: Button = _
     @FXML
     protected var exitBtn: Button = _
+    @FXML
+    protected var sentenceIdxTextField: TextField = _
 
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
     private val userSettingsController: UserSettingsController = FxmlSupport.load[UserSettingsController]
@@ -151,6 +153,15 @@ class MainWindowTextsController extends Initable {
         }
     }
 
+    private val gotoAction = new Action {
+        override val description: String = "Go to sentence"
+        setShortcut(Shortcut(CONTROL, G))
+        override protected def onAction(): Unit = {
+            sentenceIdxTextField.focus()
+            sentenceIdxTextField.selectAll()
+        }
+    }
+
     private val actions = List(
         loadTextAction
         ,selectNextWordAction
@@ -160,6 +171,7 @@ class MainWindowTextsController extends Initable {
         ,backAction
         ,settingsAction
         ,exitAction
+        ,gotoAction
     )
 
     override def init(): Unit = {
@@ -174,10 +186,12 @@ class MainWindowTextsController extends Initable {
         require(translateBtn != null)
         require(settingsBtn != null)
         require(exitBtn != null)
+        require(sentenceIdxTextField != null)
 
         bindModel()
 
         initLoadTextController()
+        initSentenceIdxTextField()
 
         Action.bind(loadTextAction, loadTextBtn)
         Action.bind(selectNextWordAction, selectNextWordBtn)
@@ -188,6 +202,27 @@ class MainWindowTextsController extends Initable {
         Action.bind(settingsAction, settingsBtn)
         Action.bind(exitAction, exitBtn)
         JfxUtils.bindShortcutActionTrigger(mainTab, actions)
+    }
+
+    private def initSentenceIdxTextField(): Unit = {
+        sentenceIdxTextField.focusedProperty() ==> ChgListener{chg=>
+            if (chg.newValue) {
+                nextAction.removeShortcut()
+            } else {
+                nextAction.setShortcut(nextActionShortcut)
+            }
+        }
+        sentenceIdxTextField.setOnAction(Hnd{e =>
+            val requestedSentenceIdx = sentenceIdxTextField.getText.toInt
+            model.goToSentence(requestedSentenceIdx - 1)
+            e.consume()
+            if (model.currSentenceIdx.get() != requestedSentenceIdx - 1) {
+                new Alert(AlertType.ERROR, s"${requestedSentenceIdx} is incorrect sentence number. " +
+                    s"Correct values are from 1 to ${model.sentenceCount}", ButtonType.OK).showAndWait()
+            } else {
+                sentenceIdxTextField.getParent.focus()
+            }
+        })
     }
 
     private def initLoadTextController(): Unit = {
@@ -206,6 +241,13 @@ class MainWindowTextsController extends Initable {
         model.currState ==> ChgListener{chg=>
             if (chg.newValue == NOT_LOADED) {
                 loadTextAction.trigger()
+            }
+        }
+        model.currSentenceIdx ==> ChgListener{chg=>
+            if (chg.newValue.asInstanceOf[Int] >= 0) {
+                sentenceIdxTextField.setText((model.currSentenceIdx.get() + 1).toString)
+            } else {
+                sentenceIdxTextField.setText("")
             }
         }
     }

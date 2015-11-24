@@ -1,7 +1,7 @@
 package org.igye.learnpl2.models.impl
 
 import java.util.Random
-import javafx.beans.property.{ObjectProperty, SimpleObjectProperty}
+import javafx.beans.property.{SimpleIntegerProperty, ObjectProperty, SimpleObjectProperty}
 import javafx.collections.FXCollections
 
 import org.apache.commons.lang3.StringUtils
@@ -21,7 +21,8 @@ class MainWindowModelImpl extends MainWindowModel {
     override val currState: ObjectProperty[State] = new SimpleObjectProperty(NOT_LOADED)
 
     private var text: Option[List[List[WordImpl]]] = None
-    private var currSentenceIdx = -1
+    val currSentenceIdx = new SimpleIntegerProperty(-1)
+    def sentenceCount: Int = text.map(_.length).getOrElse(0)
 
     override val currSentence = FXCollections.observableArrayList[Word]()
 
@@ -32,9 +33,8 @@ class MainWindowModelImpl extends MainWindowModel {
         if (caretPosition > 0) {
             selectWordByCaretPosition(caretPosition)
         }
-        currSentenceIdx = getSentenceWithCaretIdxOrZero(caretPosition)
-        updateCurrSentence()
-        currState.set(ONLY_TEXT)
+        currSentenceIdx.set(getSentenceWithCaretIdxOrZero(caretPosition))
+        goToSentence(currSentenceIdx.get())
     }
 
     private def getSentenceWithCaretIdxOrZero(caretPosition: Int): Int = {
@@ -104,9 +104,14 @@ class MainWindowModelImpl extends MainWindowModel {
         })
     }
 
-    private def updateCurrSentence(): Unit = {
-        currSentence.clear()
-        currSentence.addAll(text.get(currSentenceIdx))
+    def goToSentence(sentenceIdx: Int): Unit = {
+        if (text.isDefined && sentenceIdx >= 0 && sentenceIdx < text.get.length) {
+            currSentence.clear()
+            currSentence.addAll(text.get(sentenceIdx))
+            currSentenceIdx.set(sentenceIdx)
+            currSentence.foreach(_.hidden.set(false))
+            currState.set(ONLY_TEXT)
+        }
     }
 
     override def selectWord(word: Word): Unit = {
@@ -127,14 +132,14 @@ class MainWindowModelImpl extends MainWindowModel {
                 next()
             }
         } else if (currState.get() == TEXT_WITH_INPUTS) {
-            if (currSentenceIdx < text.get.size - 1) {
-                currSentenceIdx += 1
-                updateCurrSentence()
-                currState.set(ONLY_TEXT)
+            if (currSentenceIdx.get() < text.get.size - 1) {
+                currSentenceIdx.set(currSentenceIdx.get() + 1)
+                goToSentence(currSentenceIdx.get())
             } else {
                 currSentence.clear()
                 text = None
                 currState.set(NOT_LOADED)
+                currSentenceIdx.set(-1)
             }
         }
     }
@@ -144,13 +149,14 @@ class MainWindowModelImpl extends MainWindowModel {
             currSentence.foreach(_.hidden.set(false))
             currState.set(ONLY_TEXT)
         } else if (currState.get() == ONLY_TEXT) {
-            if (currSentenceIdx > 0) {
-                currSentenceIdx -= 1
-                updateCurrSentence()
+            if (currSentenceIdx.get() > 0) {
+                currSentenceIdx.set(currSentenceIdx.get() - 1)
+                goToSentence(currSentenceIdx.get())
             } else {
                 currSentence.clear()
                 text = None
                 currState.set(NOT_LOADED)
+                currSentenceIdx.set(-1)
             }
         }
     }
