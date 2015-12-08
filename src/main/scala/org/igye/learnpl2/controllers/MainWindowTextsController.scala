@@ -219,8 +219,6 @@ class MainWindowTextsController extends Initable {
             if (model.currSentenceIdx.get() != requestedSentenceIdx - 1) {
                 new Alert(AlertType.ERROR, s"${requestedSentenceIdx} is incorrect sentence number. " +
                     s"Correct values are from 1 to ${model.sentenceCount}", ButtonType.OK).showAndWait()
-            } else {
-                sentenceIdxTextField.getParent.focus()
             }
         })
     }
