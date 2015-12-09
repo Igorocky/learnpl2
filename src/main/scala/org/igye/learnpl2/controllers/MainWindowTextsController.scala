@@ -15,7 +15,7 @@ import javafx.scene.text.{Font, FontWeight}
 
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.commonutils.Implicits.consumer
-import org.igye.jfxutils.Implicits.{listToListOperators, nodeToNodeOps, observableValueToObservableValueOperators, propertyToPropertyOperators}
+import org.igye.jfxutils.Implicits._
 import org.igye.jfxutils._
 import org.igye.jfxutils.action.{Action, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
@@ -201,7 +201,7 @@ class MainWindowTextsController extends Initable {
         Action.bind(backAction, backBtn)
         Action.bind(settingsAction, settingsBtn)
         Action.bind(exitAction, exitBtn)
-        JfxUtils.bindShortcutActionTrigger(mainTab, actions)
+        JfxUtils.bindActionsToSceneProp(rootPane.sceneProperty(), actions)
     }
 
     private def initSentenceIdxTextField(): Unit = {
@@ -220,6 +220,7 @@ class MainWindowTextsController extends Initable {
                 new Alert(AlertType.ERROR, s"${requestedSentenceIdx} is incorrect sentence number. " +
                     s"Correct values are from 1 to ${model.sentenceCount}", ButtonType.OK).showAndWait()
             }
+            textFlow.focus()
         })
     }
 

@@ -48,6 +48,6 @@ class MainWindowController extends Window with Initable {
         textsController.onCloseHandler = () => {rootNode.getChildren.removeAll(textsController.rootPane)}
 
         Action.bind(textAction, textBtn)
-        JfxUtils.bindShortcutActionTrigger(rootNode, actions)
+        JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
     }
 }

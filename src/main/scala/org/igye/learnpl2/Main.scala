@@ -6,7 +6,7 @@ import javafx.stage.Stage
 
 import org.apache.logging.log4j.LogManager
 import org.igye.jfxutils.fxml.FxmlSupport
-import org.igye.learnpl2.controllers.{MainWindowController, MainWindowTextsController}
+import org.igye.learnpl2.controllers.MainWindowController
 import org.igye.learnpl2.settings.Settings
 
 object Main {

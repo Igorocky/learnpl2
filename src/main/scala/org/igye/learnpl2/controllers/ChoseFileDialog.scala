@@ -74,7 +74,7 @@ class ChoseFileDialog extends Window with Initable {
 
         Action.bind(cancelAction, cancelBtn)
         Action.bind(okAction, okBtn)
-        JfxUtils.bindShortcutActionTrigger(rootNode, actions)
+        JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
 
         JfxUtils.bindFileChooser(filePathTextField, 300, 300)
     }

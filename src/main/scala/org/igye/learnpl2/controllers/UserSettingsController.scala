@@ -155,7 +155,7 @@ class UserSettingsController extends Window with Initable {
         Action.bind(loadFromFileAction, loadFromFileBtn)
         Action.bind(saveAction, saveBtn)
         Action.bind(saveAsAction, saveAsBtn)
-        JfxUtils.bindShortcutActionTrigger(rootNode, actions)
+        JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
 
         JfxUtils.bindFileChooser(dirWithTextsTextField, 300, 300, FileChooserType.DIRS_ONLY)
         JfxUtils.bindVarNameAutocomplete(urlTextField, 100, 100, List("word"))

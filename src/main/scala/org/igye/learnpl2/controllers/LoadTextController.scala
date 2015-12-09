@@ -15,7 +15,7 @@ import org.igye.jfxutils.action._
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.concurrency.RunInJfxThreadForcibly
 import org.igye.jfxutils.fxml.Initable
-import org.igye.jfxutils.properties.{Expr, ChgListener}
+import org.igye.jfxutils.properties.{ChgListener, Expr}
 import org.igye.jfxutils.{JfxUtils, Window}
 import org.igye.learnpl2.models.LoadTextModel
 import org.igye.learnpl2.models.impl.LoadTextModelImpl
@@ -141,7 +141,7 @@ class LoadTextController extends Window with Initable {
         Action.bind(loadFromFileAction, fromFileBtn)
         Action.bind(saveAsAction, saveAsBtn)
         Action.bind(saveAction, saveBtn)
-        JfxUtils.bindShortcutActionTrigger(loadTextWindow, actions)
+        JfxUtils.bindActionsToSceneProp(loadTextWindow.sceneProperty(), actions)
     }
 
     def bindModel(): Unit = {
