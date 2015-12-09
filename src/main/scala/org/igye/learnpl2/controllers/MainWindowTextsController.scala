@@ -113,6 +113,7 @@ class MainWindowTextsController extends Initable {
         setShortcut(Shortcut(CONTROL, ALT, LEFT))
         override protected def onAction(): Unit = {
             model.back()
+            textFlow.focus()
         }
     }
 
