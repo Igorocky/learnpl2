@@ -17,7 +17,7 @@ import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.commonutils.Implicits.consumer
 import org.igye.jfxutils.Implicits._
 import org.igye.jfxutils._
-import org.igye.jfxutils.action.{Action, Shortcut}
+import org.igye.jfxutils.action.{Action, ActionType, Shortcut}
 import org.igye.jfxutils.annotations.FxmlFile
 import org.igye.jfxutils.events.{EventHandlerInfo, Hnd}
 import org.igye.jfxutils.fxml.{FxmlSupport, Initable}
@@ -144,6 +144,7 @@ class MainWindowTextsController extends Initable {
     private val exitAction = new Action {
         override val description: String = "Exit"
         setShortcut(Shortcut(HOME))
+        actionType = ActionType.HANDLER
         override protected def onAction(): Unit = {
             new Alert(AlertType.CONFIRMATION, s"Are you sure you want to exit?", ButtonType.NO, ButtonType.YES)
                 .showAndWait().ifPresent(consumer{ t=>
