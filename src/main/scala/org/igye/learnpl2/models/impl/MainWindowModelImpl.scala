@@ -108,6 +108,7 @@ class MainWindowModelImpl extends MainWindowModel {
         word.hidden.set(false)
         word.awaitingUserInput.set(false)
         word.userInputIsCorrect.set(None)
+        word.unsetUserInput()
         word.selected.set(false)
     }
 
@@ -153,8 +154,7 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def back(): Unit = {
         if (currState.get() == TEXT_WITH_INPUTS) {
-            currSentence.foreach(_.hidden.set(false))
-            currState.set(ONLY_TEXT)
+            goToSentence(currSentenceIdx.get())
         } else if (currState.get() == ONLY_TEXT) {
             if (currSentenceIdx.get() > 0) {
                 currSentenceIdx.set(currSentenceIdx.get() - 1)

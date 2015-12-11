@@ -9,6 +9,7 @@ trait Word {
     val mouseEntered: BooleanProperty
     val hidden: BooleanProperty
     def setUserInput(userInput: String)
+    def unsetUserInput(): Unit
     def getUserInput: Option[String]
     val awaitingUserInput: BooleanProperty
     val userInputIsCorrect: ObjectProperty[Option[Boolean]]

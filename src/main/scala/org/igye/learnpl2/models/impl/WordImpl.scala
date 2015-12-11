@@ -15,6 +15,10 @@ class WordImpl(override val text: String, override val hiddable: Boolean) extend
         userInputIsCorrect.set(None)
     }
 
+    override def unsetUserInput(): Unit = {
+        userInput = None
+    }
+
     override def getUserInput: Option[String] = userInput
 
     override val awaitingUserInput: BooleanProperty = new SimpleBooleanProperty(this, "awaitingUserInput", false)
