@@ -9,4 +9,5 @@ trait LoadTextModel {
     def save()
     val caretPosition: IntegerProperty
     val loadedFrom: StringProperty
+    def reset()
 }

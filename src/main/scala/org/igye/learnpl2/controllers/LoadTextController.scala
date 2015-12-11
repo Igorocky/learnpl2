@@ -41,6 +41,8 @@ class LoadTextController extends Window with Initable {
     @FXML
     protected var saveBtn: Button = _
     @FXML
+    protected var newBtn: Button = _
+    @FXML
     protected var loadedFromLbl: Label = _
     @FXML
     protected var loadedFromPathLbl: Label = _
@@ -52,6 +54,14 @@ class LoadTextController extends Window with Initable {
         setShortcut(Shortcut(ESCAPE))
         override protected def onAction(): Unit = {
             close()
+        }
+    }
+
+    private val newAction = new Action {
+        override val description = "New"
+        setShortcut(Shortcut(CONTROL, N))
+        override protected def onAction(): Unit = {
+            model.reset()
         }
     }
 
@@ -118,6 +128,7 @@ class LoadTextController extends Window with Initable {
         ,loadFromFileAction
         ,saveAsAction
         ,saveAction
+        ,newAction
     )
 
     override def init(): Unit = {
@@ -128,6 +139,7 @@ class LoadTextController extends Window with Initable {
         require(loadBtn != null)
         require(saveAsBtn != null)
         require(saveBtn != null)
+        require(newBtn != null)
         require(loadedFromLbl != null)
         require(loadedFromPathLbl != null)
 
@@ -141,6 +153,7 @@ class LoadTextController extends Window with Initable {
         Action.bind(loadFromFileAction, fromFileBtn)
         Action.bind(saveAsAction, saveAsBtn)
         Action.bind(saveAction, saveBtn)
+        Action.bind(newAction, newBtn)
         JfxUtils.bindActionsToSceneProp(loadTextWindow.sceneProperty(), actions)
     }
 
