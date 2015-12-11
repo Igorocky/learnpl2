@@ -16,18 +16,23 @@ class TextFunctionsTest {
         Assert.assertFalse(TextFunctions.isHiddable(" / "))
         Assert.assertFalse(TextFunctions.isHiddable(" \\"))
         Assert.assertFalse(TextFunctions.isHiddable("; "))
+        Assert.assertFalse(TextFunctions.isHiddable("—"))
+        Assert.assertFalse(TextFunctions.isHiddable("!"))
     }
 
     @Test
     def splitTextOnSentencesTest(): Unit = {
-        val text = "Word1 word2. Word3 word4 word5. Word6.\r\nWord7.\nWord8\r"
+        val text = "Word1 word2. Word3 word4 word5. Word6.\r\nWord7.\nWord8\r.Word9!Word10?Word11"
 
         val sentences = TextFunctions.splitTextOnSentences(text)
         Assert.assertEquals("Word1 word2.", sentences(0))
         Assert.assertEquals(" Word3 word4 word5.", sentences(1))
         Assert.assertEquals(" Word6.", sentences(2))
         Assert.assertEquals("\r\nWord7.", sentences(3))
-        Assert.assertEquals("\nWord8\r", sentences(4))
+        Assert.assertEquals("\nWord8\r.", sentences(4))
+        Assert.assertEquals("Word9!", sentences(5))
+        Assert.assertEquals("Word10?", sentences(6))
+        Assert.assertEquals("Word11", sentences(7))
     }
 
     @Test

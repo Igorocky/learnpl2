@@ -74,11 +74,6 @@ class MainWindowTextsController extends Initable {
     }
 
     val wordClickHandler = Hnd(MouseEvent.MOUSE_CLICKED){e =>
-        //        val browser = FxmlSupport.load[BrowserTabController]("fxml/BrowserTab.fxml")
-        //        val tab = browser.getTab(e.getSource.asInstanceOf[Text].getText)
-        //        tabPane.getTabs.add(tab)
-        //        tabPane.getSelectionModel.select(tab)
-
         model.selectWord(e.getSource.asInstanceOf[ParentHasWord].getWord)
         translateAction.trigger()
     }
@@ -93,7 +88,7 @@ class MainWindowTextsController extends Initable {
 
     private val translateAction = new Action {
         override val description: String = "Translate"
-        setShortcut(Shortcut(F4))
+        setShortcut(Shortcut(ALT, ENTER))
         override protected def onAction(): Unit = {
             model.getSelectedWord.foreach(w => translateWord(w.text))
         }
@@ -119,7 +114,7 @@ class MainWindowTextsController extends Initable {
 
     private val selectNextWordAction = new Action {
         override val description: String = "Select next word"
-        setShortcut(Shortcut(RIGHT))
+        setShortcut(Shortcut(ALT, RIGHT))
         override protected def onAction(): Unit = {
             model.selectNextWord(1)
         }
@@ -127,7 +122,7 @@ class MainWindowTextsController extends Initable {
 
     private val selectPrevWordAction = new Action {
         override val description: String = "Select prev word"
-        setShortcut(Shortcut(LEFT))
+        setShortcut(Shortcut(ALT, LEFT))
         override protected def onAction(): Unit = {
             model.selectNextWord(-1)
         }
