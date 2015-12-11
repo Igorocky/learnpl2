@@ -19,4 +19,5 @@ trait MainWindowModel {
     def back(): Unit
     def gotoNextWordToBeEnteredOrSwitchToNextSentence()
     def selectNextWord(step: Int): Unit
+    def focusWord(word: Word)
 }

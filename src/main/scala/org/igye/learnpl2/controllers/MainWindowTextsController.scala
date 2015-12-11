@@ -281,6 +281,7 @@ class MainWindowTextsController extends Initable {
         textField.focusedProperty() ==> ChgListener {chg=>
             if (chg.newValue) {
                 nextAction.removeShortcut()
+                model.focusWord(textField.getWord)
             } else {
                 nextAction.setShortcut(nextActionShortcut)
             }

@@ -163,16 +163,21 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {
         if (currState.get() != NOT_LOADED) {
+            val curWord = currSentence.find(_.awaitingUserInput.get)
             currSentence.foreach(_.awaitingUserInput.set(false))
             val hiddenWords = currSentence.filter(_.hidden.get())
-            val firstWordWithoutUserInput = hiddenWords.find(_.getUserInput.isEmpty)
+            val firstWordWithoutUserInput = curWord
+                .flatMap(cw => hiddenWords.dropWhile(_ != curWord.get).find(_.getUserInput.isEmpty))
+                .orElse(hiddenWords.find(_.getUserInput.isEmpty))
             if (firstWordWithoutUserInput.isDefined) {
                 firstWordWithoutUserInput.get.awaitingUserInput.set(true)
             } else {
                 hiddenWords.filter(_.userInputIsCorrect.get().isEmpty).foreach(w=>
                     w.userInputIsCorrect.set(Some(TextFunctions.checkUserInput(w.text, w.getUserInput.get, spellCheckerLog)))
                 )
-                val firstIncorrectWord = hiddenWords.find(!_.userInputIsCorrect.get().get)
+                val firstIncorrectWord = curWord
+                    .flatMap(cw => hiddenWords.dropWhile(_ != curWord.get).find(!_.userInputIsCorrect.get().get))
+                    .orElse(hiddenWords.find(!_.userInputIsCorrect.get().get))
                 if (firstIncorrectWord.isDefined) {
                     firstIncorrectWord.get.awaitingUserInput.set(true)
                 } else {
@@ -210,5 +215,10 @@ class MainWindowModelImpl extends MainWindowModel {
         if (idx != -1) {
             currSentence.get(idx).selected.set(true)
         }
+    }
+
+    override def focusWord(word: Word): Unit = {
+        currSentence.foreach(_.awaitingUserInput.set(false))
+        word.awaitingUserInput.set(true)
     }
 }
