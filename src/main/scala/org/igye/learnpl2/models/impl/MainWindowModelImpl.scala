@@ -104,12 +104,19 @@ class MainWindowModelImpl extends MainWindowModel {
         })
     }
 
+    private def resetWord(word: Word): Unit = {
+        word.hidden.set(false)
+        word.awaitingUserInput.set(false)
+        word.userInputIsCorrect.set(None)
+        word.selected.set(false)
+    }
+
     def goToSentence(sentenceIdx: Int): Unit = {
         if (text.isDefined && sentenceIdx >= 0 && sentenceIdx < text.get.length) {
             currSentence.clear()
             currSentence.addAll(text.get(sentenceIdx))
             currSentenceIdx.set(sentenceIdx)
-            currSentence.foreach(_.hidden.set(false))
+            currSentence.foreach(resetWord)
             currState.set(ONLY_TEXT)
         }
     }
