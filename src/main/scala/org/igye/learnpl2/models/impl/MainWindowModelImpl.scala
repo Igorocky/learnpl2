@@ -140,14 +140,17 @@ class MainWindowModelImpl extends MainWindowModel {
                 next()
             }
         } else if (currState.get() == TEXT_WITH_INPUTS) {
+            nextSentence()
+        }
+    }
+
+    override def nextSentence(): Unit = {
+        if (currState.get() != NOT_LOADED) {
             if (currSentenceIdx.get() < text.get.size - 1) {
                 currSentenceIdx.set(currSentenceIdx.get() + 1)
                 goToSentence(currSentenceIdx.get())
             } else {
-                currSentence.clear()
-                text = None
-                currState.set(NOT_LOADED)
-                currSentenceIdx.set(-1)
+                gotoNotLoadedState()
             }
         }
     }
@@ -160,12 +163,16 @@ class MainWindowModelImpl extends MainWindowModel {
                 currSentenceIdx.set(currSentenceIdx.get() - 1)
                 goToSentence(currSentenceIdx.get())
             } else {
-                currSentence.clear()
-                text = None
-                currState.set(NOT_LOADED)
-                currSentenceIdx.set(-1)
+                gotoNotLoadedState()
             }
         }
+    }
+
+    private def gotoNotLoadedState(): Unit = {
+        currSentence.clear()
+        text = None
+        currState.set(NOT_LOADED)
+        currSentenceIdx.set(-1)
     }
 
     override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {

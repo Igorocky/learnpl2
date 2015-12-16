@@ -50,6 +50,8 @@ class MainWindowTextsController extends Initable {
     @FXML
     protected var nextBtn: Button = _
     @FXML
+    protected var nextSentenceBtn: Button = _
+    @FXML
     protected var selectPrevWordBtn: Button = _
     @FXML
     protected var selectNextWordBtn: Button = _
@@ -100,6 +102,14 @@ class MainWindowTextsController extends Initable {
         setShortcut(nextActionShortcut)
         override protected def onAction(): Unit = {
             model.next()
+        }
+    }
+
+    private val nextSentenceAction = new Action {
+        override val description: String = "Next sentence"
+        setShortcut(Shortcut(CONTROL, ALT, RIGHT))
+        override protected def onAction(): Unit = {
+            model.nextSentence()
         }
     }
 
@@ -165,6 +175,7 @@ class MainWindowTextsController extends Initable {
         ,selectPrevWordAction
         ,translateAction
         ,nextAction
+        ,nextSentenceAction
         ,backAction
         ,settingsAction
         ,exitAction
@@ -178,6 +189,7 @@ class MainWindowTextsController extends Initable {
         require(loadTextBtn != null)
         require(backBtn != null)
         require(nextBtn != null)
+        require(nextSentenceBtn != null)
         require(selectPrevWordBtn != null)
         require(selectNextWordBtn != null)
         require(translateBtn != null)
@@ -195,6 +207,7 @@ class MainWindowTextsController extends Initable {
         Action.bind(selectPrevWordAction, selectPrevWordBtn)
         Action.bind(translateAction, translateBtn)
         Action.bind(nextAction, nextBtn)
+        Action.bind(nextSentenceAction, nextSentenceBtn)
         Action.bind(backAction, backBtn)
         Action.bind(settingsAction, settingsBtn)
         Action.bind(exitAction, exitBtn)

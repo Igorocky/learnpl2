@@ -16,6 +16,7 @@ trait MainWindowModel {
     def selectWord(word: Word)
     def getSelectedWord: Option[Word]
     def next(): Unit
+    def nextSentence(): Unit
     def back(): Unit
     def gotoNextWordToBeEnteredOrSwitchToNextSentence()
     def selectNextWord(step: Int): Unit
