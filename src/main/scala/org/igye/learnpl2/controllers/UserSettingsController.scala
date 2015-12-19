@@ -154,6 +154,9 @@ class UserSettingsController extends Window with Initable {
         Action.bind(closeAction, closeBtn)
         Action.bind(loadFromFileAction, loadFromFileBtn)
         Action.bind(saveAction, saveBtn)
+        Action.bind(saveAction, probabilityTextField)
+        Action.bind(saveAction, urlTextField)
+        Action.bind(saveAction, dirWithTextsTextField)
         Action.bind(saveAsAction, saveAsBtn)
         JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
 
