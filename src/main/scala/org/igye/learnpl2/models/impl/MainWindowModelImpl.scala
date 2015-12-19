@@ -73,7 +73,7 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def caretPosition: Int = {
         var res = 0
-        val selectedWord = getSelectedWord
+        val selectedWord = getWordUnderFocus.orElse(getSelectedWord)
         if (selectedWord.isDefined) {
             traverseAllWords((s,l,r,w) => if (w == selectedWord.get) {res = (l + r)/2})
         } else if (currSentence.nonEmpty) {
@@ -129,6 +129,10 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def getSelectedWord: Option[Word] = {
         currSentence.find(_.selected.get)
+    }
+
+    override def getWordUnderFocus: Option[Word] = {
+        currSentence.find(_.awaitingUserInput.get)
     }
 
     override def next(): Unit = {

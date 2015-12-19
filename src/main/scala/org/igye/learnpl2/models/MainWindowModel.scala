@@ -15,6 +15,7 @@ trait MainWindowModel {
     def goToSentence(sentenceIdx: Int): Unit
     def selectWord(word: Word)
     def getSelectedWord: Option[Word]
+    def getWordUnderFocus: Option[Word]
     def next(): Unit
     def nextSentence(): Unit
     def back(): Unit
