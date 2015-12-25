@@ -101,6 +101,15 @@ class UserSettingsController extends Window with Initable {
         }
     }
 
+    private val saveEnterAction = new Action {
+        override val description = "Save settings"
+        setShortcut(Shortcut(ENTER))
+        actionType = ActionType.HANDLER
+        override protected def onAction(): Unit = {
+            saveAction.trigger()
+        }
+    }
+
     private val saveAsAction = new Action {
         override val description = "Save settings as"
         setShortcut(Shortcut(CONTROL, ALT, S))
@@ -132,6 +141,7 @@ class UserSettingsController extends Window with Initable {
         closeAction
         ,loadFromFileAction
         ,saveAction
+        ,saveEnterAction
         ,saveAsAction
     )
 
@@ -154,9 +164,6 @@ class UserSettingsController extends Window with Initable {
         Action.bind(closeAction, closeBtn)
         Action.bind(loadFromFileAction, loadFromFileBtn)
         Action.bind(saveAction, saveBtn)
-        Action.bind(saveAction, probabilityTextField)
-        Action.bind(saveAction, urlTextField)
-        Action.bind(saveAction, dirWithTextsTextField)
         Action.bind(saveAsAction, saveAsBtn)
         JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
 
