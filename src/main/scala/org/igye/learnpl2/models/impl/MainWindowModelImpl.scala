@@ -6,13 +6,14 @@ import javafx.collections.FXCollections
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.learnpl2.TextFunctions
+import org.igye.learnpl2.{Rnd, TextFunctions}
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
 import org.igye.learnpl2.settings.Settings
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 
 class MainWindowModelImpl extends MainWindowModel {
     private val log: Logger = LogManager.getLogger()
@@ -135,9 +136,18 @@ class MainWindowModelImpl extends MainWindowModel {
         currSentence.find(_.awaitingUserInput.get)
     }
 
+    private def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
+        val rnd = new Rnd()
+        val idxBuf: ListBuffer[Int] = ListBuffer(0 to (elemsCnt - 1) : _*)
+        val resLength = List(math.round(elemsCnt * pct / 100.0).toInt).map(n => if (n == 0) 1 else n).apply(0)
+        println(s"resLength = $resLength")
+        (1 to resLength).map(n => idxBuf.remove(rnd.nextInt(idxBuf.length))).toList
+    }
+
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
-            currSentence.foreach(w => if (w.hiddable && random.nextInt(100) < Settings.probabilityPercent) w.hidden.set(true))
+            val hidableWords = currSentence.filter(_.hiddable)
+            getRandomIndices(hidableWords.length, Settings.probabilityPercent).foreach(hidableWords(_).hidden.set(true))
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {
