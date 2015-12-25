@@ -107,7 +107,7 @@ class MainWindowTextsController extends Initable {
 
     private val nextSentenceAction = new Action {
         override val description: String = "Next sentence"
-        setShortcut(Shortcut(CONTROL, ALT, RIGHT))
+        setShortcut(Shortcut(PAGE_DOWN))
         override protected def onAction(): Unit = {
             model.nextSentence()
         }
@@ -115,7 +115,7 @@ class MainWindowTextsController extends Initable {
 
     private val backAction = new Action {
         override val description: String = "Back"
-        setShortcut(Shortcut(CONTROL, ALT, LEFT))
+        setShortcut(Shortcut(PAGE_UP))
         override protected def onAction(): Unit = {
             model.back()
             textFlow.focus()

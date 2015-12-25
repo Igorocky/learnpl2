@@ -17,12 +17,14 @@ class TextFunctionsTest {
         Assert.assertFalse(TextFunctions.isHiddable(" \\"))
         Assert.assertFalse(TextFunctions.isHiddable("; "))
         Assert.assertFalse(TextFunctions.isHiddable("—"))
+        Assert.assertFalse(TextFunctions.isHiddable(" — "))
         Assert.assertFalse(TextFunctions.isHiddable("!"))
+        Assert.assertFalse(TextFunctions.isHiddable("? "))
     }
 
     @Test
     def splitTextOnSentencesTest(): Unit = {
-        val text = "Word1 word2. Word3 word4 word5. Word6.\r\nWord7.\nWord8\r.Word9!Word10?Word11"
+        val text = "Word1 word2. Word3 word4 word5. Word6.\r\nWord7.\nWord8\r.Word9!Word10?Word12...Word11"
 
         val sentences = TextFunctions.splitTextOnSentences(text)
         Assert.assertEquals("Word1 word2.", sentences(0))
@@ -32,13 +34,14 @@ class TextFunctionsTest {
         Assert.assertEquals("\nWord8\r.", sentences(4))
         Assert.assertEquals("Word9!", sentences(5))
         Assert.assertEquals("Word10?", sentences(6))
-        Assert.assertEquals("Word11", sentences(7))
+        Assert.assertEquals("Word12...", sentences(7))
+        Assert.assertEquals("Word11", sentences(8))
     }
 
     @Test
     def splitSentenceOnPartsTest1(): Unit = {
-        val sentence = "Word1 word2, \"word3\" - word4-suff (word5, word6!): word7; word8." +
-            " WordWith'Apostrophe. WordWith–LongHyphen."
+        val sentence = "Word1 word2, \"word3\" - word4-suff (word5, word6!): word7; word8. word9?" +
+            " WordWith'Apostrophe. WordWith–LongHyphen. word10... "
 
         val parts = TextFunctions.splitSentenceOnParts(sentence)
         Assert.assertTrue(parts.contains("Word1"))
@@ -51,6 +54,10 @@ class TextFunctionsTest {
         Assert.assertTrue(parts.contains("word8"))
         Assert.assertTrue(parts.contains("WordWith'Apostrophe"))
         Assert.assertTrue(parts.contains("WordWith–LongHyphen"))
+        Assert.assertTrue(parts.contains("word9"))
+        Assert.assertTrue(parts.contains("? "))
+        Assert.assertTrue(parts.contains("word10"))
+        Assert.assertTrue(parts.contains("... "))
     }
 
     @Test

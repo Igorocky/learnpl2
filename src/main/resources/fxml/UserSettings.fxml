@@ -7,7 +7,7 @@
    <children>
        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="418.0" prefWidth="600.0" spacing="5.0">
            <children>
-               <Label fx:id="settsLoadedFromLabel" text="Settings was loaded from:" />
+               <Label fx:id="settsLoadedFromLabel" text="Settings were loaded from:" />
                <Label fx:id="settsLoadedFromPathLabel" text="FILE PATH" />
                <Separator prefWidth="200.0" />
                <Button fx:id="loadFromFileBtn" mnemonicParsing="false" text="Load from file" />
