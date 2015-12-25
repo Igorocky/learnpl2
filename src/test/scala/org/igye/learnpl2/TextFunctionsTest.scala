@@ -16,14 +16,17 @@ class TextFunctionsTest {
         Assert.assertFalse(TextFunctions.isHiddable(" / "))
         Assert.assertFalse(TextFunctions.isHiddable(" \\"))
         Assert.assertFalse(TextFunctions.isHiddable("; "))
-        Assert.assertFalse(TextFunctions.isHiddable("—"))
-        Assert.assertFalse(TextFunctions.isHiddable(" — "))
+        Assert.assertFalse(TextFunctions.isHiddable("\u2014"))
+        Assert.assertFalse(TextFunctions.isHiddable(" \u2014 "))
         Assert.assertFalse(TextFunctions.isHiddable("!"))
         Assert.assertFalse(TextFunctions.isHiddable("? "))
+        Assert.assertFalse(TextFunctions.isHiddable("\u2026 "))
+        Assert.assertFalse(TextFunctions.isHiddable("\u201E "))
+        Assert.assertFalse(TextFunctions.isHiddable("\u201D "))
     }
 
     @Test
-    def splitTextOnSentencesTest(): Unit = {
+    def splitTextOnSentencesTest1(): Unit = {
         val text = "Word1 word2. Word3 word4 word5. Word6.\r\nWord7.\nWord8\r.Word9!Word10?Word12...Word11"
 
         val sentences = TextFunctions.splitTextOnSentences(text)
@@ -36,6 +39,15 @@ class TextFunctionsTest {
         Assert.assertEquals("Word10?", sentences(6))
         Assert.assertEquals("Word12...", sentences(7))
         Assert.assertEquals("Word11", sentences(8))
+    }
+
+    @Test
+    def splitTextOnSentencesTest2(): Unit = {
+        val text = "Word1\u2026 Word2"
+
+        val sentences = TextFunctions.splitTextOnSentences(text)
+        Assert.assertEquals("Word1\u2026", sentences(0))
+        Assert.assertEquals(" Word2", sentences(1))
     }
 
     @Test
@@ -89,12 +101,18 @@ class TextFunctionsTest {
 
     @Test
     def splitSentenceOnPartsTest3(): Unit = {
-        var sentence = "\n\n— "
-
-        var parts = TextFunctions.splitSentenceOnParts(sentence)
+        val parts = TextFunctions.splitSentenceOnParts("\n\n\u2014 ")
         Assert.assertEquals("\n\n", parts(0))
-        Assert.assertEquals("—", parts(1))
+        Assert.assertEquals("\u2014", parts(1))
         Assert.assertEquals(" ", parts(2))
+    }
+
+    @Test
+    def splitSentenceOnPartsTest4(): Unit = {
+        val parts = TextFunctions.splitSentenceOnParts("\u201EWord1\u201D")
+        Assert.assertEquals("\u201E", parts(0))
+        Assert.assertEquals("Word1", parts(1))
+        Assert.assertEquals("\u201D", parts(2))
     }
 
     @Test
