@@ -287,7 +287,9 @@ class MainWindowTextsController extends Initable {
         textField.setPrefWidth(200)
         textField.hnd(KeyEvent.KEY_PRESSED){e =>
             if (e.getCode == ENTER) {
-                textField.getWord.setUserInput(textField.getText)
+                if (textField.getText != textField.getWord.getUserInput.getOrElse(null)) {
+                    textField.getWord.setUserInput(textField.getText)
+                }
                 model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
             }
         }
