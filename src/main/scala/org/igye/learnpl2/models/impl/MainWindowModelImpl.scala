@@ -200,10 +200,13 @@ class MainWindowModelImpl extends MainWindowModel {
             if (firstWordWithoutUserInput.isDefined) {
                 firstWordWithoutUserInput.get.awaitingUserInput.set(true)
             } else {
+                val thereWereUncheckedWords = hiddenWords
+                    .filter(_ != curWord.getOrElse(null))
+                    .find(_.userInputIsCorrect.get().isEmpty).isDefined
                 hiddenWords.filter(_.userInputIsCorrect.get().isEmpty).foreach(w=>
                     w.userInputIsCorrect.set(Some(TextFunctions.checkUserInput(w.text, w.getUserInput.get, spellCheckerLog)))
                 )
-                val firstIncorrectWord = curWord
+                val firstIncorrectWord = (if (thereWereUncheckedWords) None else curWord)
                     .flatMap(cw => hiddenWords.dropWhile(_ != curWord.get).find(!_.userInputIsCorrect.get().get))
                     .orElse(hiddenWords.find(!_.userInputIsCorrect.get().get))
                 if (firstIncorrectWord.isDefined) {
