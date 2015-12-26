@@ -84,7 +84,7 @@ class MainWindowTextsController extends Initable {
         override val description: String = "Load text"
         setShortcut(Shortcut(CONTROL, L))
         override protected def onAction(): Unit = {
-            loadTextController.open(model.caretPosition)
+            loadTextController.open(model.selectionRange)
         }
     }
 

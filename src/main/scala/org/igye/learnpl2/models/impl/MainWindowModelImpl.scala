@@ -72,18 +72,23 @@ class MainWindowModelImpl extends MainWindowModel {
         }
     }
 
-    override def caretPosition: Int = {
-        var res = 0
+    override def selectionRange: (Int, Int) = {
+        var res = (0, 0)
         val selectedWord = getWordUnderFocus.orElse(getSelectedWord)
         if (selectedWord.isDefined) {
-            traverseAllWords((s,l,r,w) => if (w == selectedWord.get) {res = (l + r)/2})
+            traverseAllWords{(s,l,r,w) =>
+                if (w == selectedWord.get) {
+                    res = (l, r)
+                }
+            }
         } else if (currSentence.nonEmpty) {
-            res = getStartPositionOfWordInCurrSentence
+            val sPos = getStartPositionOfWordInCurrSentence
+            res = (sPos, sPos)
         }
         res
     }
 
-    private def getStartPositionOfWordInCurrSentence = {
+    private def getStartPositionOfWordInCurrSentence: Int = {
         var res = 0
         if (currSentence.nonEmpty) {
             var firstNonemptyWordWasFound = false

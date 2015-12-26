@@ -8,7 +8,7 @@ import org.igye.learnpl2.controllers.State
 trait MainWindowModel {
     val currState: ObjectProperty[State]
     def setText(text: String, caretPosition: Int)
-    def caretPosition: Int
+    def selectionRange: (Int, Int)
     val currSentence: ObservableList[Word]
     val currSentenceIdx: IntegerProperty
     def sentenceCount: Int

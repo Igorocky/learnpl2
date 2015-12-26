@@ -168,11 +168,11 @@ class LoadTextController extends Window with Initable {
         loadedFromPathLbl.textProperty() <== model.loadedFrom
     }
 
-    def open(caretPosition: Int): Unit = {
+    def open(selectionRange: (Int, Int)): Unit = {
         super.open()
         RunInJfxThreadForcibly {
             textArea.requestFocus()
-            textArea.positionCaret(caretPosition)
+            textArea.selectRange(selectionRange._1, selectionRange._2)
         }
     }
 }
