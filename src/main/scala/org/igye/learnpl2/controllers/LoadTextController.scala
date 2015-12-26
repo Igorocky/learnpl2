@@ -104,7 +104,7 @@ class LoadTextController extends Window with Initable {
         setShortcut(Shortcut(CONTROL, ALT, S))
         override protected def onAction(): Unit = {
             Dialogs.chooseFileDialog.open(
-                if (model.loadedFrom.get() != "") model.loadedFrom.get() else Settings.directoryWithTexts,
+                if (StringUtils.isNotBlank(model.loadedFrom.get())) model.loadedFrom.get() else Settings.directoryWithTexts,
                 path => {
                     val newFile = new File(path)
                     val parentOfNewFile = newFile.getParentFile
