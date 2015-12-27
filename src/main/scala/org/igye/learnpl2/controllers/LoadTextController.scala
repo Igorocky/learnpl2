@@ -57,6 +57,14 @@ class LoadTextController extends Window with Initable {
         }
     }
 
+    private val cancelF1Action = new Action {
+        override val description = "Cancel"
+        setShortcut(Shortcut(F1))
+        override protected def onAction(): Unit = {
+            cancelAction.trigger()
+        }
+    }
+
     private val newAction = new Action {
         override val description = "New"
         setShortcut(Shortcut(CONTROL, N))
@@ -124,6 +132,7 @@ class LoadTextController extends Window with Initable {
 
     private val actions = List(
         cancelAction
+        ,cancelF1Action
         ,loadAction
         ,loadFromFileAction
         ,saveAsAction

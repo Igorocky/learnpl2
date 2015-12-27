@@ -88,6 +88,14 @@ class MainWindowTextsController extends Initable {
         }
     }
 
+    private val loadTextF1Action = new Action {
+        override val description: String = "Load text"
+        setShortcut(Shortcut(F1))
+        override protected def onAction(): Unit = {
+            loadTextAction.trigger()
+        }
+    }
+
     private val translateAction = new Action {
         override val description: String = "Translate"
         setShortcut(Shortcut(ALT, ENTER))
@@ -171,6 +179,7 @@ class MainWindowTextsController extends Initable {
 
     private val actions = List(
         loadTextAction
+        ,loadTextF1Action
         ,selectNextWordAction
         ,selectPrevWordAction
         ,translateAction
