@@ -27,7 +27,7 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override val currSentence = FXCollections.observableArrayList[Word]()
 
-    private val random = new Random()
+    private val firstWordRnd = new Rnd()
 
     override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
@@ -142,11 +142,22 @@ class MainWindowModelImpl extends MainWindowModel {
     }
 
     private def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
-        val rnd = new Rnd()
-        val idxBuf: ListBuffer[Int] = ListBuffer(0 to (elemsCnt - 1) : _*)
+//        val pr = println(_:Any)
+        val rnd = new Random()
+//        pr("---------------------------------------------------------")
+//        pr(s"elemsCnt = $elemsCnt, pct = $pct")
         val resLength = List(math.round(elemsCnt * pct / 100.0).toInt).map(n => if (n == 0) 1 else n).apply(0)
-        println(s"resLength = $resLength")
-        (1 to resLength).map(n => idxBuf.remove(rnd.nextInt(idxBuf.length))).toList
+//        pr(s"resLength = $resLength")
+        val step = math.round(elemsCnt.toDouble / resLength).toInt
+//        pr(s"step = $step")
+        var currIdx = firstWordRnd.nextInt(elemsCnt)
+//        pr(s"currIdx = $currIdx")
+        val res = (1 to resLength).map{n =>
+            currIdx = (currIdx + step + rnd.nextInt(3) - 1) % elemsCnt
+            currIdx
+        }.toList
+//        pr(s"res = $res")
+        res
     }
 
     override def next(): Unit = {
