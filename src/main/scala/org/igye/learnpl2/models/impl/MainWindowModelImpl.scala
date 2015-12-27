@@ -132,6 +132,9 @@ class MainWindowModelImpl extends MainWindowModel {
     override def selectWord(word: Word): Unit = {
         currSentence.find(_.selected.get).foreach(_.selected.set(false))
         word.selected.set(true)
+        if (word.hidden.get && !word.awaitingUserInput.get) {
+            focusWord(word)
+        }
     }
 
     override def getSelectedWord: Option[Word] = {
@@ -263,7 +266,7 @@ class MainWindowModelImpl extends MainWindowModel {
             }
         }
         def isIdxAppropriate() = {
-            idx == -1 || currSentence.get(idx).hiddable && !currSentence.get(idx).awaitingUserInput.get()
+            idx == -1 || currSentence.get(idx).hiddable
         }
 
         incSelectedWordIdx()
@@ -271,12 +274,13 @@ class MainWindowModelImpl extends MainWindowModel {
             incSelectedWordIdx()
         }
         if (idx != -1) {
-            currSentence.get(idx).selected.set(true)
+            selectWord(currSentence.get(idx))
         }
     }
 
     override def focusWord(word: Word): Unit = {
         currSentence.foreach(_.awaitingUserInput.set(false))
         word.awaitingUserInput.set(true)
+        selectWord(word)
     }
 }
