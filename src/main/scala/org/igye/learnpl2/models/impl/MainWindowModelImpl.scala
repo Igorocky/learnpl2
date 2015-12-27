@@ -28,6 +28,7 @@ class MainWindowModelImpl extends MainWindowModel {
     override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val firstWordRnd = new Rnd()
+    private val shiftRnd = new Random()
 
     override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
@@ -143,7 +144,6 @@ class MainWindowModelImpl extends MainWindowModel {
 
     private def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
 //        val pr = println(_:Any)
-        val rnd = new Random()
 //        pr("---------------------------------------------------------")
 //        pr(s"elemsCnt = $elemsCnt, pct = $pct")
         val resLength = List(math.round(elemsCnt * pct / 100.0).toInt).map(n => if (n == 0) 1 else n).apply(0)
@@ -153,7 +153,16 @@ class MainWindowModelImpl extends MainWindowModel {
         var currIdx = firstWordRnd.nextInt(elemsCnt)
 //        pr(s"currIdx = $currIdx")
         val res = (1 to resLength).map{n =>
-            currIdx = (currIdx + step + rnd.nextInt(3) - 1) % elemsCnt
+            val shiftPct = 15
+            val shiftPot = shiftRnd.nextInt(100)
+            val randShift = if (shiftPot < shiftPct) {
+                -1
+            } else if (shiftPot > 99 - shiftPct) {
+                1
+            } else {
+                0
+            }
+            currIdx = (currIdx + step + randShift) % elemsCnt
             currIdx
         }.toList
 //        pr(s"res = $res")
