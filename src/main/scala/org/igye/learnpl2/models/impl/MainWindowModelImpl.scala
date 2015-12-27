@@ -148,7 +148,7 @@ class MainWindowModelImpl extends MainWindowModel {
 //        pr(s"elemsCnt = $elemsCnt, pct = $pct")
         val resLength = List(math.round(elemsCnt * pct / 100.0).toInt).map(n => if (n == 0) 1 else n).apply(0)
 //        pr(s"resLength = $resLength")
-        val step = math.round(elemsCnt.toDouble / resLength).toInt
+        val step = List(math.round(elemsCnt.toDouble / resLength).toInt).map(n => if (n == 0) 1 else n).apply(0)
 //        pr(s"step = $step")
         var currIdx = firstWordRnd.nextInt(elemsCnt)
 //        pr(s"currIdx = $currIdx")
