@@ -1,19 +1,18 @@
 package org.igye.learnpl2.models.impl
 
 import java.util.Random
-import javafx.beans.property.{SimpleIntegerProperty, ObjectProperty, SimpleObjectProperty}
+import javafx.beans.property.{ObjectProperty, SimpleIntegerProperty, SimpleObjectProperty}
 import javafx.collections.FXCollections
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.learnpl2.{Rnd, TextFunctions}
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
 import org.igye.learnpl2.settings.Settings
+import org.igye.learnpl2.{Rnd, TextFunctions}
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
 
 class MainWindowModelImpl extends MainWindowModel {
     private val log: Logger = LogManager.getLogger()
@@ -28,7 +27,7 @@ class MainWindowModelImpl extends MainWindowModel {
     override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val firstWordRnd = new Rnd()
-    private val shiftRnd = new Random()
+    private val generalRnd = new Random()
 
     override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
@@ -157,7 +156,7 @@ class MainWindowModelImpl extends MainWindowModel {
 //        pr(s"currIdx = $currIdx")
         val res = (1 to resLength).map{n =>
             val shiftPct = 15
-            val shiftPot = shiftRnd.nextInt(100)
+            val shiftPot = generalRnd.nextInt(100)
             val randShift = if (shiftPot < shiftPct) {
                 -1
             } else if (shiftPot > 99 - shiftPct) {
@@ -172,10 +171,34 @@ class MainWindowModelImpl extends MainWindowModel {
         res
     }
 
+    private def findSuitableIndices(words: List[Word], pct: Int): List[Int] = {
+        if (generalRnd.nextInt(3) > 1) {
+            getRandomIndices(words.length, pct)
+        } else {
+            def findBestIndices(num: Int, bestIndices: List[Int], avgForBest: Option[Double] = None): List[Int] = {
+                if (num == 0) {
+                    bestIndices
+                } else {
+                    val cand = getRandomIndices(words.length, pct)
+                    val avgForBestDbl = avgForBest.getOrElse{
+                        bestIndices.map(words(_).text.length).sum.toDouble/bestIndices.length
+                    }
+                    val avgForCand = cand.map(words(_).text.length).sum.toDouble/cand.length
+                    if (avgForCand > avgForBestDbl) {
+                        findBestIndices(num - 1, cand, Some(avgForCand))
+                    } else {
+                        findBestIndices(num - 1, bestIndices, Some(avgForBestDbl))
+                    }
+                }
+            }
+            findBestIndices(10, getRandomIndices(words.length, pct))
+        }
+    }
+
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
-            val hidableWords = currSentence.filter(_.hiddable)
-            getRandomIndices(hidableWords.length, Settings.probabilityPercent).foreach(hidableWords(_).hidden.set(true))
+            val hidableWords = currSentence.filter(_.hiddable).toList
+            findSuitableIndices(hidableWords, Settings.probabilityPercent).foreach(hidableWords(_).hidden.set(true))
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {
