@@ -29,6 +29,7 @@ class MainWindowController extends Window with Initable {
         override val description: String = "Enter text mode"
         setShortcut(Shortcut(T))
         override protected def onAction(): Unit = {
+            setEnabled(false)
             rootNode.getChildren.add(textsController.rootPane)
             textsController.rootPane.focus()
         }
@@ -45,7 +46,10 @@ class MainWindowController extends Window with Initable {
 
         initWindow(rootNode)
 
-        textsController.onCloseHandler = () => {rootNode.getChildren.removeAll(textsController.rootPane)}
+        textsController.onCloseHandler = () => {
+            rootNode.getChildren.removeAll(textsController.rootPane)
+            textAction.setEnabled(true)
+        }
 
         Action.bind(textAction, textBtn)
         JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
