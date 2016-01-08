@@ -164,7 +164,9 @@ class RandomIndicesTest {
             }
         }
 
-        assertTrue(checkBuf(6).max <= 2)
+        val diffs = checkBuf(6)
+        assertEquals(6, diffs.length)
+        assertTrue(diffs.max <= 2)
     }
 
     @Test
