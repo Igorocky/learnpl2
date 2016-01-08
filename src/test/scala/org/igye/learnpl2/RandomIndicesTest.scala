@@ -94,26 +94,26 @@ class RandomIndicesTest {
     @Test
     def testSecondVersionOfCalcShiftNormalCase(): Unit = {
         val baseIdx = 1
-        assertEquals(-1, RandomIndices.calcShift(baseIdx, ListBuffer[Int](1, 2, 3)))
-        assertEquals(0, RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 1, 3)))
-        assertEquals(1, RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 3, 1)))
+        assertEquals(-1, RandomIndices.calcShift(baseIdx, List(1, 2, 3)))
+        assertEquals(0, RandomIndices.calcShift(baseIdx, List(2, 1, 3)))
+        assertEquals(1, RandomIndices.calcShift(baseIdx, List(2, 3, 1)))
 
         for (i <- 1 to 20) {
-            val shift = RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 1, 1))
+            val shift = RandomIndices.calcShift(baseIdx, List(2, 1, 1))
             assertTrue(shift == 0 || shift == 1)
         }
     }
 
     @Test
     def testSecondVersionOfCalcShiftLeftBoundaryCase(): Unit = {
-        val buf = ListBuffer[Int](4, 10, 0)
+        val buf = List(4, 10, 0)
         val baseIdx = 0
         assertEquals(-1, RandomIndices.calcShift(baseIdx, buf))
     }
 
     @Test
     def testSecondVersionOfCalcShiftRightBoundaryCase(): Unit = {
-        val buf = ListBuffer[Int](0, 10, 4)
+        val buf = List(0, 10, 4)
         val baseIdx = 2
         assertEquals(1, RandomIndices.calcShift(baseIdx, buf))
     }
@@ -171,7 +171,7 @@ class RandomIndicesTest {
 
     @Test
     def testFindIdxWithMinCnt_emptyList(): Unit = {
-        val buf = ListBuffer[Int](1, 2, 1, 2, 3, 1, 4, 3, 3)
+        val buf = List(1, 2, 1, 2, 3, 1, 4, 3, 3)
         for (i <- 1 to 20) {
             val minCntIdx = RandomIndices.findIdxWithMinCnt(buf, Nil)
             assertTrue(minCntIdx == 0 || minCntIdx == 2 || minCntIdx == 5)
@@ -180,7 +180,7 @@ class RandomIndicesTest {
 
     @Test
     def testFindIdxWithMinCnt_nonemptyList(): Unit = {
-        val buf = ListBuffer[Int](1, 2, 1, 2, 3, 1, 4, 3, 3)
+        val buf = List(1, 2, 1, 2, 3, 1, 4, 3, 3)
         for (i <- 1 to 20) {
             val minCntIdx = RandomIndices.findIdxWithMinCnt(buf, List(0, 2))
             assertEquals(5, minCntIdx)
