@@ -20,6 +20,7 @@
                              <Button fx:id="backBtn" mnemonicParsing="false" text="Back" />
                              <Button fx:id="nextBtn" mnemonicParsing="false" text="Next" />
                              <Button fx:id="nextSentenceBtn" mnemonicParsing="false" text="Next sentence" />
+                             <Button fx:id="repeatBtn" mnemonicParsing="false" text="Repeat" />
                              <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord" />
                              <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord" />
                              <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord" />
