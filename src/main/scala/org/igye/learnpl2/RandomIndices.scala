@@ -4,11 +4,11 @@ import java.util.Random
 
 import org.igye.learnpl2.models.Word
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 class RandomIndices {
-    private val firstWordRnd = new Rnd()
+    import RandomIndices._
+
     private val generalRnd = new Random()
     private val lastWordsCounts = ListBuffer[Int]()
 
@@ -30,27 +30,25 @@ class RandomIndices {
             lastWordsCounts.update(idx, lastWordsCounts(idx) + 1)
             idx::soFarRes
         }
-        val res = (2 to resLength).foldLeft(addToRes(firstWordRnd.nextInt(elemsCnt), Nil)) {(soFarRes, i) =>
+        val res = (2 to resLength).foldLeft(addToRes(findIdxWithMinCnt(lastWordsCounts, Nil), Nil)) {(soFarRes, i) =>
 //            pr(s"soFarRes.head = ${soFarRes.head}")
             val baseIdx = (soFarRes.head + step) % elemsCnt
 //            pr(s"baseIdx = $baseIdx")
 
-            @tailrec
             def findNextIdx(baseIdx: Int): Int = {
                 val res = (
-                        elemsCnt + baseIdx + RandomIndices.calcShift(baseIdx, lastWordsCounts, generalRnd.nextDouble())
+                        elemsCnt + baseIdx + calcShift(baseIdx, lastWordsCounts, generalRnd.nextDouble())
                     ) % elemsCnt
                 if (!soFarRes.contains(res)) {
                     res
                 } else {
-                    findNextIdx((res + step) % elemsCnt)
+                    findIdxWithMinCnt(lastWordsCounts, soFarRes)
                 }
             }
 
             val nextIdx = findNextIdx(baseIdx)
             addToRes(nextIdx, soFarRes)
         }
-        firstWordRnd.removeFromBuffer(res)
 //                pr(s"getRandomIndices.res = $res")
         res
     }
@@ -79,6 +77,8 @@ class RandomIndices {
 }
 
 object RandomIndices {
+    private val rnd = new Random()
+
     protected[learnpl2] def calcShift(baseIdx: Int, lastWordsCounts: ListBuffer[Int], shiftPot: Double): Int = {
         val leftIdx = if (baseIdx > 0) baseIdx - 1 else lastWordsCounts.length - 1
         val rightIdx = if (baseIdx < lastWordsCounts.length - 1) baseIdx + 1 else 0
@@ -99,5 +99,12 @@ object RandomIndices {
         }
         //        pr(s"calcShift.res = $res")
         res
+    }
+
+    def findIdxWithMinCnt(lastWordsCounts: ListBuffer[Int], alreadySelectedIndices: List[Int]): Int = {
+        val countsWithIndices = lastWordsCounts.zipWithIndex.filter{case (c,i) => !alreadySelectedIndices.contains(i)}
+        val minCnt = countsWithIndices.map(_._1).min
+        val indicesWithMinCount = countsWithIndices.filter{case (c,i) => c == minCnt}.map(_._2)
+        indicesWithMinCount(rnd.nextInt(indicesWithMinCount.length))
     }
 }

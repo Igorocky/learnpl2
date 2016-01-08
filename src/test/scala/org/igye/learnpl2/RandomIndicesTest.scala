@@ -117,9 +117,10 @@ class RandomIndicesTest {
                 println("------------------------------------------------------------------")
 //                println(s"idxs = $idxs")
 //                println(s"buf = $buf")
-                val minMax = findMinMax(buf)
-                val dif = minMax._2 - minMax._1
-                println(s"MinMax = ${minMax}, dif = $dif")
+                val (min1, max1) = findMinMax(buf)
+                val (min, max) = (min1 - 1, max1 - 1)
+                val dif = max - min
+                println(s"MinMax = ${(min, max)}, dif = $dif (${dif/max.toDouble*100}%)")
                 assertEquals(elemsCnt, buf.length)
                 if (prevBuf.isEmpty) {
                     assertTrue(buf.zipWithIndex.forall{case (c,i) =>
@@ -135,5 +136,23 @@ class RandomIndicesTest {
         }
 
         checkBuf(1000, Nil)
+    }
+
+    @Test
+    def testFindIdxWithMinCnt_emptyList(): Unit = {
+        val buf = ListBuffer[Int](1, 2, 1, 2, 3, 1, 4, 3, 3)
+        for (i <- 1 to 20) {
+            val minCntIdx = RandomIndices.findIdxWithMinCnt(buf, Nil)
+            assertTrue(minCntIdx == 0 || minCntIdx == 2 || minCntIdx == 5)
+        }
+    }
+
+    @Test
+    def testFindIdxWithMinCnt_nonemptyList(): Unit = {
+        val buf = ListBuffer[Int](1, 2, 1, 2, 3, 1, 4, 3, 3)
+        for (i <- 1 to 20) {
+            val minCntIdx = RandomIndices.findIdxWithMinCnt(buf, List(0, 2))
+            assertEquals(5, minCntIdx)
+        }
     }
 }
