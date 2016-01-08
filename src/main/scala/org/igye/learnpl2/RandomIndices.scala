@@ -11,17 +11,19 @@ class RandomIndices {
 
     private var lastWordsCounts = List[Int]()
 
-//    private val pr = println(_:Any)
-
     def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
         if (elemsCnt != lastWordsCounts.length) {
             lastWordsCounts = (1 to elemsCnt).map(i => 1).toList
         }
-        val res = getRandomIndicesUnder50(elemsCnt, pct, lastWordsCounts)
+        val res = (if (pct <= 50) {
+            getRandomIndicesUnder50(elemsCnt, pct, lastWordsCounts)
+        } else if (pct < 100) {
+            (0 until elemsCnt).toList diff getRandomIndicesUnder50(elemsCnt, 100 - pct, lastWordsCounts.map(-_))
+        } else {
+            (0 until elemsCnt).toList
+        })
 
-        lastWordsCounts = lastWordsCounts.zipWithIndex.map{case (c,i)=>
-                if (res.contains(i)) c + 1 else c
-        }
+        lastWordsCounts = lastWordsCounts.zipWithIndex.map{case (c,i) => if (res.contains(i)) c + 1 else c}
 //                pr(s"getRandomIndices.res = $res")
         res
     }
@@ -50,6 +52,8 @@ class RandomIndices {
 }
 
 object RandomIndices {
+//    protected[learnpl2] val pr = println(_:Any)
+
     private val rnd = new Random()
 
     protected[learnpl2] def calcShift(baseIdx: Int, lastWordsCounts: ListBuffer[Int], shiftPot: Double): Int = {

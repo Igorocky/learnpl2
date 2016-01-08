@@ -120,9 +120,12 @@ class RandomIndicesTest {
 
     @Test
     def testLastWordsCounts(): Unit = {
+        testLastWordsCounts(20, 30, 6)
+        testLastWordsCounts(20, 70, 6)
+    }
+
+    def testLastWordsCounts(elemsCnt: Int, pct: Int, iterNum: Int): Unit = {
         val rnd = new RandomIndices
-        val elemsCnt = 20
-        val pct = 30
 
         @tailrec
         def findMinMax(nums: List[Int], min: Int = Int.MaxValue, max: Int = Int.MinValue): (Int, Int) = {
@@ -163,9 +166,8 @@ class RandomIndicesTest {
                 checkBuf(level - 1, buf, dif::acumRes)
             }
         }
-
-        val diffs = checkBuf(6)
-        assertEquals(6, diffs.length)
+        val diffs = checkBuf(iterNum)
+        assertEquals(iterNum, diffs.length)
         assertTrue(diffs.max <= 2)
     }
 
