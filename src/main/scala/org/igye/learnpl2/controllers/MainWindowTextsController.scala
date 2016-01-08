@@ -118,6 +118,7 @@ class MainWindowTextsController extends Initable {
     private val repeatAction = new Action {
         override val description: String = "Repeat"
         setShortcut(Shortcut(CONTROL, R))
+        setEnabled(false)
         override protected def onAction(): Unit = {
             backAction.trigger()
             nextAction.trigger()
@@ -280,6 +281,13 @@ class MainWindowTextsController extends Initable {
                 sentenceIdxTextField.setText((model.currSentenceIdx.get() + 1).toString)
             } else {
                 sentenceIdxTextField.setText("")
+            }
+        }
+        model.currState ==> ChgListener{chg=>
+            if (chg.newValue == TEXT_WITH_INPUTS) {
+                repeatAction.setEnabled(true)
+            } else {
+                repeatAction.setEnabled(false)
             }
         }
     }
