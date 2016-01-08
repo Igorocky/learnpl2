@@ -4,6 +4,7 @@ import java.util.Random
 
 import org.igye.learnpl2.models.Word
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 class RandomIndices {
@@ -25,15 +26,27 @@ class RandomIndices {
         val step = List(math.round(elemsCnt.toDouble / resLength).toInt).map(n => if (n == 0) 1 else n).apply(0)
 //                pr(s"step = $step")
         def addToRes(idx: Int, soFarRes: List[Int]): List[Int] = {
+//            pr(s"addToRes: idx = $idx")
             lastWordsCounts.update(idx, lastWordsCounts(idx) + 1)
             idx::soFarRes
         }
-        val res = (2 to resLength).foldLeft(addToRes(firstWordRnd.nextInt(elemsCnt), Nil)) {(res, step) =>
-            val baseIdx = (res.head + step) % elemsCnt
-            addToRes(
-                (elemsCnt + baseIdx + calcShift(baseIdx)) % elemsCnt,
-                res
-            )
+        val res = (2 to resLength).foldLeft(addToRes(firstWordRnd.nextInt(elemsCnt), Nil)) {(soFarRes, i) =>
+//            pr(s"soFarRes.head = ${soFarRes.head}")
+            val baseIdx = (soFarRes.head + step) % elemsCnt
+//            pr(s"baseIdx = $baseIdx")
+
+            @tailrec
+            def findNextIdx(baseIdx: Int): Int = {
+                val res = (elemsCnt + baseIdx + calcShift(baseIdx)) % elemsCnt
+                if (!soFarRes.contains(res)) {
+                    res
+                } else {
+                    findNextIdx(res)
+                }
+            }
+
+            val nextIdx = findNextIdx(baseIdx)
+            addToRes(nextIdx, soFarRes)
         }
         firstWordRnd.removeFromBuffer(res)
 //                pr(s"getRandomIndices.res = $res")
