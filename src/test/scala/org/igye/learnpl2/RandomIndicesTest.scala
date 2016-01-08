@@ -5,46 +5,10 @@ import org.junit.Test
 
 class RandomIndicesTest {
     @Test
-    def testNextInt(): Unit = {
-        val rnd = new Rnd
-        val boundary1 = 100
-        for (i <- 1 to 100) {
-            val set1 = (for (n <- 1 to boundary1) yield {
-                rnd.nextInt(boundary1)
-            }).toSet
-            assertEquals(boundary1, set1.size)
-        }
-        rnd.nextInt(boundary1)
-        rnd.nextInt(boundary1)
-
-        //Rnd should create new buffer if boundary changes
-        val boundary2 = 10
-        val set2 = (for (n <- 1 to boundary2) yield {
-            rnd.nextInt(boundary2)
-        }).toSet
-        assertEquals(boundary2, set2.size)
-        rnd.nextInt(boundary2)
-        rnd.nextInt(boundary2)
-
-        val boundary3 = 2
-        val set3 = (for (n <- 1 to boundary3) yield {
-            rnd.nextInt(boundary3)
-        }).toSet
-        assertEquals(boundary3, set3.size)
-    }
-
-    @Test
-    def testRemoveFromBuffer(): Unit = {
-        val rnd = new Rnd
-        val boundary = 10
-        val firstVal = rnd.nextInt(boundary)
-        rnd.removeFromBuffer(List(1,2,3,4,5))
-        val buf = rnd.getBuffer
-        assertFalse(buf.contains(firstVal))
-        assertFalse(buf.contains(1))
-        assertFalse(buf.contains(2))
-        assertFalse(buf.contains(3))
-        assertFalse(buf.contains(4))
-        assertFalse(buf.contains(5))
+    def testGetRandomIndicesLength(): Unit = {
+        val rnd = new RandomIndices
+        assertEquals(3, rnd.getRandomIndices(9, 30).size)
+        assertEquals(2, rnd.getRandomIndices(8, 30).size)
+        assertEquals(1, rnd.getRandomIndices(15, 0).size)
     }
 }

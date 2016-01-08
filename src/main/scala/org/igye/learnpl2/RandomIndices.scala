@@ -9,12 +9,11 @@ import scala.collection.mutable.ListBuffer
 class RandomIndices {
     private val firstWordRnd = new Rnd()
     private val generalRnd = new Random()
-    private var lastHash: Long = _
     private val lastWordsCounts = ListBuffer[Int]()
 
 //    private val pr = println(_:Any)
 
-    private def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
+    def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
         if (elemsCnt != lastWordsCounts.length) {
             lastWordsCounts.clear()
             lastWordsCounts ++= (1 to elemsCnt).map(i => 1)
@@ -65,26 +64,22 @@ class RandomIndices {
     }
 
     def findSuitableIndices(words: List[Word], pct: Int): List[Int] = {
-        if (1 == 1 || generalRnd.nextInt(3) > 1) {
-            getRandomIndices(words.length, pct)
-        } else {
-            def findBestIndices(num: Int, bestIndices: List[Int], avgForBest: Option[Double] = None): List[Int] = {
-                if (num == 0) {
-                    bestIndices
+        def findBestIndices(num: Int, bestIndices: List[Int], avgForBest: Option[Double] = None): List[Int] = {
+            if (num == 0) {
+                bestIndices
+            } else {
+                val cand = getRandomIndices(words.length, pct)
+                val avgForBestDbl = avgForBest.getOrElse{
+                    bestIndices.map(words(_).text.length).sum.toDouble/bestIndices.length
+                }
+                val avgForCand = cand.map(words(_).text.length).sum.toDouble/cand.length
+                if (avgForCand > avgForBestDbl) {
+                    findBestIndices(num - 1, cand, Some(avgForCand))
                 } else {
-                    val cand = getRandomIndices(words.length, pct)
-                    val avgForBestDbl = avgForBest.getOrElse{
-                        bestIndices.map(words(_).text.length).sum.toDouble/bestIndices.length
-                    }
-                    val avgForCand = cand.map(words(_).text.length).sum.toDouble/cand.length
-                    if (avgForCand > avgForBestDbl) {
-                        findBestIndices(num - 1, cand, Some(avgForCand))
-                    } else {
-                        findBestIndices(num - 1, bestIndices, Some(avgForBestDbl))
-                    }
+                    findBestIndices(num - 1, bestIndices, Some(avgForBestDbl))
                 }
             }
-            findBestIndices(10, getRandomIndices(words.length, pct))
         }
+        findBestIndices(10, getRandomIndices(words.length, pct))
     }
 }

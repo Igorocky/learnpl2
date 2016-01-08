@@ -149,8 +149,8 @@ class MainWindowModelImpl extends MainWindowModel {
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
             val hidableWords = currSentence.filter(_.hiddable).toList
-            rndIndices.findSuitableIndices(
-                hidableWords,
+            rndIndices.getRandomIndices(
+                hidableWords.length,
                 Settings.probabilityPercent
             ).foreach(hidableWords(_).hidden.set(true))
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
