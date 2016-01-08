@@ -9,7 +9,6 @@ import scala.collection.mutable.ListBuffer
 class RandomIndices {
     import RandomIndices._
 
-    private val generalRnd = new Random()
     private val lastWordsCounts = ListBuffer[Int]()
 
 //    private val pr = println(_:Any)
@@ -37,7 +36,7 @@ class RandomIndices {
 
             def findNextIdx(baseIdx: Int): Int = {
                 val res = (
-                        elemsCnt + baseIdx + calcShift(baseIdx, lastWordsCounts, generalRnd.nextDouble())
+                        elemsCnt + baseIdx + calcShift(baseIdx, lastWordsCounts)
                     ) % elemsCnt
                 if (!soFarRes.contains(res)) {
                     res
@@ -101,8 +100,21 @@ object RandomIndices {
         res
     }
 
-    def findIdxWithMinCnt(lastWordsCounts: ListBuffer[Int], alreadySelectedIndices: List[Int]): Int = {
-        val countsWithIndices = lastWordsCounts.zipWithIndex.filter{case (c,i) => !alreadySelectedIndices.contains(i)}
+    protected[learnpl2] def calcShift(baseIdx: Int, lastWordsCounts: ListBuffer[Int]): Int = {
+        val leftIdx = if (baseIdx > 0) baseIdx - 1 else lastWordsCounts.length - 1
+        val rightIdx = if (baseIdx < lastWordsCounts.length - 1) baseIdx + 1 else 0
+        findIdxWithMinCnt(
+            ListBuffer(
+                lastWordsCounts(leftIdx),
+                lastWordsCounts(baseIdx),
+                lastWordsCounts(rightIdx)
+            ),
+        Nil
+        ) - 1
+    }
+
+    protected[learnpl2] def findIdxWithMinCnt(counts: ListBuffer[Int], alreadySelectedIndices: List[Int]): Int = {
+        val countsWithIndices = counts.zipWithIndex.filter{case (c,i) => !alreadySelectedIndices.contains(i)}
         val minCnt = countsWithIndices.map(_._1).min
         val indicesWithMinCount = countsWithIndices.filter{case (c,i) => c == minCnt}.map(_._2)
         indicesWithMinCount(rnd.nextInt(indicesWithMinCount.length))

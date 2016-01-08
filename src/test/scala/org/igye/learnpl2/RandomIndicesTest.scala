@@ -92,6 +92,33 @@ class RandomIndicesTest {
     }
 
     @Test
+    def testSecondVersionOfCalcShiftNormalCase(): Unit = {
+        val baseIdx = 1
+        assertEquals(-1, RandomIndices.calcShift(baseIdx, ListBuffer[Int](1, 2, 3)))
+        assertEquals(0, RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 1, 3)))
+        assertEquals(1, RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 3, 1)))
+
+        for (i <- 1 to 20) {
+            val shift = RandomIndices.calcShift(baseIdx, ListBuffer[Int](2, 1, 1))
+            assertTrue(shift == 0 || shift == 1)
+        }
+    }
+
+    @Test
+    def testSecondVersionOfCalcShiftLeftBoundaryCase(): Unit = {
+        val buf = ListBuffer[Int](4, 10, 0)
+        val baseIdx = 0
+        assertEquals(-1, RandomIndices.calcShift(baseIdx, buf))
+    }
+
+    @Test
+    def testSecondVersionOfCalcShiftRightBoundaryCase(): Unit = {
+        val buf = ListBuffer[Int](0, 10, 4)
+        val baseIdx = 2
+        assertEquals(1, RandomIndices.calcShift(baseIdx, buf))
+    }
+
+    @Test
     def testLastWordsCounts(): Unit = {
         val rnd = new RandomIndices
         val elemsCnt = 20
@@ -110,17 +137,19 @@ class RandomIndicesTest {
         }
 
         @tailrec
-        def checkBuf(level: Int, prevBuf: List[Int]): Unit = {
-            if (level > 0) {
+        def checkBuf(level: Int, prevBuf: List[Int] = Nil, acumRes: List[Int] = Nil): List[Int] = {
+            if (level <= 0) {
+                acumRes
+            } else {
                 val idxs = rnd.getRandomIndices(elemsCnt, pct)
                 val buf = rnd.getLastWordsCounts
-                println("------------------------------------------------------------------")
+//                println("------------------------------------------------------------------")
 //                println(s"idxs = $idxs")
 //                println(s"buf = $buf")
                 val (min1, max1) = findMinMax(buf)
                 val (min, max) = (min1 - 1, max1 - 1)
                 val dif = max - min
-                println(s"MinMax = ${(min, max)}, dif = $dif (${dif/max.toDouble*100}%)")
+//                println(s"MinMax = ${(min, max)}, dif = $dif (${dif/max.toDouble*100}%)")
                 assertEquals(elemsCnt, buf.length)
                 if (prevBuf.isEmpty) {
                     assertTrue(buf.zipWithIndex.forall{case (c,i) =>
@@ -131,11 +160,11 @@ class RandomIndicesTest {
                         if (idxs.contains(i)) c == prevBuf(i) + 1 else c == prevBuf(i)
                     })
                 }
-                checkBuf(level - 1, buf)
+                checkBuf(level - 1, buf, dif::acumRes)
             }
         }
 
-        checkBuf(1000, Nil)
+        assertTrue(checkBuf(6).max <= 2)
     }
 
     @Test
