@@ -89,6 +89,9 @@ class LoadTextController extends Window with Initable {
     private val saveAction = new Action {
         override val description = "Save"
         setShortcut(Shortcut(CONTROL, S))
+        enabled <== Expr(model.loadedFrom){
+            !StringUtils.isBlank(model.loadedFrom.get())
+        }
         override protected def onAction(): Unit = {
             if (StringUtils.isBlank(model.loadedFrom.get())) {
                 new Alert(AlertType.INFORMATION, s"Use 'Save as' button.", ButtonType.OK).showAndWait()

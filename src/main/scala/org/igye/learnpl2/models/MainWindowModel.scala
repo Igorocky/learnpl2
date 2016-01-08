@@ -7,14 +7,15 @@ import org.igye.learnpl2.controllers.State
 
 trait MainWindowModel {
     val currState: ObjectProperty[State]
-    def setText(text: String, caretPosition: Int)
-    def selectionRange: (Int, Int)
     val currSentence: ObservableList[Word]
     val currSentenceIdx: IntegerProperty
+    val selectedWord: ObjectProperty[Option[Word]]
+
+    def setText(text: String, caretPosition: Int)
+    def selectionRange: (Int, Int)
     def sentenceCount: Int
     def goToSentence(sentenceIdx: Int): Unit
     def selectWord(word: Word)
-    def getSelectedWord: Option[Word]
     def getWordUnderFocus: Option[Word]
     def next(): Unit
     def nextSentence(): Unit

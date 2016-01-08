@@ -29,7 +29,7 @@ class MainWindowController extends Window with Initable {
         override val description: String = "Enter text mode"
         setShortcut(Shortcut(T))
         override protected def onAction(): Unit = {
-            setEnabled(false)
+            enabled.set(false)
             rootNode.getChildren.add(textsController.rootPane)
             textsController.rootPane.focus()
         }
@@ -48,7 +48,7 @@ class MainWindowController extends Window with Initable {
 
         textsController.onCloseHandler = () => {
             rootNode.getChildren.removeAll(textsController.rootPane)
-            textAction.setEnabled(true)
+            textAction.enabled.set(true)
         }
 
         Action.bind(textAction, textBtn)

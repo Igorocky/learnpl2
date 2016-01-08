@@ -5,6 +5,8 @@ import javafx.collections.FXCollections
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
+import org.igye.jfxutils.Implicits.{observableValueToObservableValueOperators, propertyToPropertyOperators}
+import org.igye.jfxutils.properties.{ChgListener, Expr}
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
@@ -26,6 +28,14 @@ class MainWindowModelImpl extends MainWindowModel {
     override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val rndIndices = new RandomIndices
+
+    override val selectedWord: ObjectProperty[Option[Word]] = new SimpleObjectProperty[Option[Word]](None)
+    currSentenceIdx ==> ChgListener{chg=>
+        selectedWord.set(None)
+    }
+    currState ==> ChgListener{chg=>
+        selectedWord.set(None)
+    }
 
     override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
@@ -65,14 +75,14 @@ class MainWindowModelImpl extends MainWindowModel {
         traverseAllWords{(s, l, r, w)=>
             if (w.hiddable && l <= caretPosition && caretPosition <= r) {
                 traverseAllWords((s, l, r, w) => w.selected.set(false))
-                w.selected.set(true)
+                selectWord(w)
             }
         }
     }
 
     override def selectionRange: (Int, Int) = {
         var res = (0, 0)
-        val selectedWord = getWordUnderFocus.orElse(getSelectedWord)
+        val selectedWord = getWordUnderFocus.orElse(this.selectedWord.get)
         if (selectedWord.isDefined) {
             traverseAllWords{(s,l,r,w) =>
                 if (w == selectedWord.get) {
@@ -132,19 +142,17 @@ class MainWindowModelImpl extends MainWindowModel {
         if (word.hidden.get && !word.awaitingUserInput.get) {
             focusWord(word)
         }
+        selectedWord.set(Some(word))
     }
 
-    override def getSelectedWord: Option[Word] = {
-        currSentence.find(_.selected.get)
+    def unselectWord(word: Word): Unit = {
+        word.selected.set(false)
+        selectedWord.set(None)
     }
 
     override def getWordUnderFocus: Option[Word] = {
         currSentence.find(_.awaitingUserInput.get)
     }
-
-
-
-
 
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
@@ -226,9 +234,9 @@ class MainWindowModelImpl extends MainWindowModel {
     }
 
     override def selectNextWord(step: Int): Unit = {
-        val selectedWordOpt = currSentence.find(_.selected.get())
+        val selectedWordOpt = selectedWord.get
         var idx = if (selectedWordOpt.isDefined) {
-            selectedWordOpt.get.selected.set(false)
+            unselectWord(selectedWordOpt.get)
             currSentence.indexOf(selectedWordOpt.get)
         } else {
             -1

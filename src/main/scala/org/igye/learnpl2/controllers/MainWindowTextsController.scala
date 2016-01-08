@@ -93,6 +93,7 @@ class MainWindowTextsController extends Initable {
     private val loadTextF1Action = new Action {
         override val description: String = "Load text"
         setShortcut(Shortcut(F1))
+        enabled <== loadTextAction.enabled
         override protected def onAction(): Unit = {
             loadTextAction.trigger()
         }
@@ -101,8 +102,11 @@ class MainWindowTextsController extends Initable {
     private val translateAction = new Action {
         override val description: String = "Translate"
         setShortcut(Shortcut(ALT, ENTER))
+        enabled <== Expr(model.selectedWord){
+            model.selectedWord.get().isDefined
+        }
         override protected def onAction(): Unit = {
-            model.getSelectedWord.foreach(w => translateWord(w.text))
+            model.selectedWord.get.foreach(w => translateWord(w.text))
         }
     }
 
@@ -110,6 +114,9 @@ class MainWindowTextsController extends Initable {
     private val nextAction = new Action {
         override val description: String = "Next"
         setShortcut(nextActionShortcut)
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             model.next()
         }
@@ -118,7 +125,9 @@ class MainWindowTextsController extends Initable {
     private val repeatAction = new Action {
         override val description: String = "Repeat"
         setShortcut(Shortcut(CONTROL, R))
-        setEnabled(false)
+        enabled <== Expr(model.currState){
+            model.currState.get == TEXT_WITH_INPUTS
+        }
         override protected def onAction(): Unit = {
             backAction.trigger()
             nextAction.trigger()
@@ -128,6 +137,9 @@ class MainWindowTextsController extends Initable {
     private val nextSentenceAction = new Action {
         override val description: String = "Next sentence"
         setShortcut(Shortcut(PAGE_DOWN))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             model.nextSentence()
         }
@@ -136,6 +148,9 @@ class MainWindowTextsController extends Initable {
     private val backAction = new Action {
         override val description: String = "Back"
         setShortcut(Shortcut(PAGE_UP))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             model.back()
             textFlow.focus()
@@ -145,6 +160,9 @@ class MainWindowTextsController extends Initable {
     private val selectNextWordAction = new Action {
         override val description: String = "Select next word"
         setShortcut(Shortcut(ALT, RIGHT))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             model.selectNextWord(1)
         }
@@ -153,6 +171,9 @@ class MainWindowTextsController extends Initable {
     private val selectPrevWordAction = new Action {
         override val description: String = "Select prev word"
         setShortcut(Shortcut(ALT, LEFT))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             model.selectNextWord(-1)
         }
@@ -183,6 +204,9 @@ class MainWindowTextsController extends Initable {
     private val gotoAction = new Action {
         override val description: String = "Go to sentence"
         setShortcut(Shortcut(CONTROL, G))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
         override protected def onAction(): Unit = {
             sentenceIdxTextField.focus()
             sentenceIdxTextField.selectAll()
@@ -281,13 +305,6 @@ class MainWindowTextsController extends Initable {
                 sentenceIdxTextField.setText((model.currSentenceIdx.get() + 1).toString)
             } else {
                 sentenceIdxTextField.setText("")
-            }
-        }
-        model.currState ==> ChgListener{chg=>
-            if (chg.newValue == TEXT_WITH_INPUTS) {
-                repeatAction.setEnabled(true)
-            } else {
-                repeatAction.setEnabled(false)
             }
         }
     }
