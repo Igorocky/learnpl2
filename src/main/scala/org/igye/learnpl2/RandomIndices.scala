@@ -24,20 +24,13 @@ class RandomIndices {
 //                pr(s"resLength = $resLength")
         val step = List(math.round(elemsCnt.toDouble / resLength).toInt).map(n => if (n == 0) 1 else n).apply(0)
 //                pr(s"step = $step")
-        def addToRes(idx: Int, soFarRes: List[Int]): List[Int] = {
-//            pr(s"addToRes: idx = $idx")
-            lastWordsCounts.update(idx, lastWordsCounts(idx) + 1)
-            idx::soFarRes
-        }
-        val res = (2 to resLength).foldLeft(addToRes(findIdxWithMinCnt(lastWordsCounts, Nil), Nil)) {(soFarRes, i) =>
+        val res = (2 to resLength).foldLeft(List(findIdxWithMinCnt(lastWordsCounts, Nil))) {(soFarRes, i) =>
 //            pr(s"soFarRes.head = ${soFarRes.head}")
             val baseIdx = (soFarRes.head + step) % elemsCnt
 //            pr(s"baseIdx = $baseIdx")
 
             def findNextIdx(baseIdx: Int): Int = {
-                val res = (
-                        elemsCnt + baseIdx + calcShift(baseIdx, lastWordsCounts)
-                    ) % elemsCnt
+                val res = (elemsCnt + baseIdx + calcShift(baseIdx, lastWordsCounts)) % elemsCnt
                 if (!soFarRes.contains(res)) {
                     res
                 } else {
@@ -46,8 +39,9 @@ class RandomIndices {
             }
 
             val nextIdx = findNextIdx(baseIdx)
-            addToRes(nextIdx, soFarRes)
+            nextIdx::soFarRes
         }
+        res.foreach(idx => lastWordsCounts.update(idx, lastWordsCounts(idx) + 1))
 //                pr(s"getRandomIndices.res = $res")
         res
     }
