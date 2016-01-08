@@ -37,11 +37,13 @@ class RandomIndices {
 
             @tailrec
             def findNextIdx(baseIdx: Int): Int = {
-                val res = (elemsCnt + baseIdx + calcShift(baseIdx)) % elemsCnt
+                val res = (
+                        elemsCnt + baseIdx + RandomIndices.calcShift(baseIdx, lastWordsCounts, generalRnd.nextDouble())
+                    ) % elemsCnt
                 if (!soFarRes.contains(res)) {
                     res
                 } else {
-                    findNextIdx(res)
+                    findNextIdx((res + step) % elemsCnt)
                 }
             }
 
@@ -50,29 +52,6 @@ class RandomIndices {
         }
         firstWordRnd.removeFromBuffer(res)
 //                pr(s"getRandomIndices.res = $res")
-        res
-    }
-
-    private def calcShift(baseIdx: Int): Int = {
-        val leftIdx = if (baseIdx > 0) baseIdx - 1 else lastWordsCounts.length - 1
-        val rightIdx = if (baseIdx < lastWordsCounts.length - 1) baseIdx + 1 else 0
-        val sumCnt = (lastWordsCounts(leftIdx) + lastWordsCounts(baseIdx) + lastWordsCounts(rightIdx)).toDouble
-        val leftShiftPct = (1 - lastWordsCounts(leftIdx) / sumCnt) / 2
-        val rightShiftPct = 1 - (1 - lastWordsCounts(rightIdx) / sumCnt) / 2
-        val shiftPot = generalRnd.nextDouble()
-//        pr(s"($leftIdx) -> ${lastWordsCounts(leftIdx)}, ($baseIdx) -> ${lastWordsCounts(baseIdx)} ($rightIdx) -> ${lastWordsCounts(rightIdx)}")
-//        pr(s"sumCnt = $sumCnt")
-//        pr(s"leftShiftPct = $leftShiftPct")
-//        pr(s"rightShiftPct = $rightShiftPct")
-//        pr(s"shiftPot = $shiftPot")
-        val res = if (shiftPot < leftShiftPct) {
-            -1
-        } else if (shiftPot > rightShiftPct) {
-            1
-        } else {
-            0
-        }
-//        pr(s"calcShift.res = $res")
         res
     }
 
@@ -94,5 +73,31 @@ class RandomIndices {
             }
         }
         findBestIndices(10, getRandomIndices(words.length, pct))
+    }
+
+    def getLastWordsCounts: List[Int] = lastWordsCounts.toList
+}
+
+object RandomIndices {
+    protected[learnpl2] def calcShift(baseIdx: Int, lastWordsCounts: ListBuffer[Int], shiftPot: Double): Int = {
+        val leftIdx = if (baseIdx > 0) baseIdx - 1 else lastWordsCounts.length - 1
+        val rightIdx = if (baseIdx < lastWordsCounts.length - 1) baseIdx + 1 else 0
+        val sumCnt = (lastWordsCounts(leftIdx) + lastWordsCounts(baseIdx) + lastWordsCounts(rightIdx)).toDouble
+        val leftShiftPct = (1 - lastWordsCounts(leftIdx) / sumCnt) / 2
+        val rightShiftPct = 1 - (1 - lastWordsCounts(rightIdx) / sumCnt) / 2
+        //        pr(s"($leftIdx) -> ${lastWordsCounts(leftIdx)}, ($baseIdx) -> ${lastWordsCounts(baseIdx)} ($rightIdx) -> ${lastWordsCounts(rightIdx)}")
+        //        pr(s"sumCnt = $sumCnt")
+        //        pr(s"leftShiftPct = $leftShiftPct")
+        //        pr(s"rightShiftPct = $rightShiftPct")
+        //        pr(s"shiftPot = $shiftPot")
+        val res = if (shiftPot < leftShiftPct) {
+            -1
+        } else if (shiftPot > rightShiftPct) {
+            1
+        } else {
+            0
+        }
+        //        pr(s"calcShift.res = $res")
+        res
     }
 }
