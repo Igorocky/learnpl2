@@ -14,6 +14,7 @@ class Rnd {
 //        pr(s"buf.size = ${buf.size}, bound = $bound, lastBound = $lastBound")
         if (buf.isEmpty || lastBound != bound) {
             lastBound = bound
+            buf.clear()
             buf ++= 0 until bound
             for (i <- 1 to bound*5) {
                 buf += buf.remove(rnd.nextInt(buf.size))
@@ -23,4 +24,12 @@ class Rnd {
 //        pr(s"nextInt.res = $res")
         res
     }
+
+    def removeFromBuffer(nums: List[Int]): Unit = {
+        if (buf.nonEmpty) {
+            buf --= nums
+        }
+    }
+
+    def getBuffer = buf.toList
 }

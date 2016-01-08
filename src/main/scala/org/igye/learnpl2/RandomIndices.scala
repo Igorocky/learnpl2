@@ -25,14 +25,18 @@ class RandomIndices {
 //                pr(s"resLength = $resLength")
         val step = List(math.round(elemsCnt.toDouble / resLength).toInt).map(n => if (n == 0) 1 else n).apply(0)
 //                pr(s"step = $step")
-        var currIdx = firstWordRnd.nextInt(elemsCnt)
-//                pr(s"currIdx = $currIdx")
-        val res = (1 to resLength).map{n =>
-            val baseIdx = (currIdx + step) % elemsCnt
-            currIdx = (elemsCnt + baseIdx + calcShift(baseIdx)) % elemsCnt
-            lastWordsCounts.update(currIdx, lastWordsCounts(currIdx) + 1)
-            currIdx
-        }.toList
+        def addToRes(idx: Int, soFarRes: List[Int]): List[Int] = {
+            lastWordsCounts.update(idx, lastWordsCounts(idx) + 1)
+            idx::soFarRes
+        }
+        val res = (2 to resLength).foldLeft(addToRes(firstWordRnd.nextInt(elemsCnt), Nil)) {(res, step) =>
+            val baseIdx = (res.head + step) % elemsCnt
+            addToRes(
+                (elemsCnt + baseIdx + calcShift(baseIdx)) % elemsCnt,
+                res
+            )
+        }
+        firstWordRnd.removeFromBuffer(res)
 //                pr(s"getRandomIndices.res = $res")
         res
     }
