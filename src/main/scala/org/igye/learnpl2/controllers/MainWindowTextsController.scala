@@ -124,7 +124,7 @@ class MainWindowTextsController extends Initable {
 
     private val repeatAction = new Action {
         override val description: String = "Repeat"
-        setShortcut(Shortcut(CONTROL, R))
+        setShortcut(Shortcut(F5))
         enabled <== Expr(model.currState){
             model.currState.get == TEXT_WITH_INPUTS
         }

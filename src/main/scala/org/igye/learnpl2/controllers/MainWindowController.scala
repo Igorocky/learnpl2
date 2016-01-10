@@ -54,4 +54,9 @@ class MainWindowController extends Window with Initable {
         Action.bind(textAction, textBtn)
         JfxUtils.bindActionsToSceneProp(rootNode.sceneProperty(), actions)
     }
+
+    override def open(): Unit = {
+        super.open()
+        textAction.trigger()
+    }
 }
