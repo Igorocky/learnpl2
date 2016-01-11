@@ -64,6 +64,8 @@ class MainWindowTextsController extends Initable {
     @FXML
     protected var exitBtn: Button = _
     @FXML
+    protected var resetCountersBtn: Button = _
+    @FXML
     protected var sentenceIdxTextField: TextField = _
     @FXML
     protected var minMaxLbl: Label = _
@@ -181,6 +183,17 @@ class MainWindowTextsController extends Initable {
         }
     }
 
+    private val resetCountersAction = new Action {
+        override val description: String = "Reset counters"
+        setShortcut(Shortcut(CONTROL, R))
+        enabled <== Expr(model.currState){
+            model.currState.get() != NOT_LOADED
+        }
+        override protected def onAction(): Unit = {
+            model.resetCounters()
+        }
+    }
+
     private val settingsAction = new Action {
         override val description: String = "Open settings dialog"
         setShortcut(Shortcut(ALT, S))
@@ -227,6 +240,7 @@ class MainWindowTextsController extends Initable {
         ,backAction
         ,settingsAction
         ,exitAction
+        ,resetCountersAction
         ,gotoAction
     )
 
@@ -244,6 +258,7 @@ class MainWindowTextsController extends Initable {
         require(translateBtn != null)
         require(settingsBtn != null)
         require(exitBtn != null)
+        require(resetCountersBtn != null)
         require(sentenceIdxTextField != null)
         require(minMaxLbl != null)
 
@@ -262,6 +277,7 @@ class MainWindowTextsController extends Initable {
         Action.bind(backAction, backBtn)
         Action.bind(settingsAction, settingsBtn)
         Action.bind(exitAction, exitBtn)
+        Action.bind(resetCountersAction, resetCountersBtn)
         JfxUtils.bindActionsToSceneProp(rootPane.sceneProperty(), actions)
     }
 

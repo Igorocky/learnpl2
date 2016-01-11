@@ -24,4 +24,5 @@ trait MainWindowModel {
     def gotoNextWordToBeEnteredOrSwitchToNextSentence()
     def selectNextWord(step: Int): Unit
     def focusWord(word: Word)
+    def resetCounters()
 }

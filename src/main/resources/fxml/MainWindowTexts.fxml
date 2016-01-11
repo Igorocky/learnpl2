@@ -32,6 +32,7 @@
                       <Separator/>
                       <FlowPane prefWidth="${mainTab.width}" >
                           <Label fx:id="minMaxLbl"/>
+                          <Button fx:id="resetCountersBtn" mnemonicParsing="false" text="Reset counters" />
                       </FlowPane>
                       <Separator/>
                       <FlowPane fx:id="textFlow" prefHeight="200.0" prefWidth="${mainTab.width}" style="-fx-font-size: 20px" />

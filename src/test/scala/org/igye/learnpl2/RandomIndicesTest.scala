@@ -10,10 +10,10 @@ class RandomIndicesTest {
     @Test
     def testGetRandomIndicesLength(): Unit = {
         val rnd = new RandomIndices
-        assertEquals(3, rnd.getRandomIndices(9, 30).size)
-        assertEquals(2, rnd.getRandomIndices(8, 30).size)
-        assertEquals(1, rnd.getRandomIndices(15, 0).size)
-        assertEquals(73, rnd.getRandomIndices(73, 100).size)
+        assertEquals(3, rnd.getRandomIndices(9, 30, 1).size)
+        assertEquals(2, rnd.getRandomIndices(8, 30, 1).size)
+        assertEquals(1, rnd.getRandomIndices(15, 0, 1).size)
+        assertEquals(73, rnd.getRandomIndices(73, 100, 1).size)
     }
 
     @Test
@@ -34,7 +34,7 @@ class RandomIndicesTest {
         }
 
         for (i <- 1 to 100) {
-            val inds = new RandomIndices().getRandomIndices(elemsCnt, 15).reverse
+            val inds = new RandomIndices().getRandomIndices(elemsCnt, 15, 1).reverse
             assertEquals(150, inds.length)
             val (min, max) = findMinMaxDif(inds.take(inds.length - 15))
             assertEquals(6, min)
@@ -46,7 +46,7 @@ class RandomIndicesTest {
     def testGetRandomIndicesUniqueness(): Unit = {
         val rnd = new RandomIndices
         for (i <- 1 to 100) {
-            val res = rnd.getRandomIndices(10, 35)
+            val res = rnd.getRandomIndices(10, 35, 1)
             assertEquals(4, res.length)
             assertEquals(res.length, res.toSet.size)
         }
@@ -144,7 +144,7 @@ class RandomIndicesTest {
             if (level <= 0) {
                 acumRes
             } else {
-                val idxs = rnd.getRandomIndices(elemsCnt, pct)
+                val idxs = rnd.getRandomIndices(elemsCnt, pct, 1)
                 val buf = rnd.getLastWordsCounts
 //                println("------------------------------------------------------------------")
 //                println(s"idxs = $idxs")

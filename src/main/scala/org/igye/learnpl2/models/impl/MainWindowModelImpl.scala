@@ -135,7 +135,6 @@ class MainWindowModelImpl extends MainWindowModel {
             currSentenceIdx.set(sentenceIdx)
             currSentence.foreach(resetWord)
             currState.set(ONLY_TEXT)
-            minMax.set((0,0))
         }
     }
 
@@ -162,7 +161,8 @@ class MainWindowModelImpl extends MainWindowModel {
             val hidableWords = currSentence.filter(_.hiddable).toList
             rndIndices.getRandomIndices(
                 hidableWords.length,
-                Settings.probabilityPercent
+                Settings.probabilityPercent,
+                text.get.apply(currSentenceIdx.get).hashCode()
             ).foreach(hidableWords(_).hidden.set(true))
             minMax.set(rndIndices.getMinMax)
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
@@ -204,7 +204,6 @@ class MainWindowModelImpl extends MainWindowModel {
         text = None
         currState.set(NOT_LOADED)
         currSentenceIdx.set(-1)
-        minMax.set((0,0))
     }
 
     override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {
@@ -272,5 +271,10 @@ class MainWindowModelImpl extends MainWindowModel {
         currSentence.foreach(_.awaitingUserInput.set(false))
         word.awaitingUserInput.set(true)
         selectWord(word)
+    }
+
+    override def resetCounters(): Unit = {
+        rndIndices.resetCounters()
+        minMax.set((0, 0))
     }
 }

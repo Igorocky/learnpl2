@@ -10,10 +10,12 @@ class RandomIndices {
     import RandomIndices._
 
     private var lastWordsCounts = List[Int]()
+    private var lastHash = 0L
 
-    def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
-        if (elemsCnt != lastWordsCounts.length) {
+    def getRandomIndices(elemsCnt: Int, pct: Int, hash: Long): List[Int] = {
+        if (elemsCnt != lastWordsCounts.length || hash != lastHash) {
             lastWordsCounts = (1 to elemsCnt).map(i => 0).toList
+            lastHash = hash
         }
         val res = (if (pct <= 50) {
             getRandomIndicesUnder50(elemsCnt, pct, lastWordsCounts)
@@ -28,12 +30,12 @@ class RandomIndices {
         res
     }
 
-    def findSuitableIndices(words: List[Word], pct: Int): List[Int] = {
+    def findSuitableIndices(words: List[Word], pct: Int, hash: Long): List[Int] = {
         def findBestIndices(num: Int, bestIndices: List[Int], avgForBest: Option[Double] = None): List[Int] = {
             if (num == 0) {
                 bestIndices
             } else {
-                val cand = getRandomIndices(words.length, pct)
+                val cand = getRandomIndices(words.length, pct, hash)
                 val avgForBestDbl = avgForBest.getOrElse{
                     bestIndices.map(words(_).text.length).sum.toDouble/bestIndices.length
                 }
@@ -45,12 +47,16 @@ class RandomIndices {
                 }
             }
         }
-        findBestIndices(10, getRandomIndices(words.length, pct))
+        findBestIndices(10, getRandomIndices(words.length, pct, hash))
     }
 
     def getLastWordsCounts: List[Int] = lastWordsCounts
 
     def getMinMax = (lastWordsCounts.min, lastWordsCounts.max)
+
+    def resetCounters() {
+        lastWordsCounts = List(0)
+    }
 }
 
 object RandomIndices {
