@@ -5,8 +5,8 @@ import javafx.collections.FXCollections
 
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
-import org.igye.jfxutils.Implicits.{observableValueToObservableValueOperators, propertyToPropertyOperators}
-import org.igye.jfxutils.properties.{ChgListener, Expr}
+import org.igye.jfxutils.Implicits.observableValueToObservableValueOperators
+import org.igye.jfxutils.properties.ChgListener
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
@@ -20,6 +20,8 @@ class MainWindowModelImpl extends MainWindowModel {
     private val spellCheckerLog = Some(LogManager.getLogger("spellChecker"))
 
     override val currState: ObjectProperty[State] = new SimpleObjectProperty(NOT_LOADED)
+
+    override val minMax: SimpleObjectProperty[(Int, Int)] = new SimpleObjectProperty((0, 0))
 
     private var text: Option[List[List[WordImpl]]] = None
     val currSentenceIdx = new SimpleIntegerProperty(-1)
@@ -133,6 +135,7 @@ class MainWindowModelImpl extends MainWindowModel {
             currSentenceIdx.set(sentenceIdx)
             currSentence.foreach(resetWord)
             currState.set(ONLY_TEXT)
+            minMax.set((0,0))
         }
     }
 
@@ -161,6 +164,7 @@ class MainWindowModelImpl extends MainWindowModel {
                 hidableWords.length,
                 Settings.probabilityPercent
             ).foreach(hidableWords(_).hidden.set(true))
+            minMax.set(rndIndices.getMinMax)
             currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
             currState.set(TEXT_WITH_INPUTS)
             if (currSentence.find(_.hidden.get).isEmpty) {
@@ -200,6 +204,7 @@ class MainWindowModelImpl extends MainWindowModel {
         text = None
         currState.set(NOT_LOADED)
         currSentenceIdx.set(-1)
+        minMax.set((0,0))
     }
 
     override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {

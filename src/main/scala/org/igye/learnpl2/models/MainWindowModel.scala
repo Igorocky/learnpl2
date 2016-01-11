@@ -10,6 +10,7 @@ trait MainWindowModel {
     val currSentence: ObservableList[Word]
     val currSentenceIdx: IntegerProperty
     val selectedWord: ObjectProperty[Option[Word]]
+    val minMax: ObjectProperty[(Int, Int)]
 
     def setText(text: String, caretPosition: Int)
     def selectionRange: (Int, Int)

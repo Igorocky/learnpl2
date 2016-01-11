@@ -149,14 +149,15 @@ class RandomIndicesTest {
 //                println("------------------------------------------------------------------")
 //                println(s"idxs = $idxs")
 //                println(s"buf = $buf")
-                val (min1, max1) = findMinMax(buf)
-                val (min, max) = (min1 - 1, max1 - 1)
+                val (min, max) = findMinMax(buf)
                 val dif = max - min
 //                println(s"MinMax = ${(min, max)}, dif = $dif (${dif/max.toDouble*100}%)")
                 assertEquals(elemsCnt, buf.length)
+                assertEquals(min, rnd.getMinMax._1)
+                assertEquals(max, rnd.getMinMax._2)
                 if (prevBuf.isEmpty) {
                     assertTrue(buf.zipWithIndex.forall{case (c,i) =>
-                        if (idxs.contains(i)) c == 2 else c == 1
+                        if (idxs.contains(i)) c == 1 else c == 0
                     })
                 } else {
                     assertTrue(buf.zipWithIndex.forall{case (c,i) =>

@@ -11,7 +11,7 @@
            <content>
                <VBox>
                   <children>
-                      <FlowPane>
+                      <FlowPane prefWidth="${mainTab.width}">
                           <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                           </padding>
@@ -29,6 +29,11 @@
                             <TextField fx:id="sentenceIdxTextField" prefHeight="25.0" prefWidth="50.0" />
                          </children>
                       </FlowPane>
+                      <Separator/>
+                      <FlowPane prefWidth="${mainTab.width}" >
+                          <Label fx:id="minMaxLbl"/>
+                      </FlowPane>
+                      <Separator/>
                       <FlowPane fx:id="textFlow" prefHeight="200.0" prefWidth="${mainTab.width}" style="-fx-font-size: 20px" />
                   </children>
                </VBox>

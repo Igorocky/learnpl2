@@ -13,7 +13,7 @@ class RandomIndices {
 
     def getRandomIndices(elemsCnt: Int, pct: Int): List[Int] = {
         if (elemsCnt != lastWordsCounts.length) {
-            lastWordsCounts = (1 to elemsCnt).map(i => 1).toList
+            lastWordsCounts = (1 to elemsCnt).map(i => 0).toList
         }
         val res = (if (pct <= 50) {
             getRandomIndicesUnder50(elemsCnt, pct, lastWordsCounts)
@@ -49,6 +49,8 @@ class RandomIndices {
     }
 
     def getLastWordsCounts: List[Int] = lastWordsCounts
+
+    def getMinMax = (lastWordsCounts.min, lastWordsCounts.max)
 }
 
 object RandomIndices {

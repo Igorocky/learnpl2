@@ -65,6 +65,8 @@ class MainWindowTextsController extends Initable {
     protected var exitBtn: Button = _
     @FXML
     protected var sentenceIdxTextField: TextField = _
+    @FXML
+    protected var minMaxLbl: Label = _
 
     private val loadTextController: LoadTextController = FxmlSupport.load[LoadTextController]
     private val userSettingsController: UserSettingsController = FxmlSupport.load[UserSettingsController]
@@ -243,6 +245,7 @@ class MainWindowTextsController extends Initable {
         require(settingsBtn != null)
         require(exitBtn != null)
         require(sentenceIdxTextField != null)
+        require(minMaxLbl != null)
 
         bindModel()
 
@@ -306,6 +309,9 @@ class MainWindowTextsController extends Initable {
             } else {
                 sentenceIdxTextField.setText("")
             }
+        }
+        minMaxLbl.textProperty() <== Expr(model.minMax){
+            s"min, max = ${model.minMax.get()}"
         }
     }
 
