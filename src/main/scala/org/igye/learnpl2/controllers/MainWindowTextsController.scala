@@ -340,7 +340,8 @@ class MainWindowTextsController extends Initable {
     }
 
     private def createTextElem(word: Word): Label with ParentHasWord = {
-        val textElem = new Label(word.text) with ParentHasWord
+        val normalizedText = word.text.replaceAllLiterally("\n", "").replaceAllLiterally("\r", "")
+        val textElem = new Label(normalizedText) with ParentHasWord
         textElem.textFillProperty() <== Expr(word.mouseEntered) {
             if (word.mouseEntered.get) Color.BLUE else getWordColor(word)
         }
@@ -359,7 +360,7 @@ class MainWindowTextsController extends Initable {
         textField.hnd(KeyEvent.KEY_PRESSED){e =>
             if (e.getCode == ENTER) {
                 if (textField.getText != textField.getWord.getUserInput.getOrElse(null)) {
-                    textField.getWord.setUserInput(textField.getText)
+                    textField.getWord.setUserInput(textField.getText.trim)
                 }
                 model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
             }

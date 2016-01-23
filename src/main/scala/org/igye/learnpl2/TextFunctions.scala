@@ -27,7 +27,7 @@ object TextFunctions {
     }
 
     def checkUserInput(expectedText: String, userInput: String, log: Option[Logger]) = {
-        val res = expectedText == userInput
+        val res = expectedText.trim == userInput.trim
         if (log.isDefined) {
             log.get.info(s"checkUserInput: expectedText = '$expectedText', userInput = '$userInput', checkUserInput.res = $res")
         }
