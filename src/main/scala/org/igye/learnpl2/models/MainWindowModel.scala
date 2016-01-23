@@ -20,6 +20,7 @@ trait MainWindowModel {
     def getWordUnderFocus: Option[Word]
     def next(): Unit
     def nextSentence(): Unit
+    def refreshHiddenWords(): Unit
     def setRandomOrderOfSentences(random: Boolean): Unit
     def setSkipReadingStage(skipReadingStage: Boolean): Unit
     def back(): Unit

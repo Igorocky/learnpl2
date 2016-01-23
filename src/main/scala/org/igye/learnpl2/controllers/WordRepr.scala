@@ -34,6 +34,7 @@ class WordRepr(val word: Word, val textElem: Label with ParentHasWord, val editE
     private def setContent(): Unit = {
         getChildren.clear()
         if (showTextField.get()) {
+            editElem.get.setText("")
             getChildren.add(editElem.get)
             prefWidthProperty() <== editElem.get.widthProperty()
             prefHeightProperty() <== editElem.get.heightProperty()

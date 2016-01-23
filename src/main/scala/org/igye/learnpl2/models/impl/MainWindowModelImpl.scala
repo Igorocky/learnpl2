@@ -186,20 +186,28 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def next(): Unit = {
         if (currState.get() == ONLY_TEXT) {
-            val hidableWords = currSentence.filter(_.hiddable).toList
-            rndIndices.getRandomIndices(
-                hidableWords.length,
-                Settings.probabilityPercent,
-                text.get.apply(currSentenceIdx.get).hashCode()
-            ).foreach(hidableWords(_).hidden.set(true))
-            minMax.set(rndIndices.getMinMax)
-            currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
+            hideWordsOfCurrentSentence()
             currState.set(TEXT_WITH_INPUTS)
-            if (currSentence.find(_.hidden.get).isEmpty) {
-                next()
-            }
         } else if (currState.get() == TEXT_WITH_INPUTS) {
             nextSentence()
+        }
+    }
+
+    private def hideWordsOfCurrentSentence(): Unit = {
+        currSentence.foreach(resetWord)
+        val hidableWords = currSentence.filter(_.hiddable).toList
+        rndIndices.getRandomIndices(
+            hidableWords.length,
+            Settings.probabilityPercent,
+            text.get.apply(currSentenceIdx.get).hashCode()
+        ).foreach(hidableWords(_).hidden.set(true))
+        minMax.set(rndIndices.getMinMax)
+        currSentence.find(_.hidden.get()).foreach(_.awaitingUserInput.set(true))
+    }
+
+    override def refreshHiddenWords(): Unit = {
+        if (currState.get() == TEXT_WITH_INPUTS) {
+            hideWordsOfCurrentSentence()
         }
     }
 

@@ -133,8 +133,7 @@ class MainWindowTextsController extends Initable {
             model.currState.get == TEXT_WITH_INPUTS
         }
         override protected def onAction(): Unit = {
-            backAction.trigger()
-            nextAction.trigger()
+            model.refreshHiddenWords()
         }
     }
 
