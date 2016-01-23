@@ -15,7 +15,7 @@ object TextFunctions {
         sentenceDelimiter.split(text).toList
     }
 
-    val borderSymbol = """[\s\r\n,:;\."\(\)\[\]\\/!?\u2026\u201E\u201D]"""
+    val borderSymbol = """[\s\r\n,:;\."\(\)\[\]\\/!?\*\u2026\u201E\u201D]"""
     val sentencePartsDelimiter = ("((?<=" + borderSymbol + ")(?!" + borderSymbol + "))|((?<!" + borderSymbol + ")(?=" + borderSymbol + "))").r
     def splitSentenceOnParts(sentence: String) = {
         sentencePartsDelimiter.split(sentence).toList

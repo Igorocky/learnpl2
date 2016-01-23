@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.{LogManager, Logger}
 import org.igye.jfxutils.Implicits.observableValueToObservableValueOperators
 import org.igye.jfxutils.properties.ChgListener
+import org.igye.learnpl2.TextFunctions.{splitSentenceOnParts, splitTextOnSentences}
 import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
@@ -49,11 +50,7 @@ class MainWindowModelImpl extends MainWindowModel {
         if (caretPosition > 0) {
             selectWordByCaretPosition(caretPosition)
         }
-        if (randomOrderOfSentences) {
-            currSentenceIdx.set(rndForSentenceIndex.nextInt(this.text.get.size))
-        } else {
-            currSentenceIdx.set(getSentenceWithCaretIdxOrZero(caretPosition))
-        }
+        currSentenceIdx.set(getSentenceWithCaretIdxOrZero(caretPosition))
         goToSentence(currSentenceIdx.get())
     }
 
@@ -124,9 +121,20 @@ class MainWindowModelImpl extends MainWindowModel {
     }
 
     private def parseText(text: String): List[List[WordImpl]] = {
-        TextFunctions.splitTextOnSentences(text).map(TextFunctions.splitSentenceOnParts(_).map{wordText =>
-            new WordImpl(wordText, TextFunctions.isHiddable(wordText))
-        })
+        splitTextOnSentences(text).map{sentence =>
+            splitSentenceOnParts(sentence).foldLeft((List[WordImpl](), false)){
+                case ((soFarRes, inComment), wordText) =>
+                    val trimmedWordText = wordText.trim
+                    val (isHiddable, inCommentNew) = if ("/*" == trimmedWordText) {
+                        (false, true)
+                    } else if ("*/" == trimmedWordText) {
+                        (false, false)
+                    } else {
+                        (!inComment && TextFunctions.isHiddable(wordText), inComment)
+                    }
+                    (soFarRes:::(new WordImpl(wordText, isHiddable))::Nil, inCommentNew)
+            }._1
+        }
     }
 
     private def resetWord(word: Word): Unit = {

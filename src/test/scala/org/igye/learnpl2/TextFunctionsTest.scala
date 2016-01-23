@@ -116,6 +116,14 @@ class TextFunctionsTest {
     }
 
     @Test
+    def splitSentenceOnPartsTest5(): Unit = {
+        val parts = TextFunctions.splitSentenceOnParts("/*Word1*/")
+        Assert.assertEquals("/*", parts(0))
+        Assert.assertEquals("Word1", parts(1))
+        Assert.assertEquals("*/", parts(2))
+    }
+
+    @Test
     def checkUserInputTest(): Unit = {
         Assert.assertTrue(TextFunctions.checkUserInput("abc", "abc", None))
         Assert.assertFalse(TextFunctions.checkUserInput("abc", "mnk", None))
