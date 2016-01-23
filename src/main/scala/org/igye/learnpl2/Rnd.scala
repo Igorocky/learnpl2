@@ -32,4 +32,6 @@ class Rnd {
     }
 
     def getBuffer = buf.toList
+
+    def refresh() = lastBound = -1
 }

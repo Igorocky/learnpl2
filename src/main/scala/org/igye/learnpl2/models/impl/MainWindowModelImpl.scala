@@ -11,7 +11,7 @@ import org.igye.learnpl2.controllers.State
 import org.igye.learnpl2.controllers.State._
 import org.igye.learnpl2.models.{MainWindowModel, Word}
 import org.igye.learnpl2.settings.Settings
-import org.igye.learnpl2.{RandomIndices, TextFunctions}
+import org.igye.learnpl2.{Rnd, RandomIndices, TextFunctions}
 
 import scala.collection.JavaConversions._
 
@@ -27,6 +27,10 @@ class MainWindowModelImpl extends MainWindowModel {
     val currSentenceIdx = new SimpleIntegerProperty(-1)
     def sentenceCount: Int = text.map(_.length).getOrElse(0)
 
+    private var randomOrderOfSentences = false
+    private val rndForSentenceIndex = new Rnd
+    private var skipReadingStage = false
+
     override val currSentence = FXCollections.observableArrayList[Word]()
 
     private val rndIndices = new RandomIndices
@@ -41,10 +45,15 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def setText(text: String, caretPosition: Int): Unit = {
         this.text = Some(parseText(text))
+        rndForSentenceIndex.refresh()
         if (caretPosition > 0) {
             selectWordByCaretPosition(caretPosition)
         }
-        currSentenceIdx.set(getSentenceWithCaretIdxOrZero(caretPosition))
+        if (randomOrderOfSentences) {
+            currSentenceIdx.set(rndForSentenceIndex.nextInt(this.text.get.size))
+        } else {
+            currSentenceIdx.set(getSentenceWithCaretIdxOrZero(caretPosition))
+        }
         goToSentence(currSentenceIdx.get())
     }
 
@@ -135,6 +144,9 @@ class MainWindowModelImpl extends MainWindowModel {
             currSentenceIdx.set(sentenceIdx)
             currSentence.foreach(resetWord)
             currState.set(ONLY_TEXT)
+            if (skipReadingStage) {
+                next()
+            }
         }
     }
 
@@ -154,6 +166,14 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def getWordUnderFocus: Option[Word] = {
         currSentence.find(_.awaitingUserInput.get)
+    }
+
+    override def setRandomOrderOfSentences(random: Boolean): Unit = {
+        randomOrderOfSentences = random
+    }
+
+    override def setSkipReadingStage(skipReadingStage: Boolean): Unit = {
+        this.skipReadingStage = skipReadingStage
     }
 
     override def next(): Unit = {
@@ -177,11 +197,16 @@ class MainWindowModelImpl extends MainWindowModel {
 
     override def nextSentence(): Unit = {
         if (currState.get() != NOT_LOADED) {
-            if (currSentenceIdx.get() < text.get.size - 1) {
-                currSentenceIdx.set(currSentenceIdx.get() + 1)
+            if (randomOrderOfSentences) {
+                currSentenceIdx.set(rndForSentenceIndex.nextInt(text.get.size))
                 goToSentence(currSentenceIdx.get())
             } else {
-                gotoNotLoadedState()
+                if (currSentenceIdx.get() < text.get.size - 1) {
+                    currSentenceIdx.set(currSentenceIdx.get() + 1)
+                    goToSentence(currSentenceIdx.get())
+                } else {
+                    gotoNotLoadedState()
+                }
             }
         }
     }

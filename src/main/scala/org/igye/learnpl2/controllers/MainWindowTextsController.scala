@@ -303,6 +303,8 @@ class MainWindowTextsController extends Initable {
 
     private def initLoadTextController(): Unit = {
         loadTextController.onLoadButtonPressed = ()=>{
+            model.setRandomOrderOfSentences(Settings.randomOrderOfSentences)
+            model.setSkipReadingStage(Settings.skipReadingStage)
             model.setText(loadTextController.model.text.get(), loadTextController.model.caretPosition.get())
             loadTextController.close()
         }

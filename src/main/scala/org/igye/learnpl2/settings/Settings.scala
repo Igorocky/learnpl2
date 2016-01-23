@@ -29,6 +29,16 @@ object Settings {
         userSettings.probabilityPercent = newVal
     }
 
+    def randomOrderOfSentences = userSettings.randomOrderOfSentences
+    def randomOrderOfSentences_=(newVal: Boolean) = {
+        userSettings.randomOrderOfSentences = newVal
+    }
+
+    def skipReadingStage = userSettings.skipReadingStage
+    def skipReadingStage_=(newVal: Boolean) = {
+        userSettings.skipReadingStage = newVal
+    }
+
     def loadAppSettings(): Unit = {
         if (appSettingsFile.exists()) {
             appSettings = JaxbSupport.unmarshal[AppSettings](appSettingsFile)

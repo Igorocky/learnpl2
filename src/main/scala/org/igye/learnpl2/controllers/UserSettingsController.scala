@@ -43,6 +43,10 @@ class UserSettingsController extends Window with Initable {
     @FXML
     protected var probabilityTextField: TextField = _
     @FXML
+    protected var randomOrderChbx: CheckBox = _
+    @FXML
+    protected var skipReadingStageChbx: CheckBox = _
+    @FXML
     protected var closeBtn: Button = _
     @FXML
     protected var saveAsBtn: Button = _
@@ -154,6 +158,8 @@ class UserSettingsController extends Window with Initable {
         require(chooseDirBtn != null)
         require(urlTextField != null)
         require(probabilityTextField != null)
+        require(randomOrderChbx != null)
+        require(skipReadingStageChbx != null)
         require(closeBtn != null)
         require(saveAsBtn != null)
         require(saveBtn != null)
@@ -191,12 +197,16 @@ class UserSettingsController extends Window with Initable {
         dirWithTextsTextField.setText(Settings.directoryWithTexts)
         urlTextField.setText(Settings.urlForTranslation)
         probabilityTextField.setText(Settings.probabilityPercent.toString)
+        randomOrderChbx.setSelected(Settings.randomOrderOfSentences)
+        skipReadingStageChbx.setSelected(Settings.skipReadingStage)
     }
 
     private def readValuesFromUI(): Unit = {
         Settings.directoryWithTexts = dirWithTextsTextField.getText
         Settings.urlForTranslation = urlTextField.getText
         Settings.probabilityPercent = probabilityTextField.getText.toInt
+        Settings.randomOrderOfSentences = randomOrderChbx.isSelected
+        Settings.skipReadingStage = skipReadingStageChbx.isSelected
     }
 
     override def open(): Unit = {
