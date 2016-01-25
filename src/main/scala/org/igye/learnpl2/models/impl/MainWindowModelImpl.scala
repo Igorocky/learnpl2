@@ -125,9 +125,9 @@ class MainWindowModelImpl extends MainWindowModel {
             splitSentenceOnParts(sentence).foldLeft((List[WordImpl](), false)){
                 case ((soFarRes, inComment), wordText) =>
                     val trimmedWordText = wordText.trim
-                    val (isHiddable, inCommentNew) = if ("/*" == trimmedWordText) {
+                    val (isHiddable, inCommentNew) = if (trimmedWordText.contains("/*")) {
                         (false, true)
-                    } else if ("*/" == trimmedWordText) {
+                    } else if (trimmedWordText.contains("*/")) {
                         (false, false)
                     } else {
                         (!inComment && TextFunctions.isHiddable(wordText), inComment)
