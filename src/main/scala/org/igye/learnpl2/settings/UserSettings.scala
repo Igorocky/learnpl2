@@ -14,10 +14,15 @@ class UserSettings {
     var randomOrderOfSentences: Boolean = false
     @XmlElement
     var skipReadingStage: Boolean = false
+    @XmlElement
+    var autoRepeat: Int = 0
 
     def validateAndCorrect(): Unit = {
         if (probabilityPercent < 0 || probabilityPercent > 100) {
             probabilityPercent = 10
+        }
+        if (autoRepeat < 0) {
+            autoRepeat = 0
         }
     }
 }

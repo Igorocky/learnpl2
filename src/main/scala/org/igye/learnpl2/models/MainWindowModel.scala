@@ -24,7 +24,7 @@ trait MainWindowModel {
     def setRandomOrderOfSentences(random: Boolean): Unit
     def setSkipReadingStage(skipReadingStage: Boolean): Unit
     def back(): Unit
-    def gotoNextWordToBeEnteredOrSwitchToNextSentence()
+    def gotoNextWordToBeEnteredOrSwitchToNextSentence(autoRepeat: Int)
     def selectNextWord(step: Int): Unit
     def focusWord(word: Word)
     def resetCounters()

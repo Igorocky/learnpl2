@@ -362,7 +362,7 @@ class MainWindowTextsController extends Initable {
                 if (textField.getText != textField.getWord.getUserInput.getOrElse(null)) {
                     textField.getWord.setUserInput(textField.getText.trim)
                 }
-                model.gotoNextWordToBeEnteredOrSwitchToNextSentence()
+                model.gotoNextWordToBeEnteredOrSwitchToNextSentence(Settings.autoRepeat)
             }
         }
         textField.focusedProperty() ==> ChgListener {chg=>

@@ -39,6 +39,7 @@ class MainWindowModelImpl extends MainWindowModel {
     override val selectedWord: ObjectProperty[Option[Word]] = new SimpleObjectProperty[Option[Word]](None)
     currSentenceIdx ==> ChgListener{chg=>
         selectedWord.set(None)
+        resetCounters()
     }
     currState ==> ChgListener{chg=>
         selectedWord.set(None)
@@ -247,7 +248,7 @@ class MainWindowModelImpl extends MainWindowModel {
         currSentenceIdx.set(-1)
     }
 
-    override def gotoNextWordToBeEnteredOrSwitchToNextSentence(): Unit = {
+    override def gotoNextWordToBeEnteredOrSwitchToNextSentence(autoRepeat: Int): Unit = {
         if (currState.get() != NOT_LOADED) {
             val curWord = currSentence.find(_.awaitingUserInput.get)
             currSentence.foreach(_.awaitingUserInput.set(false))
@@ -272,7 +273,11 @@ class MainWindowModelImpl extends MainWindowModel {
                 if (firstIncorrectWord.isDefined) {
                     firstIncorrectWord.get.awaitingUserInput.set(true)
                 } else if (!thereWereUncheckedWords) {
-                    next()
+                    if (minMax.get()._1 >= autoRepeat) {
+                        next()
+                    } else {
+                        refreshHiddenWords()
+                    }
                 }
             }
         }

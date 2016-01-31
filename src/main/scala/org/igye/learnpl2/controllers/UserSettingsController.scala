@@ -47,6 +47,8 @@ class UserSettingsController extends Window with Initable {
     @FXML
     protected var skipReadingStageChbx: CheckBox = _
     @FXML
+    protected var autoRepeatTextField: TextField = _
+    @FXML
     protected var closeBtn: Button = _
     @FXML
     protected var saveAsBtn: Button = _
@@ -160,6 +162,7 @@ class UserSettingsController extends Window with Initable {
         require(probabilityTextField != null)
         require(randomOrderChbx != null)
         require(skipReadingStageChbx != null)
+        require(autoRepeatTextField != null)
         require(closeBtn != null)
         require(saveAsBtn != null)
         require(saveBtn != null)
@@ -183,6 +186,12 @@ class UserSettingsController extends Window with Initable {
                 probabilityTextField.setText(chg.oldValue)
             }
         }
+        autoRepeatTextField.textProperty() ==> ChgListener{chg=>
+            if (integerPat.findFirstIn(chg.newValue).isEmpty || chg.newValue.toInt < 0) {
+                new Alert(AlertType.ERROR, s"Auto repeat should be integer number not less than 0", ButtonType.OK).showAndWait()
+                autoRepeatTextField.setText(chg.oldValue)
+            }
+        }
     }
 
     private def updateUI(): Unit = {
@@ -199,6 +208,7 @@ class UserSettingsController extends Window with Initable {
         probabilityTextField.setText(Settings.probabilityPercent.toString)
         randomOrderChbx.setSelected(Settings.randomOrderOfSentences)
         skipReadingStageChbx.setSelected(Settings.skipReadingStage)
+        autoRepeatTextField.setText(Settings.autoRepeat.toString)
     }
 
     private def readValuesFromUI(): Unit = {
@@ -207,6 +217,7 @@ class UserSettingsController extends Window with Initable {
         Settings.probabilityPercent = probabilityTextField.getText.toInt
         Settings.randomOrderOfSentences = randomOrderChbx.isSelected
         Settings.skipReadingStage = skipReadingStageChbx.isSelected
+        Settings.autoRepeat = autoRepeatTextField.getText.toInt
     }
 
     override def open(): Unit = {

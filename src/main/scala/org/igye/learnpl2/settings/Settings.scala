@@ -39,6 +39,11 @@ object Settings {
         userSettings.skipReadingStage = newVal
     }
 
+    def autoRepeat = userSettings.autoRepeat
+    def autoRepeat_=(newVal: Integer) = {
+        userSettings.autoRepeat = newVal
+    }
+
     def loadAppSettings(): Unit = {
         if (appSettingsFile.exists()) {
             appSettings = JaxbSupport.unmarshal[AppSettings](appSettingsFile)
