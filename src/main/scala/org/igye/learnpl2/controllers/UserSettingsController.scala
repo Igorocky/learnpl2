@@ -41,6 +41,10 @@ class UserSettingsController extends Window with Initable {
     @FXML
     protected var urlTextField: TextField = _
     @FXML
+    protected var url2TextField: TextField = _
+    @FXML
+    protected var openBothTranslationsChbx: CheckBox = _
+    @FXML
     protected var probabilityTextField: TextField = _
     @FXML
     protected var randomOrderChbx: CheckBox = _
@@ -159,6 +163,8 @@ class UserSettingsController extends Window with Initable {
         require(dirWithTextsTextField != null)
         require(chooseDirBtn != null)
         require(urlTextField != null)
+        require(url2TextField != null)
+        require(openBothTranslationsChbx != null)
         require(probabilityTextField != null)
         require(randomOrderChbx != null)
         require(skipReadingStageChbx != null)
@@ -205,6 +211,8 @@ class UserSettingsController extends Window with Initable {
         }
         dirWithTextsTextField.setText(Settings.directoryWithTexts)
         urlTextField.setText(Settings.urlForTranslation)
+        url2TextField.setText(Settings.urlForTranslation2)
+        openBothTranslationsChbx.setSelected(Settings.openBothTranslations)
         probabilityTextField.setText(Settings.probabilityPercent.toString)
         randomOrderChbx.setSelected(Settings.randomOrderOfSentences)
         skipReadingStageChbx.setSelected(Settings.skipReadingStage)
@@ -214,6 +222,8 @@ class UserSettingsController extends Window with Initable {
     private def readValuesFromUI(): Unit = {
         Settings.directoryWithTexts = dirWithTextsTextField.getText
         Settings.urlForTranslation = urlTextField.getText
+        Settings.urlForTranslation2 = url2TextField.getText
+        Settings.openBothTranslations = openBothTranslationsChbx.isSelected
         Settings.probabilityPercent = probabilityTextField.getText.toInt
         Settings.randomOrderOfSentences = randomOrderChbx.isSelected
         Settings.skipReadingStage = skipReadingStageChbx.isSelected

@@ -9,6 +9,10 @@ class UserSettings {
     @XmlElement
     var urlForTranslation: String = _
     @XmlElement
+    var urlForTranslation2: String = _
+    @XmlElement
+    var openBothTranslations: Boolean = false
+    @XmlElement
     var probabilityPercent: Int = 10
     @XmlElement
     var randomOrderOfSentences: Boolean = false

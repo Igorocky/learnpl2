@@ -5,19 +5,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane fx:id="rootNode" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="418.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.igye.learnpl2.controllers.UserSettingsController">
+<StackPane fx:id="rootNode" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="476.0" prefWidth="660.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.igye.learnpl2.controllers.UserSettingsController">
    <children>
-       <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="418.0" prefWidth="600.0" spacing="5.0">
+       <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="473.0" prefWidth="660.0" spacing="5.0">
            <children>
                <Label fx:id="settsLoadedFromLabel" text="Settings were loaded from:" />
                <Label fx:id="settsLoadedFromPathLabel" text="FILE PATH" />
                <Separator prefWidth="200.0" />
                <Button fx:id="loadFromFileBtn" mnemonicParsing="false" text="Load from file" />
                <Separator prefWidth="200.0" />
-               <GridPane alignment="CENTER_RIGHT" prefHeight="168.0" prefWidth="570.0">
+               <GridPane alignment="CENTER_RIGHT" prefHeight="306.0" prefWidth="630.0">
                    <columnConstraints>
-                       <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="294.0" minWidth="10.0" prefWidth="111.0" />
-                       <ColumnConstraints hgrow="ALWAYS" maxWidth="495.0" minWidth="10.0" prefWidth="430.0" />
+                       <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="294.0" minWidth="10.0" prefWidth="124.0" />
+                       <ColumnConstraints hgrow="ALWAYS" maxWidth="495.0" minWidth="10.0" prefWidth="417.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="495.0" minWidth="10.0" prefWidth="29.0" />
                    </columnConstraints>
                    <rowConstraints>
@@ -27,46 +27,45 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                    </rowConstraints>
                    <children>
-                       <Label alignment="CENTER_RIGHT" labelFor="${dirWithTextsTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="111.0" text="_Directory with texts ">
-                           <GridPane.margin>
-                               <Insets />
-                           </GridPane.margin>
-                       </Label>
-                       <Label alignment="CENTER_RIGHT" labelFor="${urlTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="110.0" text="_URL for translation " GridPane.rowIndex="1">
-                           <GridPane.margin>
-                               <Insets />
-                           </GridPane.margin>
-                       </Label>
-                       <TextField fx:id="dirWithTextsTextField" prefHeight="25.0" prefWidth="406.0" GridPane.columnIndex="1">
-                           <GridPane.margin>
-                               <Insets />
-                           </GridPane.margin>
-                       </TextField>
-                       <TextField fx:id="urlTextField" prefHeight="25.0" prefWidth="535.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                           <GridPane.margin>
-                               <Insets />
-                           </GridPane.margin>
-                       </TextField>
+                       <Label alignment="CENTER_RIGHT" labelFor="${dirWithTextsTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="111.0" text="_Directory with texts " />
+                       <TextField fx:id="dirWithTextsTextField" prefHeight="25.0" prefWidth="406.0" GridPane.columnIndex="1" />
+                       <Label alignment="CENTER_RIGHT" labelFor="${urlTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="122.0" text="_URL for translation 1" textAlignment="RIGHT" GridPane.rowIndex="1">
+                     <padding>
+                        <Insets right="3.0" />
+                     </padding></Label>
+                       <TextField fx:id="urlTextField" prefHeight="25.0" prefWidth="535.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                       <Label alignment="CENTER_RIGHT" mnemonicParsing="true" prefHeight="17.0" prefWidth="129.0" text="URL for translation 2" GridPane.rowIndex="2">
+                     <padding>
+                        <Insets right="3.0" />
+                     </padding></Label>
+                       <TextField fx:id="url2TextField" prefHeight="25.0" prefWidth="404.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                       <Label labelFor="${openBothTranslationsChbx}" mnemonicParsing="true" prefHeight="17.0" prefWidth="134.0" text="_Open both translations" GridPane.rowIndex="3" />
+                       <CheckBox fx:id="openBothTranslationsChbx" mnemonicParsing="false" prefHeight="17.0" prefWidth="12.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Button fx:id="chooseDirBtn" mnemonicParsing="false" onAction="#openChooseDirDialog" prefHeight="25.0" prefWidth="10.0" text="..." GridPane.columnIndex="2">
                      <GridPane.margin>
                         <Insets left="5.0" />
                      </GridPane.margin>
                   </Button>
-                  <Label labelFor="${probabilityTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="78.0" text="_Probability, %" GridPane.rowIndex="2" />
-                  <TextField fx:id="probabilityTextField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-                  <Label labelFor="${randomOrderChbx}" mnemonicParsing="true" prefHeight="17.0" prefWidth="78.0" text="_Random order" GridPane.rowIndex="3" />
-                  <CheckBox fx:id="randomOrderChbx" mnemonicParsing="false" prefHeight="17.0" prefWidth="12.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label labelFor="${skipReadingStageChbx}" mnemonicParsing="true" prefHeight="17.0" prefWidth="104.0" text="_Skip reading stage" GridPane.rowIndex="4" />
-                  <CheckBox fx:id="skipReadingStageChbx" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                       <Label labelFor="${autoRepeatTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="78.0" text="_Auto repeat" GridPane.rowIndex="5" />
-                       <TextField fx:id="autoRepeatTextField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                  <Label labelFor="${probabilityTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="82.0" text="_Probability, %" GridPane.rowIndex="4" />
+                  <TextField fx:id="probabilityTextField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                  <Label alignment="CENTER_RIGHT" labelFor="${randomOrderChbx}" mnemonicParsing="true" prefHeight="17.0" prefWidth="117.0" text="_Random order" textAlignment="RIGHT" GridPane.rowIndex="5">
+                     <padding>
+                        <Insets right="3.0" />
+                     </padding></Label>
+                  <CheckBox fx:id="randomOrderChbx" mnemonicParsing="false" prefHeight="17.0" prefWidth="12.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <Label labelFor="${skipReadingStageChbx}" mnemonicParsing="true" prefHeight="17.0" prefWidth="104.0" text="_Skip reading stage" GridPane.rowIndex="6" />
+                  <CheckBox fx:id="skipReadingStageChbx" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                   <Label labelFor="${autoRepeatTextField}" mnemonicParsing="true" prefHeight="17.0" prefWidth="70.0" text="_Auto repeat" GridPane.rowIndex="7" />
+                   <TextField fx:id="autoRepeatTextField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
                    </children>
                </GridPane>
                <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                <Separator prefWidth="200.0" />
-               <HBox alignment="CENTER_RIGHT" prefHeight="1.0" prefWidth="570.0" spacing="15.0">
+               <HBox alignment="CENTER_RIGHT" prefHeight="36.0" prefWidth="570.0" spacing="15.0">
                    <children>
                        <Button fx:id="closeBtn" mnemonicParsing="false" text="Close" />
                        <Button fx:id="saveAsBtn" mnemonicParsing="false" text="Save as" />

@@ -24,6 +24,7 @@
                              <Button fx:id="selectPrevWordBtn" mnemonicParsing="false" text="SelectPrevWord" />
                              <Button fx:id="selectNextWordBtn" mnemonicParsing="false" text="SelectNextWord" />
                              <Button fx:id="translateBtn" mnemonicParsing="false" text="TranslateSelectedWord" />
+                             <Button fx:id="translate2Btn" mnemonicParsing="false" text="TranslateSelectedWord2" />
                              <Button fx:id="settingsBtn" mnemonicParsing="false" text="Settings" />
                              <Button fx:id="exitBtn" mnemonicParsing="false" text="Exit" />
                             <TextField fx:id="sentenceIdxTextField" prefHeight="25.0" prefWidth="50.0" />

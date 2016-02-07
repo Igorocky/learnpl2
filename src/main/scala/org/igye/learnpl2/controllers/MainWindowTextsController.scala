@@ -60,6 +60,8 @@ class MainWindowTextsController extends Initable {
     @FXML
     protected var translateBtn: Button = _
     @FXML
+    protected var translate2Btn: Button = _
+    @FXML
     protected var settingsBtn: Button = _
     @FXML
     protected var exitBtn: Button = _
@@ -110,7 +112,23 @@ class MainWindowTextsController extends Initable {
             model.selectedWord.get().isDefined
         }
         override protected def onAction(): Unit = {
-            model.selectedWord.get.foreach(w => translateWord(w.text))
+            model.selectedWord.get.foreach(w => translateWord(w.text, Settings.urlForTranslation))
+        }
+    }
+
+    private val translate2Action = new Action {
+        override val description: String = "Translate2"
+        setShortcut(Shortcut(ALT, SHIFT, ENTER))
+        enabled <== Expr(model.selectedWord){
+            model.selectedWord.get().isDefined
+        }
+        override protected def onAction(): Unit = {
+            model.selectedWord.get.foreach{w =>
+                if (Settings.openBothTranslations) {
+                    translateWord(w.text, Settings.urlForTranslation)
+                }
+                translateWord(w.text, Settings.urlForTranslation2)
+            }
         }
     }
 
@@ -233,6 +251,7 @@ class MainWindowTextsController extends Initable {
         ,selectNextWordAction
         ,selectPrevWordAction
         ,translateAction
+        ,translate2Action
         ,nextAction
         ,repeatAction
         ,nextSentenceAction
@@ -255,6 +274,7 @@ class MainWindowTextsController extends Initable {
         require(selectPrevWordBtn != null)
         require(selectNextWordBtn != null)
         require(translateBtn != null)
+        require(translate2Btn != null)
         require(settingsBtn != null)
         require(exitBtn != null)
         require(resetCountersBtn != null)
@@ -270,6 +290,7 @@ class MainWindowTextsController extends Initable {
         Action.bind(selectNextWordAction, selectNextWordBtn)
         Action.bind(selectPrevWordAction, selectPrevWordBtn)
         Action.bind(translateAction, translateBtn)
+        Action.bind(translate2Action, translate2Btn)
         Action.bind(nextAction, nextBtn)
         Action.bind(repeatAction, repeatBtn)
         Action.bind(nextSentenceAction, nextSentenceBtn)
@@ -398,8 +419,8 @@ class MainWindowTextsController extends Initable {
         }
     }
 
-    private def translateWord(word: String): Unit = {
-        Desktop.getDesktop().browse(new URL(Settings.urlForTranslation.replaceAllLiterally("${word}", word)).toURI())
+    private def translateWord(word: String, url: String): Unit = {
+        Desktop.getDesktop().browse(new URL(url.replaceAllLiterally("${word}", word)).toURI())
     }
 
     def getWordHandlers(word: Word): List[EventHandlerInfo[MouseEvent]] = {

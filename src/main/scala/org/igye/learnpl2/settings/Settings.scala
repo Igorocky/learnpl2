@@ -24,6 +24,16 @@ object Settings {
         userSettings.urlForTranslation = newVal
     }
 
+    def urlForTranslation2 = userSettings.urlForTranslation2
+    def urlForTranslation2_=(newVal: String) = {
+        userSettings.urlForTranslation2 = newVal
+    }
+
+    def openBothTranslations = userSettings.openBothTranslations
+    def openBothTranslations_=(newVal: Boolean) = {
+        userSettings.openBothTranslations = newVal
+    }
+
     def probabilityPercent = userSettings.probabilityPercent
     def probabilityPercent_=(newVal: Int) = {
         userSettings.probabilityPercent = newVal
