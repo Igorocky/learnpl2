@@ -118,7 +118,7 @@ class MainWindowTextsController extends Initable {
 
     private val translate2Action = new Action {
         override val description: String = "Translate2"
-        setShortcut(Shortcut(ALT, SHIFT, ENTER))
+        setShortcut(Shortcut(ALT, CONTROL, ENTER))
         enabled <== Expr(model.selectedWord){
             model.selectedWord.get().isDefined
         }
